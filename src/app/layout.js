@@ -1,6 +1,8 @@
 import './globals.css';
 
+// 沒有 metadataBase 的話，alternates 裡的相對網址不會被解析，hreflang 標籤不會產出。
 export const metadata = {
+  metadataBase: new URL('https://xinyi-water-map-theta.vercel.app'),
   title: '信水義河 — 信義社大水文導覽互動地圖',
   description:
     '四條路線、57個站點，帶你走讀台北信義區的水文故事。瑠公圳、永春陂、五分埔支線、三張犁排水系——兩百年的水路記憶，就藏在你每天走過的街道裡。',
