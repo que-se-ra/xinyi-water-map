@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.12.1] - 2026-09-22 - 🔤 - UI - English Header Subtitle Restored to "Waters of Xinyi"
+1. **English header subtitle**: the subtitle beside the 信水義河 wordmark in the header changes from "Water Heritage Map · Xinyi" back to the project's English name, "Waters of Xinyi", matching the page titles and the survey and privacy pages. The Chinese edition is unchanged.
+
 ## [v1.12.0] - 2026-09-21 - 🌐 - FEATURE - An English Edition at /en: A Fully Translated Bilingual Site with Language Switching
 1. **New English edition at /en**: the landing page, map, thermal comfort survey, privacy notice and changelog are all available in a precise human translation rather than a machine-translation overlay. The Chinese and English editions share the same components and the same map data, so content is maintained once.
 2. **Language switcher**: a "中 / EN" toggle sits in the top right of the landing page, the map, the survey and the privacy notice. Switching carries your current view across (whether you have left the landing animation, and which tab you are on), so you are not thrown back to the start. There is no automatic redirect based on browser language, which keeps URLs and screens fully predictable.

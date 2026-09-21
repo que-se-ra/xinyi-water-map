@@ -4,7 +4,7 @@ const common = {
   // 站名保留中文字標，英文只作副標——「信義」拆開包住「水河」的雙關直譯必失。
   'site.title': { zh: '信水義河', en: '信水義河' },
   'site.titleEn': { zh: 'Waters of Xinyi', en: 'Waters of Xinyi' },
-  'site.tagline': { zh: '信義社大 水文導覽地圖', en: 'Water Heritage Map · Xinyi' },
+  'site.tagline': { zh: '信義社大 水文導覽地圖', en: 'Waters of Xinyi' },
   'site.signature': {
     zh: '信水義河 · 臺大城鄉所 × 信義社大',
     en: '信水義河 Waters of Xinyi · NTU GIBP × Xinyi Community College',
