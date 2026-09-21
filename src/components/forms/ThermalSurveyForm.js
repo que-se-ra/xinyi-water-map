@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CARTO_LIGHT_URL } from '@/lib/basemap';
+import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 
 // ── Google Form 對接設定 ──
 // 表單：信義區「體感溫度」地圖：熱舒適經驗調查
@@ -25,20 +27,21 @@ const ENTRY = {
   improvePlace: 'entry.606398302',
 };
 
-const RELATION_OPTIONS = ['居住', '工作', '就學', '經常經過', '研究場域'];
+// 送出值：一律維持中文，需與 Google 表單選項一字不差，不可翻譯（顯示標籤見 relationLabels）
+const RELATION_VALUES = ['居住', '工作', '就學', '經常經過', '研究場域'];
 
 // 信義區中心
 const XINYI_CENTER = [25.033, 121.565];
 
 // 地標快速跳轉（六張犁/永春座標取自 routeData.js 站點實測值）
 const LANDMARKS = [
-  { name: '台北101', lat: 25.0339, lng: 121.5645 },
-  { name: '市政府站', lat: 25.041, lng: 121.5652 },
-  { name: '象山站', lat: 25.0329, lng: 121.57 },
-  { name: '永春站', lat: 25.04087, lng: 121.5758 },
-  { name: '後山埤站', lat: 25.0447, lng: 121.5824 },
-  { name: '六張犁站', lat: 25.0241, lng: 121.553 },
-  { name: '吳興街', lat: 25.0277, lng: 121.5583 },
+  { id: 'taipei101', lat: 25.0339, lng: 121.5645 },
+  { id: 'cityHall', lat: 25.041, lng: 121.5652 },
+  { id: 'xiangshan', lat: 25.0329, lng: 121.57 },
+  { id: 'yongchun', lat: 25.04087, lng: 121.5758 },
+  { id: 'houshanpi', lat: 25.0447, lng: 121.5824 },
+  { id: 'liuzhangli', lat: 25.0241, lng: 121.553 },
+  { id: 'wuxingSt', lat: 25.0277, lng: 121.5583 },
 ];
 
 // 信義區大致範圍（viewbox：minLon,maxLat,maxLon,minLat），供搜尋優先命中區內結果
@@ -46,12 +49,14 @@ const XINYI_VIEWBOX = '121.539,25.050,121.601,25.015';
 
 // Nominatim 地點搜尋：先限定信義區範圍，找不到再放寬至全台北重試
 // （教訓：過度限縮的篩選會令正確結果全消失，必須有 fallback）
-async function searchXinyiPlace(q) {
-  const base = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=zh-TW';
+async function searchXinyiPlace(q, lang = 'zh-TW') {
+  const base = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=${lang}`;
   let res = await fetch(`${base}&viewbox=${XINYI_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`);
   let arr = res.ok ? await res.json() : [];
   if (!arr.length) {
-    res = await fetch(`${base}&q=${encodeURIComponent(q + ' 信義區 臺北市')}`);
+    // 放寬重試時補上行政區。英文介面用英文地名，否則 OSM 對不上使用者輸入的英文查詢。
+    const suffix = lang.startsWith('en') ? ' Xinyi District Taipei' : ' 信義區 臺北市';
+    res = await fetch(`${base}&q=${encodeURIComponent(q + suffix)}`);
     arr = res.ok ? await res.json() : [];
   }
   return arr[0] || null;
@@ -94,8 +99,8 @@ function ClickCapture({ onPick }) {
 }
 
 // Nominatim 反查地名（zh-TW，街道層級）
-async function reverseGeocode(lat, lng) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=17&accept-language=zh-TW`;
+async function reverseGeocode(lat, lng, lang = 'zh-TW') {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=17&accept-language=${lang}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Nominatim ${res.status}`);
   const data = await res.json();
@@ -112,6 +117,10 @@ async function reverseGeocode(lat, lng) {
  * 提交值 = 文字 +（若有點選）座標尾註，例如「松高路（25.03981, 121.56712）」。
  */
 function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordChange }) {
+  const t = useT();
+  const { locale } = useLocale();
+  // Nominatim 的 accept-language：英文介面回英文地名，使用者才對得上自己看到的地圖
+  const geoLang = locale === 'en' ? 'en' : 'zh-TW';
   const [geocoding, setGeocoding] = useState(false);
   const [flyTarget, setFlyTarget] = useState(null);
   const [searchText, setSearchText] = useState('');
@@ -124,7 +133,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
     setSearching(true);
     setSearchMiss(false);
     try {
-      const hit = await searchXinyiPlace(q);
+      const hit = await searchXinyiPlace(q, geoLang);
       if (hit) {
         setFlyTarget({ lat: +hit.lat, lng: +hit.lon, zoom: 16, nonce: Date.now() });
       } else {
@@ -145,7 +154,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
       onCoordChange({ lat, lng });
       setGeocoding(true);
       try {
-        const name = await reverseGeocode(lat, lng);
+        const name = await reverseGeocode(lat, lng, geoLang);
         if (name) onChange(name);
       } catch (err) {
         console.warn('反查地名失敗（座標仍已記錄）:', err);
@@ -166,17 +175,17 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
       {/* 步驟①：移動地圖（僅導航，非作答）。用框線和標題與作答區隔開，避免誤會按了地標就算答完 */}
       <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 mb-3">
         <p className="text-xs font-semibold text-slate-500 mb-2">
-          ① 先移動地圖到大概位置<span className="text-slate-400 font-normal">（這一步只是移動畫面，還不算作答）</span>
+          {t('survey.location.step1')}<span className="text-slate-400 font-normal">{t('survey.location.step1Note')}</span>
         </p>
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           {LANDMARKS.map((lm) => (
             <button
-              key={lm.name}
+              key={lm.id}
               type="button"
               onClick={() => setFlyTarget({ lat: lm.lat, lng: lm.lng, zoom: 16, nonce: Date.now() })}
               className="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs text-slate-600 bg-white border border-sky-200 hover:bg-sky-100 active:scale-95 transition-all cursor-pointer"
             >
-              🧭 {lm.name}
+              🧭 {t(`survey.landmark.${lm.id}`)}
             </button>
           ))}
         </div>
@@ -186,7 +195,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
             value={searchText}
             onChange={(e) => { setSearchText(e.target.value); setSearchMiss(false); }}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
-            placeholder="或搜尋街名，例如：松高路"
+            placeholder={t('survey.location.searchPlaceholder')}
             className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-sky-200 bg-white text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 placeholder:text-slate-300"
           />
           <button
@@ -195,17 +204,17 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
             disabled={searching}
             className="px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors cursor-pointer disabled:opacity-50 flex-shrink-0"
           >
-            {searching ? '搜尋中…' : '🔍 搜尋'}
+            {searching ? t('survey.location.searching') : t('survey.location.searchBtn')}
           </button>
         </div>
         {searchMiss && (
-          <p className="text-xs text-rose-500 mt-2">找不到這個地點，請換個寫法（例如加上「路」「街」），或改用上方地標按鈕。</p>
+          <p className="text-xs text-rose-500 mt-2">{t('survey.location.searchMiss')}</p>
         )}
       </div>
 
       {/* 步驟②：真正作答 */}
       <p className="text-xs font-semibold text-amber-700 mb-1.5">
-        ② 在地圖上<span className="underline decoration-amber-400 decoration-2 underline-offset-2">點一下標記地點</span>，出現圖釘才算完成這一題
+        {t('survey.location.step2Before')}<span className="underline decoration-amber-400 decoration-2 underline-offset-2">{t('survey.location.step2Highlight')}</span>{t('survey.location.step2After')}
       </p>
       <div className="rounded-xl overflow-hidden border border-sky-100 relative" style={{ height: '230px' }}>
         <MapContainer
@@ -225,7 +234,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           {coord && <Marker position={[coord.lat, coord.lng]} icon={makePinIcon(color)} />}
         </MapContainer>
         <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-white/85 backdrop-blur-sm text-[11px] text-slate-500 px-3 py-1.5 flex items-center justify-between pointer-events-none">
-          <span>👆 點地圖標記位置（會自動帶入地名，可再修改）</span>
+          <span>{t('survey.location.mapHint')}</span>
           {coord && (
             <span className="font-mono text-slate-400">
               {coord.lat}, {coord.lng}
@@ -239,7 +248,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={geocoding ? '正在查詢地名…' : '也可以直接輸入街名或地標'}
+          placeholder={geocoding ? t('survey.location.inputGeocoding') : t('survey.location.inputPlaceholder')}
           className="flex-1 px-4 py-2.5 rounded-xl border border-sky-200 bg-sky-50/40 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 placeholder:text-slate-300"
         />
         {coord && (
@@ -247,9 +256,9 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
             type="button"
             onClick={() => onCoordChange(null)}
             className="px-3 py-2.5 rounded-xl text-xs text-slate-400 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer flex-shrink-0"
-            title="清除地圖標記"
+            title={t('survey.location.clearTitle')}
           >
-            清除標記
+            {t('survey.location.clearBtn')}
           </button>
         )}
       </div>
@@ -260,6 +269,8 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
 // ── 主表單 ──
 
 export default function ThermalSurveyForm() {
+  const t = useT();
+  const lp = useLocalePath();
   const [relation, setRelation] = useState('');
   const [relationOther, setRelationOther] = useState('');
   const [comfort, setComfort] = useState('');
@@ -280,14 +291,14 @@ export default function ThermalSurveyForm() {
 
   const validate = () => {
     const errs = [];
-    if (!relation) errs.push('請選擇您與信義區的關係');
-    if (relation === '__other__' && !relationOther.trim()) errs.push('請填寫「其他」的內容');
-    if (!comfort) errs.push('請選擇整體熱舒適感受（1–5）');
-    if (!hotPlace.trim()) errs.push('請填寫或在地圖點選「最熱、最不舒適」的地點');
-    if (!hotWhy.trim()) errs.push('請填寫那裡讓您不舒適的原因');
-    if (!coolPlace.trim()) errs.push('請填寫或在地圖點選「最涼爽、最舒適」的地點');
-    if (!coolWhy.trim()) errs.push('請填寫那裡讓您舒適的原因');
-    if (!improvePlace.trim()) errs.push('請填寫或在地圖點選「希望優先改善」的地點');
+    if (!relation) errs.push(t('survey.error.relationRequired'));
+    if (relation === '__other__' && !relationOther.trim()) errs.push(t('survey.error.otherRequired'));
+    if (!comfort) errs.push(t('survey.error.comfortRequired'));
+    if (!hotPlace.trim()) errs.push(t('survey.error.hotPlaceRequired'));
+    if (!hotWhy.trim()) errs.push(t('survey.error.hotWhyRequired'));
+    if (!coolPlace.trim()) errs.push(t('survey.error.coolPlaceRequired'));
+    if (!coolWhy.trim()) errs.push(t('survey.error.coolWhyRequired'));
+    if (!improvePlace.trim()) errs.push(t('survey.error.improvePlaceRequired'));
     return errs;
   };
 
@@ -326,16 +337,12 @@ export default function ThermalSurveyForm() {
         setSubmitted(true);
       } else {
         console.error('問卷送出失敗:', res.status, result);
-        setErrors([
-          '送出失敗，請再試一次；若持續失敗，請點最下方連結改用 Google 表單填寫（您剛才的答案仍保留在此頁）。',
-        ]);
+        setErrors([t('survey.error.submitFailed')]);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('問卷送出失敗:', err);
-      setErrors([
-        '送出時發生網路問題，請再試一次；若持續失敗，請點最下方連結改用 Google 表單填寫。',
-      ]);
+      setErrors([t('survey.error.networkFailed')]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setSubmitting(false);
@@ -347,30 +354,36 @@ export default function ThermalSurveyForm() {
       <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col items-center gap-4">
         <span className="text-5xl">💧</span>
         <h3 className="text-2xl text-slate-700 font-bold tracking-wider" style={{ fontFamily: 'var(--font-serif)' }}>
-          感謝您的填答！
+          {t('survey.success.title')}
         </h3>
         <p className="text-slate-500 text-sm leading-relaxed max-w-md">
-          您的熱舒適經驗已成功送出，將協助我們描繪信義區的「體感溫度」地圖，
-          作為社區環境改善的重要參考。
+          {t('survey.success.body')}
         </p>
-        <a
-          href="/"
+        <Link
+          href={lp('/')}
           className="mt-2 px-8 py-3 rounded-2xl text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 transition-all duration-300 shadow-lg shadow-sky-300/40 active:scale-95 tracking-widest"
           style={{ fontFamily: 'var(--font-serif)' }}
         >
-          回到水文地圖
-        </a>
+          {t('survey.success.backLink')}
+        </Link>
       </div>
     );
   }
 
-  const scaleLabels = { 1: '悶熱＆難以久待', 5: '涼爽＆舒適宜人' };
+  const relationLabels = [
+    t('survey.q1.live'),
+    t('survey.q1.work'),
+    t('survey.q1.study'),
+    t('survey.q1.passBy'),
+    t('survey.q1.research'),
+  ];
+  const scaleLabels = { 1: t('survey.scale.hot'), 5: t('survey.scale.cool') };
 
   return (
     <div className="space-y-5">
       {errors.length > 0 && (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-sm text-rose-600">
-          <p className="font-semibold mb-1">請先完成以下項目：</p>
+          <p className="font-semibold mb-1">{t('survey.error.summary')}</p>
           <ul className="list-disc list-inside space-y-0.5">
             {errors.map((e) => (
               <li key={e}>{e}</li>
@@ -382,10 +395,10 @@ export default function ThermalSurveyForm() {
       {/* Q1 關係 */}
       <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
         <label className="block text-slate-800 font-semibold mb-3 leading-relaxed">
-          您與信義區的關係？ <span className="text-rose-500">*</span>
+          {t('survey.q1.label')}<span className="text-rose-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2">
-          {RELATION_OPTIONS.map((opt) => (
+          {RELATION_VALUES.map((opt, i) => (
             <button
               key={opt}
               type="button"
@@ -396,7 +409,7 @@ export default function ThermalSurveyForm() {
                   : 'bg-sky-50/60 text-slate-600 border-sky-200 hover:bg-sky-100'
               }`}
             >
-              {opt}
+              {relationLabels[i]}
             </button>
           ))}
           <button
@@ -408,7 +421,7 @@ export default function ThermalSurveyForm() {
                 : 'bg-sky-50/60 text-slate-600 border-sky-200 hover:bg-sky-100'
             }`}
           >
-            其他
+            {t('survey.q1.otherBtn')}
           </button>
         </div>
         {relation === '__other__' && (
@@ -416,7 +429,7 @@ export default function ThermalSurveyForm() {
             type="text"
             value={relationOther}
             onChange={(e) => setRelationOther(e.target.value)}
-            placeholder="請說明"
+            placeholder={t('survey.q1.otherPlaceholder')}
             className="mt-3 w-full px-4 py-2.5 rounded-xl border border-sky-200 bg-sky-50/40 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 placeholder:text-slate-300"
           />
         )}
@@ -425,14 +438,14 @@ export default function ThermalSurveyForm() {
       {/* Q2 量表 */}
       <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
         <label className="block text-slate-800 font-semibold mb-3 leading-relaxed">
-          夏天在信義區戶外活動時，整體的熱舒適感受是？ <span className="text-rose-500">*</span>
+          {t('survey.q2.label')}<span className="text-rose-500">*</span>
         </label>
         <div className="flex flex-col sm:flex-row sm:justify-between gap-1.5 mb-3">
           <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm md:text-base font-semibold text-rose-600 bg-rose-50 border border-rose-200">
-            🥵 1 分＝{scaleLabels[1]}
+            {t('survey.scale.hotBadge')}{scaleLabels[1]}
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm md:text-base font-semibold text-sky-700 bg-sky-50 border border-sky-200 sm:justify-end">
-            😌 5 分＝{scaleLabels[5]}
+            {t('survey.scale.coolBadge')}{scaleLabels[5]}
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
@@ -457,15 +470,15 @@ export default function ThermalSurveyForm() {
           aria-hidden="true"
         />
         <div className="flex justify-between mt-1 text-xs md:text-sm text-slate-500 font-medium">
-          <span>← 愈悶熱</span>
-          <span>愈涼爽 →</span>
+          <span>{t('survey.scale.moreHot')}</span>
+          <span>{t('survey.scale.moreCool')}</span>
         </div>
       </div>
 
       {/* Q3 最熱地點（地圖） */}
       <LocationQuestion
-        label="信義區哪個地點或路段，讓您覺得最熱、最不舒適？"
-        hint="請在地圖點選位置，或直接輸入街名、地標，例如「松高路某段」「象山站出口一帶」"
+        label={t('survey.q3.label')}
+        hint={t('survey.q3.hint')}
         color="#ef4444"
         value={hotPlace}
         onChange={setHotPlace}
@@ -476,9 +489,9 @@ export default function ThermalSurveyForm() {
       {/* Q4 原因 */}
       <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
         <label className="block text-slate-800 font-semibold mb-1 leading-relaxed">
-          為什麼那裡讓您覺得不舒適？ <span className="text-rose-500">*</span>
+          {t('survey.q4.label')}<span className="text-rose-500">*</span>
         </label>
-        <p className="text-slate-400 text-xs mb-3">例如：沒有路樹遮蔭、環境不通風、人潮眾多…</p>
+        <p className="text-slate-400 text-xs mb-3">{t('survey.q4.example')}</p>
         <input
           type="text"
           value={hotWhy}
@@ -489,8 +502,8 @@ export default function ThermalSurveyForm() {
 
       {/* Q5 最涼爽地點（地圖） */}
       <LocationQuestion
-        label="信義區哪個地點，讓您覺得最涼爽、最舒適？"
-        hint="請在地圖點選位置，或直接輸入街名、地標或附近位置"
+        label={t('survey.q5.label')}
+        hint={t('survey.location.hintGeneric')}
         color="#0ea5e9"
         value={coolPlace}
         onChange={setCoolPlace}
@@ -501,9 +514,9 @@ export default function ThermalSurveyForm() {
       {/* Q6 原因 */}
       <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
         <label className="block text-slate-800 font-semibold mb-1 leading-relaxed">
-          為什麼那裡讓您覺得舒適？ <span className="text-rose-500">*</span>
+          {t('survey.q6.label')}<span className="text-rose-500">*</span>
         </label>
-        <p className="text-slate-400 text-xs mb-3">例如：有公園樹蔭遮蔽、通風涼好、靠近河流圳溝…</p>
+        <p className="text-slate-400 text-xs mb-3">{t('survey.q6.example')}</p>
         <textarea
           value={coolWhy}
           onChange={(e) => setCoolWhy(e.target.value)}
@@ -514,8 +527,8 @@ export default function ThermalSurveyForm() {
 
       {/* Q7 優先改善（地圖） */}
       <LocationQuestion
-        label="如果能優先改善一個地方，您希望優先改善哪裡？"
-        hint="請在地圖點選位置，或直接輸入街名、地標或附近位置"
+        label={t('survey.q7.label')}
+        hint={t('survey.location.hintGeneric')}
         color="#10b981"
         value={improvePlace}
         onChange={setImprovePlace}
@@ -532,12 +545,12 @@ export default function ThermalSurveyForm() {
           className="w-full md:w-auto px-14 py-4 rounded-2xl text-base font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 transition-all duration-300 cursor-pointer shadow-lg shadow-orange-200 active:scale-95 tracking-widest disabled:opacity-50 disabled:cursor-wait"
           style={{ fontFamily: 'var(--font-serif)' }}
         >
-          {submitting ? '送出中…' : '🌡️ 送出問卷'}
+          {submitting ? t('survey.submit.sending') : t('survey.submit.button')}
         </button>
         <p className="text-[11px] text-slate-400 text-center leading-relaxed">
-          回覆將直接存入信義社大的調查表單。若送出遇到問題，
+          {t('survey.footer.note')}
           <a href={FORM_FALLBACK_URL} target="_blank" rel="noopener noreferrer" className="text-sky-500 hover:text-sky-400 underline">
-            也可以改用 Google 表單填寫
+            {t('survey.footer.linkText')}
           </a>
           。
         </p>

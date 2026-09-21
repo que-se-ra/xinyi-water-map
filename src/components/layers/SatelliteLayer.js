@@ -9,10 +9,12 @@ import { TileLayer, WMSTileLayer } from 'react-leaflet';
 // Sentinel Hub Instance ID
 const SENTINEL_HUB_INSTANCE_ID = '520c8ebf-c059-4faf-92ec-bef0b2420fd7';
 
+// label 欄位原本硬寫中文，且已確認全庫只有本檔的 SatelliteControl 讀取它做顯示
+// （MapView.js 只用到 .id），故改由 SatelliteControl 依 id 向字典查字串，
+// 這裡拿掉硬寫的 label 值。description 欄位全庫無人讀取顯示，維持原樣不動。
 export const SATELLITE_MAPS = [
   {
     id: 'esri-satellite',
-    label: 'Esri 衛星影像',
     emoji: '🛰️',
     type: 'xyz',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -20,7 +22,6 @@ export const SATELLITE_MAPS = [
   },
   {
     id: 'sentinel2-natural',
-    label: 'Sentinel-2 真彩色',
     emoji: '🛰️',
     type: 'wms',
     url: 'https://sh.dataspace.copernicus.eu/ogc/wms/' + SENTINEL_HUB_INSTANCE_ID,
@@ -29,7 +30,6 @@ export const SATELLITE_MAPS = [
   },
   {
     id: 'sentinel2-ndvi',
-    label: 'Sentinel-2 植被指數',
     emoji: '🌱',
     type: 'wms',
     url: 'https://sh.dataspace.copernicus.eu/ogc/wms/' + SENTINEL_HUB_INSTANCE_ID,
@@ -38,7 +38,6 @@ export const SATELLITE_MAPS = [
   },
   {
     id: 'sentinel2-moisture',
-    label: 'Sentinel-2 濕度指數',
     emoji: '💧',
     type: 'wms',
     url: 'https://sh.dataspace.copernicus.eu/ogc/wms/' + SENTINEL_HUB_INSTANCE_ID,
@@ -111,12 +110,14 @@ export default function SatelliteLayer({ activeId, opacity }) {
  * Renders the UI control panel section for satellite layers
  */
 import InfoTooltip from './info-tooltip/InfoTooltip';
+import { useT } from '@/i18n/LocaleProvider';
 
 export function SatelliteControl({ activeSatellite, toggleSatellite, satelliteOpacities, onOpacityChange }) {
+  const t = useT();
   return (
     <div id="tour-satellite-control" className="space-y-1 mb-4 pt-3 border-t border-slate-200">
       <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">
-        🛰️ 衛星影像
+        {t('layers.satellite.panelTitle')}
       </p>
       {SATELLITE_MAPS.map((sm) => (
         <div key={sm.id} className="flex flex-col mb-1">
@@ -131,7 +132,7 @@ export function SatelliteControl({ activeSatellite, toggleSatellite, satelliteOp
                 className="w-5 h-5 rounded cursor-pointer"
                 style={{ accentColor: '#0ea5e9' }}
               />
-              <span className="text-sm leading-tight text-slate-700">{sm.label}</span>
+              <span className="text-sm leading-tight text-slate-700">{t(`layers.satellite.${sm.id}.label`)}</span>
             </label>
             <InfoTooltip id={sm.id} />
           </div>

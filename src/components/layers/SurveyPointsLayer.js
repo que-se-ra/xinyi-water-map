@@ -2,6 +2,7 @@
 
 import { CircleMarker, Circle, Popup, LayerGroup } from 'react-leaflet';
 import { QUESTIONS, REASON_LABEL } from '@/lib/survey-analysis';
+import { useT } from '@/i18n/LocaleProvider';
 
 /**
  * 熱舒適問卷的地點圖層 —— 只在後台使用。
@@ -11,13 +12,15 @@ import { QUESTIONS, REASON_LABEL } from '@/lib/survey-analysis';
  * 公開頁不會傳入 points，因此不會渲染，也不會載入任何問卷資料。
  */
 
+// label 保留中文原值（其他地方若要落資料用得著）；顯示一律走 labelKey。
 export const SURVEY_KIND_STYLE = {
-  hot: { color: '#dc2626', label: '最不舒適' },
-  cool: { color: '#0ea5e9', label: '最舒適' },
-  improve: { color: '#f59e0b', label: '優先改善' }
+  hot: { color: '#dc2626', label: '最不舒適', labelKey: 'layers.surveyKind.hot' },
+  cool: { color: '#0ea5e9', label: '最舒適', labelKey: 'layers.surveyKind.cool' },
+  improve: { color: '#f59e0b', label: '優先改善', labelKey: 'layers.surveyKind.improve' }
 };
 
 export default function SurveyPointsLayer({ points, radius = 50, showRadius = true, visible }) {
+  const t = useT();
   if (!points || !points.length) return null;
 
   const located = points.filter((p) => p.located);
@@ -71,32 +74,32 @@ export default function SurveyPointsLayer({ points, radius = 50, showRadius = tr
                         <table className="w-full text-[12px] text-slate-600">
                           <tbody>
                             <tr>
-                              <td className="pr-2 text-slate-400">分區</td>
+                              <td className="pr-2 text-slate-400">{t('layers.survey.zoneLabel')}</td>
                               <td>{p.zone}</td>
                             </tr>
                             <tr>
-                              <td className="pr-2 text-slate-400">綠地 {radius}m</td>
+                              <td className="pr-2 text-slate-400">{t('layers.survey.greenWithinRadius', { radius })}</td>
                               <td>{((p.green?.[radius] ?? 0) * 100).toFixed(1)}%</td>
                             </tr>
                             <tr>
-                              <td className="pr-2 text-slate-400">行道樹冠 10m</td>
+                              <td className="pr-2 text-slate-400">{t('layers.survey.canopyLabel')}</td>
                               <td>
-                                {((p.canopy ?? 0) * 100).toFixed(1)}%（{p.treesWithin ?? 0} 棵）
+                                {t('layers.survey.canopyPct', { pct: ((p.canopy ?? 0) * 100).toFixed(1), count: p.treesWithin ?? 0 })}
                               </td>
                             </tr>
                             <tr>
-                              <td className="pr-2 text-slate-400">午後樹蔭 10m</td>
+                              <td className="pr-2 text-slate-400">{t('layers.survey.shadeLabel')}</td>
                               <td>{p.shade == null ? '—' : `${(p.shade * 100).toFixed(1)}%`}</td>
                             </tr>
                             {p.score && (
                               <tr>
-                                <td className="pr-2 text-slate-400">整體感受</td>
-                                <td>{p.score} 分</td>
+                                <td className="pr-2 text-slate-400">{t('layers.survey.overallFeeling')}</td>
+                                <td>{t('layers.survey.scorePoints', { score: p.score })}</td>
                               </tr>
                             )}
                             {p.reasons?.length > 0 && (
                               <tr>
-                                <td className="pr-2 text-slate-400 align-top">分類</td>
+                                <td className="pr-2 text-slate-400 align-top">{t('layers.survey.categoryLabel')}</td>
                                 <td>{p.reasons.map((r) => REASON_LABEL[r] || r).join('、')}</td>
                               </tr>
                             )}

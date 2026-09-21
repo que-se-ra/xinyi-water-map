@@ -9,6 +9,11 @@ export const metadata = {
     title: '信水義河 — 信義社大水文導覽互動地圖',
     description: '四條路線、57個站點，走讀台北信義區的水文故事',
     type: 'website',
+    locale: 'zh_TW',
+  },
+  alternates: {
+    canonical: '/',
+    languages: { 'zh-Hant': '/', en: '/en' },
   },
 };
 

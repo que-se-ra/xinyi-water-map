@@ -1,38 +1,37 @@
 import { TileLayer } from 'react-leaflet';
+import { useT } from '@/i18n/LocaleProvider';
 
 // ── Historical basemap definitions ─────────────────────────
+// label 欄位原本硬寫中文，且已確認全庫只有本檔的 HistoricalControl 讀取它做顯示
+// （MapView.js 只用到 .id），故改由 HistoricalControl 依 id 向字典查字串，
+// 這裡拿掉硬寫的 label 值。
 export const HISTORICAL_MAPS = [
   {
     id: 'jm1904',
-    label: '1904 臺灣堡圖',
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}',
     color: '#a16207',
   },
   {
     id: 'jm1921',
-    label: '1921 地形圖',
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1921-jpg-{z}-{x}-{y}',
     color: '#15803d',
   },
   {
     id: 'liugong1939',
-    label: '1939 瑠公水利區域圖',
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/taipei/file-exists.php?img=liugong_1939-jpg-{z}-{x}-{y}',
     color: '#0284c7', // light blue
   },
   {
     id: 'am1944',
-    label: '1944 美軍地形圖',
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}',
     color: '#ea580c',
   },
   {
     id: 'tm1989',
-    label: '1989 地形圖',
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1989-jpg-{z}-{x}-{y}',
     color: '#7c3aed',
@@ -49,6 +48,7 @@ export const HISTORICAL_MAPS = [
  *   opacity — the opacity of the historical map (0 to 1).
  */
 export default function HistoricalLayer({ activeId, opacity }) {
+  const t = useT();
   const map = HISTORICAL_MAPS.find((m) => m.id === activeId);
   if (!map) return null;
 
@@ -58,7 +58,7 @@ export default function HistoricalLayer({ activeId, opacity }) {
       url={map.url}
       tileSize={256}
       opacity={opacity}
-      attribution={`歷史圖資 © <a href="https://gis.sinica.edu.tw" target="_blank">中央研究院</a>`}
+      attribution={t('layers.historical.attribution')}
     />
   );
 }
@@ -70,10 +70,11 @@ export default function HistoricalLayer({ activeId, opacity }) {
 import InfoTooltip from './info-tooltip/InfoTooltip';
 
 export function HistoricalControl({ activeHistory, toggleHistory, historyOpacities, onOpacityChange }) {
+  const t = useT();
   return (
     <div id="tour-historical-control" className="space-y-1 mb-4 pt-3 border-t border-slate-200">
       <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">
-        🕰️ 古今地圖
+        {t('layers.historical.panelTitle')}
       </p>
       {HISTORICAL_MAPS.map((hm) => (
         <div key={hm.id} className="flex flex-col mb-1">
@@ -92,7 +93,7 @@ export function HistoricalControl({ activeHistory, toggleHistory, historyOpaciti
                 className="w-3 h-3 rounded-sm flex-shrink-0 border border-white/50"
                 style={{ background: hm.color }}
               />
-              <span className="text-sm leading-tight text-slate-700">{hm.label}</span>
+              <span className="text-sm leading-tight text-slate-700">{t(`layers.historical.${hm.id}.label`)}</span>
             </label>
             <InfoTooltip id={hm.id} />
           </div>

@@ -3,7 +3,7 @@ import HomeApp from '@/components/HomeApp';
 
 export default function Page() {
   return (
-    <LocaleProvider locale="zh">
+    <LocaleProvider locale="en">
       <HomeApp />
     </LocaleProvider>
   );

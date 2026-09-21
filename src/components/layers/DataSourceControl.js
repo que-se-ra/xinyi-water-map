@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useT } from '@/i18n/LocaleProvider';
 
 export default function DataSourceControl() {
+  const t = useT();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -20,32 +22,32 @@ export default function DataSourceControl() {
       >
         <div className="p-4 text-xs text-slate-600 space-y-3 font-medium min-w-[260px] max-w-[320px]">
           <p className="font-bold text-slate-800 border-b border-slate-200/80 pb-2 mb-2 text-sm">
-            資料來源與鳴謝
+            {t('layers.dataSource.title')}
           </p>
-          
+
           <div>
-            <p className="font-bold text-slate-700 mb-1">📖 專案發起與踏查內容</p>
-            <p className="pl-4 text-slate-500 leading-relaxed">臺北市信義社區大學 — 「信水義河」專案</p>
+            <p className="font-bold text-slate-700 mb-1">{t('layers.dataSource.originHeading')}</p>
+            <p className="pl-4 text-slate-500 leading-relaxed">{t('layers.dataSource.originText')}</p>
           </div>
 
           <div>
-            <p className="font-bold text-slate-700 mb-1">🗺️ 基礎圖資與圖台支援</p>
+            <p className="font-bold text-slate-700 mb-1">{t('layers.dataSource.mapHeading')}</p>
             <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
-              <li>OpenStreetMap 貢獻者</li>
-              <li>CARTO (底圖樣式)</li>
+              <li>{t('layers.dataSource.osmContributors')}</li>
+              <li>{t('layers.dataSource.carto')}</li>
             </ul>
           </div>
 
           <div>
-            <p className="font-bold text-slate-700 mb-1">🏛️ 歷史地圖與航照圖</p>
-            <p className="pl-4 text-slate-500 leading-relaxed">中央研究院 人社中心 GIS 專題中心（包含 1904 臺灣堡圖、1921 地形圖、1939 瑠公水利區域圖、1945 美軍地圖、1989 地形圖等）</p>
+            <p className="font-bold text-slate-700 mb-1">{t('layers.dataSource.historicalHeading')}</p>
+            <p className="pl-4 text-slate-500 leading-relaxed">{t('layers.dataSource.historicalText')}</p>
           </div>
 
           <div>
-            <p className="font-bold text-slate-700 mb-1">📊 政府開放資料 (Open Data)</p>
+            <p className="font-bold text-slate-700 mb-1">{t('layers.dataSource.openDataHeading')}</p>
             <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
-              <li>臺北市政府資料開放平台（行道樹、人行道、都市計畫分區）</li>
-              <li>地表溫度感測資料 (2024夏)</li>
+              <li>{t('layers.dataSource.openDataGov')}</li>
+              <li>{t('layers.dataSource.temperatureData')}</li>
             </ul>
           </div>
         </div>
@@ -53,7 +55,7 @@ export default function DataSourceControl() {
       
       {/* 預設顯示的小按鈕 */}
       <div className="bg-white/90 backdrop-blur-md border border-slate-200/60 shadow-md rounded-full px-3.5 py-1.5 text-[11px] font-bold text-slate-700 cursor-pointer hover:bg-slate-50 transition-colors flex items-center gap-1.5">
-        <span>資料來源</span>
+        <span>{t('layers.dataSource.buttonLabel')}</span>
         <span className="text-sm">ℹ️</span>
       </div>
     </div>

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useMap } from 'react-leaflet';
 import { BASE_URL } from '@/data/routeData';
 import NodeFeedbackForm from '../forms/NodeFeedbackForm';
+import { useT } from '@/i18n/LocaleProvider';
 
 export default function StationPopupContent({ station, routeColor }) {
   const [showFeedback, setShowFeedback] = useState(false);
   const map = useMap();
+  const t = useT();
 
   if (showFeedback) {
     return (
@@ -30,7 +32,7 @@ export default function StationPopupContent({ station, routeColor }) {
         </div>
         <button
           onClick={() => map.closePopup()}
-          aria-label="關閉"
+          aria-label={t('layers.station.close')}
           style={{
             width: 24,
             height: 24,
@@ -83,7 +85,7 @@ export default function StationPopupContent({ station, routeColor }) {
           }}
           className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded transition-colors flex items-center justify-center gap-2"
         >
-          <span>✍️</span> 在這裡留下回憶與照片
+          <span>✍️</span> {t('layers.station.leaveMemoryPrompt')}
         </button>
       </div>
     </div>

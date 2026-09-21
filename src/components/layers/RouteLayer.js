@@ -4,6 +4,7 @@ import { BASE_URL } from '@/data/routeData';
 import PopupLightbox from './PopupLightbox';
 import RouteFeedbackForm, { FACTORS } from '../forms/RouteFeedbackForm';
 import StationPopupContent from './StationPopupContent';
+import { useT } from '@/i18n/LocaleProvider';
 
 function markerRadius(zoom) {
   if (zoom >= 17) return 9;
@@ -31,18 +32,19 @@ function comfortColor(overall) {
 
 // popup 內的路段評分統計區塊（舒適度模式時顯示在表單上方）
 function ComfortStatsBlock({ stats }) {
+  const t = useT();
   if (!stats || stats.overall == null) {
     return (
       <div className="mb-3 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500">
-        本路段尚無評分資料，歡迎成為第一位評分的人！
+        {t('layers.route.noRatingYet')}
       </div>
     );
   }
   return (
     <div className="mb-3 px-3 py-2.5 rounded-lg border" style={{ background: '#fafaf9', borderColor: comfortColor(stats.overall) + '55' }}>
       <div className="flex items-baseline justify-between mb-1.5">
-        <span className="text-xs font-bold text-slate-700">📊 民眾評分統計</span>
-        <span className="text-[10px] text-slate-400">共 {stats.count} 筆</span>
+        <span className="text-xs font-bold text-slate-700">{t('layers.route.statsTitle')}</span>
+        <span className="text-[10px] text-slate-400">{t('layers.route.statsCount', { n: stats.count })}</span>
       </div>
       <div className="space-y-1">
         {FACTORS.map(f => {
@@ -50,7 +52,7 @@ function ComfortStatsBlock({ stats }) {
           if (v == null) return null;
           return (
             <div key={f.id} className="flex items-center gap-2 text-[11px] text-slate-600">
-              <span className="w-16 flex-shrink-0">{f.label}</span>
+              <span className="w-16 flex-shrink-0">{t(f.labelKey)}</span>
               <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${(v / 5) * 100}%`, background: comfortColor(v) }} />
               </div>
@@ -60,7 +62,7 @@ function ComfortStatsBlock({ stats }) {
         })}
       </div>
       <div className="mt-1.5 pt-1.5 border-t border-slate-200 flex justify-between text-[11px]">
-        <span className="text-slate-500">整體平均</span>
+        <span className="text-slate-500">{t('layers.route.overallAverage')}</span>
         <span className="font-bold font-mono" style={{ color: comfortColor(stats.overall) }}>{stats.overall.toFixed(1)} / 5.0</span>
       </div>
     </div>
@@ -128,6 +130,7 @@ function RouteSegment({ route, positions, segmentId, comfortData }) {
           <RouteFeedbackForm
             routeId={route.id}
             routeName={route.name || `路線 ${route.id}`}
+            routeNameZh={route.nameZh || `路線 ${route.id}`}
             segmentId={segmentId}
           />
         </Popup>

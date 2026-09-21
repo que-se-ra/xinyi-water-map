@@ -1,8 +1,10 @@
 'use client';
 
 import { Circle, CircleMarker, Popup } from 'react-leaflet';
+import { useT } from '@/i18n/LocaleProvider';
 
 export default function UserLocationLayer({ position, accuracy }) {
+  const t = useT();
   if (!position) return null;
 
   return (
@@ -35,7 +37,7 @@ export default function UserLocationLayer({ position, accuracy }) {
       >
         <Popup>
           <div className="text-xs font-bold text-blue-900">
-            您目前的位置
+            {t('layers.userLocation.currentPosition')}
           </div>
         </Popup>
       </CircleMarker>

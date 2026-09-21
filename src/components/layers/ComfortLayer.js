@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { GeoJSON, CircleMarker, Popup, LayerGroup } from 'react-leaflet';
 import proj4 from 'proj4';
+import { useT } from '@/i18n/LocaleProvider';
 
 // ── proj4 setup (TWD97 to WGS84) ───────────────────────────
 proj4.defs(
@@ -9,6 +10,8 @@ proj4.defs(
 );
 
 export default function ComfortLayer({ showTrees, showSidewalks, showGreen }) {
+  // 命名為 tt 而非慣例的 t：本檔既有 trees.map((t, i) => …) 用 t 代表單棵樹，避免遮蔽衝突
+  const tt = useT();
   const [trees, setTrees] = useState([]);
   const [sidewalks, setSidewalks] = useState(null);
   const [green, setGreen] = useState(null);
@@ -93,17 +96,17 @@ export default function ComfortLayer({ showTrees, showSidewalks, showGreen }) {
 
   // 綠地類型的中文說明
   const GREEN_KIND_LABEL = {
-    park: '公園',
-    garden: '花園／綠地',
-    grass: '草地',
-    wood: '樹林',
-    forest: '森林',
-    scrub: '灌木叢',
-    meadow: '草原',
-    grassland: '草生地',
-    recreation_ground: '遊憩用地',
-    village_green: '鄰里綠地',
-    cemetery: '墓園綠地'
+    park: tt('layers.comfort.green.park'),
+    garden: tt('layers.comfort.green.garden'),
+    grass: tt('layers.comfort.green.grass'),
+    wood: tt('layers.comfort.green.wood'),
+    forest: tt('layers.comfort.green.forest'),
+    scrub: tt('layers.comfort.green.scrub'),
+    meadow: tt('layers.comfort.green.meadow'),
+    grassland: tt('layers.comfort.green.grassland'),
+    recreation_ground: tt('layers.comfort.green.recreationGround'),
+    village_green: tt('layers.comfort.green.villageGreen'),
+    cemetery: tt('layers.comfort.green.cemetery')
   };
 
   return (
@@ -113,12 +116,12 @@ export default function ComfortLayer({ showTrees, showSidewalks, showGreen }) {
           data={green}
           style={{ color: '#22c55e', weight: 1, opacity: 0.45, fillColor: '#4ade80', fillOpacity: 0.18 }}
           onEachFeature={(feature, layer) => {
-            const kind = GREEN_KIND_LABEL[feature.properties?.kind] || '綠地';
+            const kind = GREEN_KIND_LABEL[feature.properties?.kind] || tt('layers.comfort.green.default');
             const name = feature.properties?.name;
             layer.bindPopup(
               `<div class="p-1 min-w-[120px]">
                  <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2">🌲 ${name || kind}</h3>
-                 <div class="text-xs text-slate-600">類型：<span class="font-medium text-slate-700">${kind}</span></div>
+                 <div class="text-xs text-slate-600">${tt('layers.comfort.typeLabel')}<span class="font-medium text-slate-700">${kind}</span></div>
                </div>`
             );
           }}
@@ -143,11 +146,11 @@ export default function ComfortLayer({ showTrees, showSidewalks, showGreen }) {
             <Popup className="custom-popup">
               <div className="p-1 min-w-[120px]">
                 <h3 className="text-sm font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2">
-                  🌳 {t.TreeType || '未知樹種'}
+                  🌳 {t.TreeType || tt('layers.comfort.unknownTree')}
                 </h3>
                 <div className="text-xs text-slate-600 space-y-1">
-                  <p>樹高：<span className="font-medium text-slate-700">{t.TreeHeight ? `${t.TreeHeight} m` : '無資料'}</span></p>
-                  <p>胸徑：<span className="font-medium text-slate-700">{t.Diameter ? `${t.Diameter} cm` : '無資料'}</span></p>
+                  <p>{tt('layers.comfort.treeHeightLabel')}<span className="font-medium text-slate-700">{t.TreeHeight ? `${t.TreeHeight} m` : tt('layers.comfort.noData')}</span></p>
+                  <p>{tt('layers.comfort.diameterLabel')}<span className="font-medium text-slate-700">{t.Diameter ? `${t.Diameter} cm` : tt('layers.comfort.noData')}</span></p>
                 </div>
               </div>
             </Popup>

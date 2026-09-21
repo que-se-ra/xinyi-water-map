@@ -3,9 +3,28 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TOOLTIP_DATA } from './tooltipData';
+import { TOOLTIP_DATA_EN } from './tooltipData.en';
+import { useT, useLocale } from '@/i18n/LocaleProvider';
+
+// 圖層說明是資料不是介面文字，走平行英文資料檔。
+// 逐欄退回中文：英文版只譯了部分欄位時，其餘照舊顯示中文而不是空白。
+function localizeTooltip(zh, en) {
+  if (!zh || !en) return zh;
+  return {
+    ...zh,
+    title: en.title || zh.title,
+    badge: en.badge || zh.badge,
+    desc: en.desc || zh.desc,
+  };
+}
 
 export default function InfoTooltip({ id }) {
-  const data = TOOLTIP_DATA[id];
+  const t = useT();
+  const { locale } = useLocale();
+  const data =
+    locale === 'en'
+      ? localizeTooltip(TOOLTIP_DATA[id], TOOLTIP_DATA_EN[id])
+      : TOOLTIP_DATA[id];
   if (!data) return null;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -169,8 +188,8 @@ export default function InfoTooltip({ id }) {
             ? 'bg-blue-600 border-blue-500 text-white shadow-sm shadow-blue-500/20 scale-105' 
             : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 hover:scale-105'}
         `}
-        title="點擊或懸停查看圖層詳細說明"
-        aria-label={`查看${data.title}說明`}
+        title={t('layers.infoTooltip.title')}
+        aria-label={t('layers.infoTooltip.viewAria', { title: data.title })}
       >
         i
       </button>

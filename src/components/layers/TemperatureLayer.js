@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { TileLayer } from 'react-leaflet';
+import { useT } from '@/i18n/LocaleProvider';
 
 export function useTemperatureLayer() {
+  const t = useT();
   const [showTemperature, setShowTemperature] = useState(false);
   const [temperatureUrl, setTemperatureUrl] = useState('');
   const [temperatureLoading, setTemperatureLoading] = useState(false);
@@ -18,20 +20,20 @@ export function useTemperatureLayer() {
             setTemperatureUrl(data.urlFormat);
           } else {
             console.error('GEE Error:', data.error);
-            alert('地表溫度載入失敗，可能未設定 GEE 金鑰。');
+            alert(t('layers.temperature.loadFailedNoKey'));
             setShowTemperature(false);
           }
         })
         .catch(err => {
           console.error(err);
-          alert('地表溫度載入失敗。');
+          alert(t('layers.temperature.loadFailed'));
           setShowTemperature(false);
         })
         .finally(() => {
           setTemperatureLoading(false);
         });
     }
-  }, [showTemperature, temperatureUrl, temperatureLoading]);
+  }, [showTemperature, temperatureUrl, temperatureLoading, t]);
 
   return {
     showTemperature,
@@ -59,6 +61,7 @@ export default function TemperatureLayer({ show, url, opacity = 0.65 }) {
 import InfoTooltip from './info-tooltip/InfoTooltip';
 
 export function TemperatureControl({ show, onChange, loading, opacity, onOpacityChange }) {
+  const t = useT();
   return (
     <div className="flex flex-col mb-1 w-full">
       <div className="flex items-center justify-between gap-2 hover:bg-slate-50 rounded-lg px-2 py-1.5 transition-colors w-full">
@@ -72,7 +75,7 @@ export function TemperatureControl({ show, onChange, loading, opacity, onOpacity
             className="w-5 h-5 rounded accent-[#ef4444] cursor-pointer"
           />
           <span className="text-sm leading-tight text-slate-700 flex items-center">
-            🌡️ 地表溫度 (2024夏) {loading && <span className="ml-2 text-xs text-slate-400">載入中...</span>}
+            {t('layers.temperature.controlLabel')} {loading && <span className="ml-2 text-xs text-slate-400">{t('layers.temperature.loading')}</span>}
           </span>
         </label>
         <InfoTooltip id="temperature" />

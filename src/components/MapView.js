@@ -11,7 +11,8 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { routes } from '@/data/routeData';
+import { routes as routesZh } from '@/data/routeData';
+import { useRoutes } from '@/i18n/useRoutes';
 import ZoningLayer from './layers/ZoningLayer';
 import ComfortLayer from './layers/ComfortLayer';
 import RouteLayer, { COMFORT_SCALE } from './layers/RouteLayer';
@@ -35,6 +36,7 @@ L.Icon.Default.mergeOptions({
 import SatelliteLayer, { SatelliteControl, SATELLITE_MAPS } from './layers/SatelliteLayer';
 import SurveyPointsLayer, { SURVEY_KIND_STYLE } from './layers/SurveyPointsLayer';
 import { CARTO_LIGHT_URL, CARTO_ATTRIBUTION } from '@/lib/basemap';
+import { useT } from '@/i18n/LocaleProvider';
 
 
 // ── helpers ────────────────────────────────────────────────
@@ -67,10 +69,10 @@ function buildPolyline(route) {
 
 // ── Route labels for the control panel ─────────────────────
 const ROUTE_LABELS = [
-  { emoji: '🩵', label: '路線一：瑠公圳水泱泱' },
-  { emoji: '🌿', label: '路線二：信義之源 陂水之觀' },
-  { emoji: '🟤', label: '路線三：錫口 五分埔支線' },
-  { emoji: '🌾', label: '路線四：東西神 三大排水系' },
+  { emoji: '🩵', labelKey: 'map.route.line1' },
+  { emoji: '🌿', labelKey: 'map.route.line2' },
+  { emoji: '🟤', labelKey: 'map.route.line3' },
+  { emoji: '🌾', labelKey: 'map.route.line4' },
 ];
 
 // ── FitBounds helper component ─────────────────────────────
@@ -78,7 +80,7 @@ function FitBoundsOnLoad() {
   const map = useMap();
   useEffect(() => {
     // Gather all station coords
-    const allCoords = routes.flatMap((r) =>
+    const allCoords = routesZh.flatMap((r) =>
       r.stations.map((s) => [s.lat, s.lng])
     );
     if (allCoords.length > 0) {
@@ -135,6 +137,8 @@ export default function MapView({
   surveyRadius = 50,
   showSurveyRadius = true
 }) {
+  const t = useT();
+  const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
   const [visibility, setVisibility] = useState(
     routes.map(() => true)
   );
@@ -169,7 +173,7 @@ export default function MapView({
   const formatMinutes = (m) => {
     const h = Math.floor(m / 60);
     const min = m % 60;
-    const ampm = h < 12 ? '上午' : '下午';
+    const ampm = h < 12 ? t('map.control.am') : t('map.control.pm');
     const hh = h % 12 === 0 ? 12 : h % 12;
     return `${ampm} ${hh}:${String(min).padStart(2, '0')}`;
   };
@@ -269,7 +273,7 @@ export default function MapView({
 
   const polylines = useMemo(
     () => routes.map((r) => buildPolyline(r)),
-    []
+    [routes]
   );
 
   const toggleRoute = (idx) => {
@@ -319,10 +323,10 @@ export default function MapView({
   };
 
   const locateErrorMessages = {
-    https:       '📡 定位需要 HTTPS 連線。請使用正式網址（https://）開啟本網站。',
-    denied:      '🔒 位置存取被拒絕。請在 Safari 設定 → 網站 → 位置 中允許本網站存取。',
-    unsupported: '⚠️ 您的瀏覽器不支援定位功能。',
-    failed:      '⚠️ 無法取得位置，請稍後再試。',
+    https:       t('map.control.locateErrorHttps'),
+    denied:      t('map.control.locateErrorDenied'),
+    unsupported: t('map.control.locateErrorUnsupported'),
+    failed:      t('map.control.locateErrorFailed'),
   };
 
   return (
@@ -414,11 +418,11 @@ export default function MapView({
                   <div className="flex items-center gap-1.5 flex-wrap mb-1">
                     {marker.feedback_type === 'report' ? (
                       <span className="text-[10px] bg-red-500/10 text-red-700 border border-red-500/20 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                        ⚠️ 環境通報
+                        {t('map.popup.reportBadge')}
                       </span>
                     ) : (
                       <span className="text-[10px] bg-amber-500/10 text-amber-700 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                        👥 社群走讀地標
+                        {t('map.popup.communityBadge')}
                       </span>
                     )}
                     {marker.tags && marker.tags.split(',').map(tag => (
@@ -428,12 +432,12 @@ export default function MapView({
                     ))}
                     {marker.ai_summary && (
                       <span className="text-[9px] bg-violet-100 text-violet-700 border border-violet-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
-                        ✨ AI 輔助潤飾
+                        {t('map.popup.aiBadge')}
                       </span>
                     )}
                   </div>
                   <div className="text-[9px] text-slate-400 font-mono">
-                    踏查時間：{new Date(marker.timestamp).toLocaleDateString('zh-TW')}
+                    {t('map.popup.surveyTime')}{new Date(marker.timestamp).toLocaleDateString('zh-TW')}
                   </div>
                 </div>
 
@@ -475,7 +479,7 @@ export default function MapView({
                 {marker.ai_summary && (
                   <div className="bg-violet-950/5 border border-violet-500/10 rounded-lg p-2.5 text-[10px] text-violet-700">
                     <div className="font-bold flex items-center gap-1 mb-1 text-violet-800">
-                      <span>✨</span> <span>AI 輔助潤飾（本段文字經 AI 協助生成）：</span>
+                      <span>✨</span> <span>{t('map.popup.aiBadgeFullLabel')}</span>
                     </div>
                     <p className="leading-relaxed font-medium">
                       {marker.ai_summary}
@@ -521,15 +525,15 @@ export default function MapView({
             transition-colors duration-200
             text-lg cursor-pointer font-bold
           `}
-          aria-label="切換圖層面板"
+          aria-label={t('map.control.togglePanel')}
         >
-          {expandPanel ? '✕ 關閉' : '☰'}
+          {expandPanel ? t('map.control.closePanel') : '☰'}
         </button>
 
         {expandPanel && (
           <div id="layer-control-panel-content" className="flex flex-col h-full w-full overflow-hidden">
             <h3 className="text-base font-bold mb-3 tracking-wide text-slate-700 shrink-0" style={{ fontFamily: 'var(--font-serif)' }}>
-              圖層控制
+              {t('map.control.panelTitle')}
             </h3>
 
             {/* Free Marker Toggle */}
@@ -548,9 +552,9 @@ export default function MapView({
                 `}
               >
                 {isAddMarkerMode ? (
-                  <><span>🎯</span> 點擊地圖新增標記 (點此取消)</>
+                  <><span>🎯</span> {t('map.control.addMarkerModeOn')}</>
                 ) : (
-                  <><span>📍</span> 自由新增地景標記</>
+                  <><span>📍</span> {t('map.control.addMarkerModeOff')}</>
                 )}
               </button>
             </div>
@@ -580,7 +584,7 @@ export default function MapView({
                         style={{ background: route.color }}
                       />
                       <span className="text-sm leading-tight text-slate-700">
-                        {ROUTE_LABELS[idx].label}
+                        {t(ROUTE_LABELS[idx].labelKey)}
                       </span>
                     </label>
                     <InfoTooltip id={`route-${idx}`} />
@@ -596,7 +600,7 @@ export default function MapView({
                              bg-blue-50 hover:bg-blue-100 text-blue-800
                              transition-colors cursor-pointer"
                 >
-                  全選
+                  {t('map.control.selectAll')}
                 </button>
                 <button
                   onClick={allOff}
@@ -604,7 +608,7 @@ export default function MapView({
                              bg-slate-100 hover:bg-slate-200 text-slate-700
                              transition-colors cursor-pointer"
                 >
-                  全清
+                  {t('map.control.clearAll')}
                 </button>
               </div>
 
@@ -612,7 +616,7 @@ export default function MapView({
               <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50/60 px-2 py-2">
                 <label className="flex items-center justify-between gap-2 cursor-pointer">
                   <span className="flex items-center gap-2 text-sm text-slate-700">
-                    <span>🌡️</span> 步行舒適度檢視
+                    <span>🌡️</span> {t('map.control.comfortToggle')}
                   </span>
                   <input
                     type="checkbox"
@@ -625,23 +629,23 @@ export default function MapView({
                 {showComfort && (
                   <div className="mt-2 pt-2 border-t border-slate-200 text-[10px] text-slate-500 leading-relaxed">
                     {comfortLoading ? (
-                      <p className="animate-pulse">評分統計載入中...</p>
+                      <p className="animate-pulse">{t('map.control.comfortLoading')}</p>
                     ) : (
                       <>
-                        <p className="mb-1">路線依民眾評分平均上色（每 0.5 分一階）：</p>
+                        <p className="mb-1">{t('map.control.comfortLegendIntro')}</p>
                         <div className="flex h-2.5 rounded-full overflow-hidden">
                           {COMFORT_SCALE.slice().reverse().map(band => (
                             <span key={band.color} className="flex-1" style={{ background: band.color }} />
                           ))}
                         </div>
                         <div className="flex justify-between mt-0.5 text-slate-400">
-                          <span>1.0 差</span>
-                          <span>5.0 極佳</span>
+                          <span>{t('map.control.comfortScaleWorst')}</span>
+                          <span>{t('map.control.comfortScaleBest')}</span>
                         </div>
                         <div className="flex items-center gap-1 mt-1.5">
-                          <span className="w-3 h-1.5 rounded-full inline-block bg-slate-300" /> 無評分
+                          <span className="w-3 h-1.5 rounded-full inline-block bg-slate-300" /> {t('map.control.noRatingLabel')}
                         </div>
-                        <p className="mt-1 text-slate-400">點擊路線可查看各項平均分與評分。</p>
+                        <p className="mt-1 text-slate-400">{t('map.control.comfortHint')}</p>
                       </>
                     )}
                   </div>
@@ -654,9 +658,9 @@ export default function MapView({
               <div className="w-full mb-3 pt-3 border-t border-slate-200">
                 <div className="flex items-center gap-1.5 mb-2 px-1">
                   <span className="text-[10px] font-bold tracking-wider text-rose-600 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5">
-                    後台專用
+                    {t('map.control.adminOnlyBadge')}
                   </span>
-                  <span className="text-xs font-semibold text-slate-600">熱舒適問卷地點</span>
+                  <span className="text-xs font-semibold text-slate-600">{t('map.control.surveyPointsTitle')}</span>
                 </div>
                 <div className="space-y-1">
                   {Object.entries(SURVEY_KIND_STYLE).map(([kind, st]) => {
@@ -680,7 +684,7 @@ export default function MapView({
                             className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle"
                             style={{ background: st.color }}
                           />
-                          {st.label}
+                          {t(st.labelKey)}
                         </span>
                         <span className="text-xs text-slate-400 font-mono">{n}</span>
                       </label>
@@ -704,7 +708,7 @@ export default function MapView({
                       onChange={() => setShowCommunityMarkers(!showCommunityMarkers)}
                       className="w-5 h-5 rounded accent-[#ea580c] cursor-pointer"
                     />
-                    <span className="text-sm leading-tight text-slate-700 font-semibold text-orange-700">🧡 民眾走讀回饋</span>
+                    <span className="text-sm leading-tight text-slate-700 font-semibold text-orange-700">{t('map.control.communityFeedbackLabel')}</span>
                   </label>
                   <InfoTooltip id="community-markers" />
                 </div>
@@ -719,7 +723,7 @@ export default function MapView({
                       onChange={() => setShowTrees(!showTrees)}
                       className="w-5 h-5 rounded accent-[#16a34a] cursor-pointer"
                     />
-                    <span className="text-sm leading-tight text-slate-700">🌳 行道樹遮蔭</span>
+                    <span className="text-sm leading-tight text-slate-700">{t('map.control.treesLabel')}</span>
                   </label>
                   <InfoTooltip id="trees" />
                 </div>
@@ -734,7 +738,7 @@ export default function MapView({
                       onChange={() => setShowGreen(!showGreen)}
                       className="w-5 h-5 rounded accent-[#22c55e] cursor-pointer"
                     />
-                    <span className="text-sm leading-tight text-slate-700">🌲 公園綠地與樹林</span>
+                    <span className="text-sm leading-tight text-slate-700">{t('map.control.greenLabel')}</span>
                   </label>
                   <InfoTooltip id="green" />
                 </div>
@@ -749,7 +753,7 @@ export default function MapView({
                       onChange={() => setShowSidewalks(!showSidewalks)}
                       className="w-5 h-5 rounded accent-[#60a5fa] cursor-pointer"
                     />
-                    <span className="text-sm leading-tight text-slate-700">🚶 人行道範圍</span>
+                    <span className="text-sm leading-tight text-slate-700">{t('map.control.sidewalksLabel')}</span>
                   </label>
                   <InfoTooltip id="sidewalks" />
                 </div>
@@ -765,7 +769,7 @@ export default function MapView({
                         onChange={() => setShowZoning(!showZoning)}
                         className="w-5 h-5 rounded accent-[#fb923c] cursor-pointer"
                       />
-                      <span className="text-sm leading-tight text-slate-700">🏘️ 都市計畫分區</span>
+                      <span className="text-sm leading-tight text-slate-700">{t('map.control.zoningLabel')}</span>
                     </label>
                     <InfoTooltip id="zoning" />
                   </div>
@@ -808,7 +812,7 @@ export default function MapView({
                         onChange={() => setShowShadeMap(!showShadeMap)}
                         className="w-5 h-5 rounded accent-[#f59e0b] cursor-pointer"
                       />
-                      <span className="text-sm leading-tight text-slate-700">☀️ 即時日照陰影</span>
+                      <span className="text-sm leading-tight text-slate-700">{t('map.control.shademapLabel')}</span>
                     </label>
                     <InfoTooltip id="shademap" />
                   </div>
@@ -824,7 +828,7 @@ export default function MapView({
                             onClick={() => setShadeMapTime(nowMinutes)}
                             className="text-[10px] px-2 py-0.5 rounded-full bg-amber-200 hover:bg-amber-300 text-amber-900 font-medium transition-colors cursor-pointer"
                           >
-                            🔄 目前時間
+                            {t('map.control.nowTimeButton')}
                           </button>
                         </div>
                         <input
@@ -844,7 +848,7 @@ export default function MapView({
 
                       {/* Opacity slider */}
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-amber-700 shrink-0">陰影深度</span>
+                        <span className="text-[10px] text-amber-700 shrink-0">{t('map.control.shadowDepth')}</span>
                         <input
                           type="range"
                           min="0.1"
@@ -863,30 +867,30 @@ export default function MapView({
                       {shadeMapStatus === 'loading' && (
                         <p className="text-[10px] text-amber-700 flex items-center gap-1.5">
                           <span className="inline-block w-2.5 h-2.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                          正在載入建築輪廓…
+                          {t('map.control.shademapLoading')}
                         </p>
                       )}
                       {shadeMapStatus === 'retrying' && (
                         <p className="text-[10px] text-amber-700">
-                          ⏳ 圖資伺服器沒有回應，正在重試…
+                          {t('map.control.shademapRetrying')}
                         </p>
                       )}
                       {shadeMapStatus === 'error' && (
                         <p className="text-[10px] text-rose-600">
-                          ⚠️ 建築圖資載入失敗，請稍後移動地圖重試。
+                          {t('map.control.shademapError')}
                         </p>
                       )}
                       {shadeMapStatus === 'zoom' && (
                         <p className="text-[10px] text-amber-700">
-                          🔍 請再放大地圖，才會顯示建築陰影。
+                          {t('map.control.shademapZoom')}
                         </p>
                       )}
 
                       <p className="text-[9px] text-amber-600 leading-relaxed">
-                        🌳 勾選「行道樹遮蔭」可同時顯示樹冠 3D 陰影
+                        {t('map.control.shademapTreesHint')}
                       </p>
                       <p className="text-[9px] text-amber-600/90 leading-relaxed">
-                        ℹ️ 建築高度取自 OpenStreetMap 標註；未標註者以 12 公尺（約 4 層樓）估算，陰影長度僅供參考。
+                        {t('map.control.shademapHeightNote')}
                       </p>
                     </div>
                   )}
@@ -913,8 +917,7 @@ export default function MapView({
             {/* Legend */}
             <div className="mt-4 pt-3 border-t border-slate-200">
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                共 {routes.reduce((s, r) => s + r.stations.length, 0)} 個站點
-                ・點擊站點查看詳情
+                {t('map.legend.stationCount', { n: routes.reduce((s, r) => s + r.stations.length, 0) })}
               </p>
             </div>
             </div>
@@ -943,7 +946,7 @@ export default function MapView({
           hover:bg-sky-50 active:scale-95
           ${locating ? 'animate-pulse text-sky-400' : 'text-sky-700'}
         `}
-        title="取得目前位置"
+        title={t('map.control.locateButtonTitle')}
       >
         {locating ? '⏳' : '📍'}
       </button>
@@ -975,9 +978,9 @@ export default function MapView({
             shadow-xl shadow-blue-500/25 border border-blue-500/20
             transition-all duration-300 active:scale-95 cursor-pointer
           "
-          title="使用方法 (How to Use)"
+          title={t('map.control.usageGuideTitle')}
         >
-          <span>❓ 使用方法</span>
+          <span>{t('map.control.usageGuideLabel')}</span>
         </button>
       </div>
 

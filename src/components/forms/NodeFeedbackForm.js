@@ -1,15 +1,36 @@
 import { useState, useRef, useEffect } from 'react';
 import exifr from 'exifr';
+import { useT, useLocale } from '@/i18n/LocaleProvider';
 
-const MEMORY_TAGS = ['歷史', '水源', '生態', '氣味', '地景', '路況實境', '熱成像', '其他'];
-const REPORT_TAGS = ['積水', '異味', '疑似污染排放', '缺遮蔭', '垃圾堆積', '其他'];
+// 顯示走 t()，送出仍用這裡的原始中文字串（value）——payload.tags 直接引用 value，
+// 不可改成 key 或翻譯後的文字，否則會跟既有送出資料對不上。
+const MEMORY_TAGS = [
+  { value: '歷史', key: 'forms.node.tag.memory.history' },
+  { value: '水源', key: 'forms.node.tag.memory.water' },
+  { value: '生態', key: 'forms.node.tag.memory.ecology' },
+  { value: '氣味', key: 'forms.node.tag.memory.smell' },
+  { value: '地景', key: 'forms.node.tag.memory.landscape' },
+  { value: '路況實境', key: 'forms.node.tag.memory.roadCondition' },
+  { value: '熱成像', key: 'forms.node.tag.memory.thermal' },
+  { value: '其他', key: 'forms.node.tag.other' },
+];
+const REPORT_TAGS = [
+  { value: '積水', key: 'forms.node.tag.report.flooding' },
+  { value: '異味', key: 'forms.node.tag.report.odor' },
+  { value: '疑似污染排放', key: 'forms.node.tag.report.pollution' },
+  { value: '缺遮蔭', key: 'forms.node.tag.report.noShade' },
+  { value: '垃圾堆積', key: 'forms.node.tag.report.litter' },
+  { value: '其他', key: 'forms.node.tag.other' },
+];
 
 const FEEDBACK_TYPES = [
-  { id: 'memory', label: '📖 地方記憶', hint: '分享這裡的故事與觀察' },
-  { id: 'report', label: '⚠️ 環境通報', hint: '回報積水、異味等環境問題' },
+  { id: 'memory', labelKey: 'forms.node.type.memory.label', hintKey: 'forms.node.type.memory.hint' },
+  { id: 'report', labelKey: 'forms.node.type.report.label', hintKey: 'forms.node.type.report.hint' },
 ];
 
 export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onClose }) {
+  const t = useT();
+  const { locale } = useLocale();
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [feedbackType, setFeedbackType] = useState('memory');
@@ -99,7 +120,8 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
       const rec = new SpeechRecognition();
       rec.continuous = true;
       rec.interimResults = false;
-      rec.lang = 'zh-TW';
+      // 英文介面下要用英文辨識，否則使用者講英文會被當成中文硬套
+      rec.lang = locale === 'en' ? 'en-US' : 'zh-TW';
 
       rec.onstart = () => {
         setIsListening(true);
@@ -116,7 +138,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
         console.error('Speech recognition error:', e.error);
         setIsListening(false);
         if (e.error === 'not-allowed') {
-          alert('請允許麥克風權限以進行語音輸入。');
+          alert(t('forms.node.alert.micPermission'));
         }
       };
 
@@ -147,7 +169,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
   // 呼叫 Gemini AI 整理摘要
   const handleAISummarize = async () => {
     if (!description.trim()) {
-      alert('請先輸入或用語音說一段話，再進行 AI 整理。');
+      alert(t('forms.node.alert.needTextForAi'));
       return;
     }
 
@@ -173,9 +195,9 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             detailsMsg = resData.details;
           }
         }
-        const errorMsg = detailsMsg 
-          ? `${resData.error} (詳細原因：${detailsMsg})` 
-          : (resData.error || 'AI 整理服務暫時發生錯誤');
+        const errorMsg = detailsMsg
+          ? t('forms.node.ai.summarizeErrorWithDetail', { error: resData.error, detail: detailsMsg })
+          : (resData.error || t('forms.node.ai.summarizeErrorFallback'));
         throw new Error(errorMsg);
       }
 
@@ -403,7 +425,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
   // AI 圖片轉譯
   const handleDescribeImage = async (base64Url, photoIndex) => {
     if (!base64Url) {
-      alert('請先上傳照片。');
+      alert(t('forms.node.alert.needPhoto'));
       return;
     }
 
@@ -437,16 +459,16 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             detailsMsg = resData.details;
           }
         }
-        const errorMsg = detailsMsg 
-          ? `${resData.error} (${detailsMsg})` 
-          : (resData.error || 'AI 圖片轉譯服務暫時發生錯誤');
+        const errorMsg = detailsMsg
+          ? `${resData.error} (${detailsMsg})`
+          : (resData.error || t('forms.node.ai.describeErrorFallback'));
         throw new Error(errorMsg);
       }
 
       if (resData.description) {
         setDescription(prev => {
           const trimmed = prev.trim();
-          const prefix = photoIndex === 1 ? '📷 照片 ① 描述' : '📷 照片 ② 描述';
+          const prefix = photoIndex === 1 ? t('forms.node.photoDescribe.prefix1') : t('forms.node.photoDescribe.prefix2');
           return trimmed 
             ? `${trimmed}\n\n${prefix}：${resData.description}` 
             : `${prefix}：${resData.description}`;
@@ -470,7 +492,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
 
   const handleSubmit = async () => {
     if (!description.trim() && selectedTags.length === 0 && !photoBase64 && !photoBase64_2) {
-      alert('請至少填寫文字、選擇標籤或上傳照片');
+      alert(t('forms.node.alert.emptySubmit'));
       return;
     }
 
@@ -509,7 +531,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
       });
 
       if (!response.ok) {
-        throw new Error('伺服器回應錯誤');
+        throw new Error(t('forms.node.error.serverResponse'));
       }
 
       setIsSuccess(true);
@@ -518,7 +540,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
       }, 2000);
     } catch (error) {
       console.error('Submit error:', error);
-      alert('送出失敗，請稍後再試。');
+      alert(t('forms.node.alert.submitFailed'));
       setIsSubmitting(false);
     }
   };
@@ -563,8 +585,8 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
       <div className="p-6 text-center space-y-4">
         <div className="text-5xl animate-bounce">🎉</div>
         <div>
-          <h4 className="text-xl font-black text-green-700">感謝您的分享！</h4>
-          <p className="text-sm text-slate-500 mt-2">資料已成功送出。</p>
+          <h4 className="text-xl font-black text-green-700">{t('forms.node.success.title')}</h4>
+          <p className="text-sm text-slate-500 mt-2">{t('forms.node.success.body')}</p>
         </div>
         <div className="pt-4 flex flex-col gap-2 max-w-xs mx-auto">
           <button
@@ -572,7 +594,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             onClick={handleResetForm}
             className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-md active:scale-98 cursor-pointer"
           >
-            再次填寫表單 📝
+            {t('forms.node.success.resetButton')}
           </button>
           {onClose && (
             <button
@@ -580,7 +602,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
               onClick={onClose}
               className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl font-bold text-sm transition-all cursor-pointer"
             >
-              返回地圖 🗺️
+              {t('forms.node.success.closeButton')}
             </button>
           )}
         </div>
@@ -592,13 +614,13 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
   return (
     <div className="p-2 min-w-[280px]">
       <h3 className="font-bold text-lg text-blue-900 border-b pb-2 mb-3">
-        {stationName || '新增地景標記'} <span className="text-sm text-slate-500 font-normal ml-1">提供回饋</span>
+        {stationName || t('forms.node.title.defaultStation')} <span className="text-sm text-slate-500 font-normal ml-1">{t('forms.node.title.suffix')}</span>
       </h3>
 
       <div className="space-y-4 mb-4">
         {/* Feedback type selector */}
         <div>
-          <label className="block text-sm font-bold text-slate-700 mb-1">回饋性質</label>
+          <label className="block text-sm font-bold text-slate-700 mb-1">{t('forms.node.type.label')}</label>
           <div className="grid grid-cols-2 gap-2">
             {FEEDBACK_TYPES.map(type => (
               <button
@@ -614,8 +636,8 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                     : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'}
                 `}
               >
-                <span>{type.label}</span>
-                <span className="text-[9px] font-normal mt-0.5 leading-tight">{type.hint}</span>
+                <span>{t(type.labelKey)}</span>
+                <span className="text-[9px] font-normal mt-0.5 leading-tight">{t(type.hintKey)}</span>
               </button>
             ))}
           </div>
@@ -624,23 +646,23 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
         {/* Tags */}
         <div>
           <label className="block text-sm font-bold text-slate-700 mb-1">
-            {feedbackType === 'report' ? '通報類型 (可複選)' : '地景標籤 (可複選)'}
+            {feedbackType === 'report' ? t('forms.node.tags.label.report') : t('forms.node.tags.label.memory')}
           </label>
           <div className="flex flex-wrap gap-2">
             {(feedbackType === 'report' ? REPORT_TAGS : MEMORY_TAGS).map(tag => (
               <button
-                key={tag}
-                onClick={() => handleToggleTag(tag)}
+                key={tag.value}
+                onClick={() => handleToggleTag(tag.value)}
                 className={`
                   px-3 py-1 rounded-full text-xs font-medium border transition-colors
-                  ${selectedTags.includes(tag)
+                  ${selectedTags.includes(tag.value)
                     ? (feedbackType === 'report'
                         ? 'bg-orange-600 text-white border-orange-600'
                         : 'bg-blue-600 text-white border-blue-600')
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}
                 `}
               >
-                {tag}
+                {t(tag.key)}
               </button>
             ))}
           </div>
@@ -651,11 +673,11 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
           <div className="flex justify-between items-center mb-1.5" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-1.5">
               <label className="block text-sm font-bold text-slate-700">
-                {feedbackType === 'report' ? '現場觀察描述' : '您的記憶與故事'}
+                {feedbackType === 'report' ? t('forms.node.desc.labelReport') : t('forms.node.desc.labelMemory')}
               </label>
               {aiSummary && (
                 <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5 animate-bounce">
-                  ✨ AI 已潤飾
+                  {t('forms.node.ai.polishedBadge')}
                 </span>
               )}
             </div>
@@ -671,18 +693,18 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                       ? 'bg-red-500 text-white animate-pulse'
                       : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'}
                   `}
-                  title="用語音說故事"
+                  title={t('forms.node.voice.titleStart')}
                 >
                   <span className="text-[10px]">🎙️</span>
-                  <span>{isListening ? '聆聽中...' : '語音輸入'}</span>
+                  <span>{isListening ? t('forms.node.voice.listening') : t('forms.node.voice.inputButton')}</span>
                 </button>
               ) : (
                 <span
                   className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-400 border border-slate-200 cursor-not-allowed"
-                  title="語音輸入需要 HTTPS 連線（正式網址）才能使用"
+                  title={t('forms.node.voice.httpsRequiredTitle')}
                 >
                   <span>🎙️</span>
-                  <span>語音輸入（需 HTTPS）</span>
+                  <span>{t('forms.node.voice.httpsRequiredLabel')}</span>
                 </span>
               )}
 
@@ -692,10 +714,10 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   onClick={(e) => { e.stopPropagation(); handleAISummarize(); }}
                   disabled={isSummarizing}
                   className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-                  title="使用 Gemini AI 潤飾並整理故事"
+                  title={t('forms.node.ai.polishTitle')}
                 >
                   <span>✨</span>
-                  <span>AI 潤飾</span>
+                  <span>{t('forms.node.ai.polishButton')}</span>
                 </button>
               )}
             </div>
@@ -706,8 +728,8 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={feedbackType === 'report'
-                ? "請描述您觀察到的環境問題（位置、範圍、發生時間等）"
-                : (isVoiceSupported ? "這裡有什麼特別的回憶嗎？（可點擊上方「語音輸入」用語音說故事喔！）" : "這裡有什麼特別的回憶嗎？")}
+                ? t('forms.node.desc.placeholderReport')
+                : (isVoiceSupported ? t('forms.node.desc.placeholderMemoryVoice') : t('forms.node.desc.placeholderMemory'))}
               className="w-full p-2 border border-slate-200 rounded-lg text-sm min-h-[85px] focus:ring-2 focus:ring-blue-500 outline-none resize-none"
             />
 
@@ -724,13 +746,13 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                     </svg>
                   </div>
                 </div>
-                <p className="text-blue-900 font-bold text-xs animate-pulse">語音聆聽中...請對麥克風說話</p>
+                <p className="text-blue-900 font-bold text-xs animate-pulse">{t('forms.node.voice.listeningPrompt')}</p>
                 <button 
                   type="button"
                   onClick={(e) => { e.stopPropagation(); handleToggleListen(); }}
                   className="mt-2.5 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-[10px] rounded-full border border-red-200 transition-colors shadow-xs cursor-pointer"
                 >
-                  說完了，點擊停止 ⏹️
+                  {t('forms.node.voice.stopButton')}
                 </button>
               </div>
             )}
@@ -743,7 +765,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             >
               <div className="flex justify-between items-center mb-1.5">
                 <span className="text-[11px] font-extrabold text-indigo-900 flex items-center gap-1 animate-pulse">
-                  ✨ Gemini AI 智慧地景故事潤飾
+                  {t('forms.node.ai.cardTitle')}
                 </span>
                 <button 
                   type="button"
@@ -765,7 +787,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   <div className="h-3 bg-indigo-200 rounded-full w-full animate-pulse"></div>
                   <div className="h-3 bg-indigo-200 rounded-full w-11/12 animate-pulse"></div>
                   <div className="h-3 bg-indigo-200 rounded-full w-4/5 animate-pulse"></div>
-                  <div className="text-[10px] text-indigo-500 animate-pulse text-center mt-1">AI 正在斟酌字句中...</div>
+                  <div className="text-[10px] text-indigo-500 animate-pulse text-center mt-1">{t('forms.node.ai.thinking')}</div>
                 </div>
               ) : summarizeError ? (
                 <div className="text-[11px] text-red-600 font-bold py-1">
@@ -789,7 +811,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                       }}
                       className="flex-1 bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold py-1 rounded transition-colors shadow-2xs cursor-pointer"
                     >
-                      套用 (覆蓋原文)
+                      {t('forms.node.ai.applyButton')}
                     </button>
                     <button
                       type="button"
@@ -801,7 +823,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                       }}
                       className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-[10px] font-bold py-1 rounded transition-colors shadow-xs cursor-pointer"
                     >
-                      保留，與原文一同送出
+                      {t('forms.node.ai.keepButton')}
                     </button>
                   </div>
                 </>
@@ -815,7 +837,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3" onClick={(e) => e.stopPropagation()}>
           {/* Photo ① */}
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-slate-600">上傳照片 ① (必填/選填)</label>
+            <label className="block text-xs font-bold text-slate-600">{t('forms.node.photo.label1')}</label>
             <div 
               className={`
                 border border-dashed rounded-lg p-3 text-center cursor-pointer transition-all
@@ -858,7 +880,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
               ) : (
                 <div className="text-slate-400 flex flex-col items-center pointer-events-none py-1">
                   <span className="text-lg">📷</span>
-                  <span className="text-[10px] font-semibold">照片 ①</span>
+                  <span className="text-[10px] font-semibold">{t('forms.node.photo.empty1')}</span>
                 </div>
               )}
               <input 
@@ -874,27 +896,27 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             {isDetectingFaces && (
               <div className="p-1.5 bg-blue-50 border border-blue-200 rounded text-[9px] text-blue-700 flex items-center gap-1.5">
                 <div className="inline-block w-2.5 h-2.5 border border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
-                <span>偵測人臉中...</span>
+                <span>{t('forms.node.face.detecting')}</span>
               </div>
             )}
 
             {faceDetectionWarning && detectedFaces.length > 0 && (
               <div className="p-2 bg-rose-50 border border-rose-200 rounded text-[9px] text-rose-800 space-y-1">
-                <p className="font-bold">⚠️ 偵測到 {detectedFaces.length} 處人臉</p>
+                <p className="font-bold">{t('forms.node.face.warning', { n: detectedFaces.length })}</p>
                 <div className="flex gap-1.5">
                   <button
                     type="button"
                     onClick={() => applyBlur(photoBase64, detectedFaces, 1)}
                     className="px-2 py-0.5 bg-rose-600 hover:bg-rose-500 text-white rounded text-[9px] font-bold"
                   >
-                    🧩 馬賽克
+                    {t('forms.node.face.blurButton')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setFaceDetectionWarning(false)}
                     className="px-2 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-[9px]"
                   >
-                    忽略
+                    {t('forms.node.face.ignoreButton')}
                   </button>
                 </div>
               </div>
@@ -910,7 +932,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   className="mt-0.5"
                 />
                 <div>
-                  <p className="font-bold">🔒 移除照片 ① GPS ({photoExif.latitude}, {photoExif.longitude})</p>
+                  <p className="font-bold">{t('forms.node.exif.removeGps1', { lat: photoExif.latitude, lng: photoExif.longitude })}</p>
                 </div>
               </div>
             )}
@@ -924,7 +946,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   disabled={isDescribingImage}
                   className="w-full py-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white rounded text-[9px] font-bold disabled:opacity-50"
                 >
-                  {isDescribingImage ? '分析中...' : '📝 AI 照片 ① 轉譯'}
+                  {isDescribingImage ? t('forms.node.ai.analyzing') : t('forms.node.ai.describeButton1')}
                 </button>
                 {imageDescribeError && (
                   <p className="text-[8px] text-red-600 font-bold mt-0.5">⚠️ {imageDescribeError}</p>
@@ -935,7 +957,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
 
           {/* Photo ② */}
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-slate-600">上傳照片 ② (選填)</label>
+            <label className="block text-xs font-bold text-slate-600">{t('forms.node.photo.label2')}</label>
             <div 
               className={`
                 border border-dashed rounded-lg p-3 text-center cursor-pointer transition-all
@@ -978,7 +1000,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
               ) : (
                 <div className="text-slate-400 flex flex-col items-center pointer-events-none py-1">
                   <span className="text-lg">📷</span>
-                  <span className="text-[10px] font-semibold">照片 ② (加選)</span>
+                  <span className="text-[10px] font-semibold">{t('forms.node.photo.empty2')}</span>
                 </div>
               )}
               <input 
@@ -994,27 +1016,27 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
             {isDetectingFaces_2 && (
               <div className="p-1.5 bg-blue-50 border border-blue-200 rounded text-[9px] text-blue-700 flex items-center gap-1.5">
                 <div className="inline-block w-2.5 h-2.5 border border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
-                <span>偵測人臉中...</span>
+                <span>{t('forms.node.face.detecting')}</span>
               </div>
             )}
 
             {faceDetectionWarning_2 && detectedFaces_2.length > 0 && (
               <div className="p-2 bg-rose-50 border border-rose-200 rounded text-[9px] text-rose-800 space-y-1">
-                <p className="font-bold">⚠️ 偵測到 {detectedFaces_2.length} 處人臉</p>
+                <p className="font-bold">{t('forms.node.face.warning', { n: detectedFaces_2.length })}</p>
                 <div className="flex gap-1.5">
                   <button
                     type="button"
                     onClick={() => applyBlur(photoBase64_2, detectedFaces_2, 2)}
                     className="px-2 py-0.5 bg-rose-600 hover:bg-rose-500 text-white rounded text-[9px] font-bold"
                   >
-                    🧩 馬賽克
+                    {t('forms.node.face.blurButton')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setFaceDetectionWarning_2(false)}
                     className="px-2 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-[9px]"
                   >
-                    忽略
+                    {t('forms.node.face.ignoreButton')}
                   </button>
                 </div>
               </div>
@@ -1030,7 +1052,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   className="mt-0.5"
                 />
                 <div>
-                  <p className="font-bold">🔒 移除照片 ② GPS ({photoExif_2.latitude}, {photoExif_2.longitude})</p>
+                  <p className="font-bold">{t('forms.node.exif.removeGps2', { lat: photoExif_2.latitude, lng: photoExif_2.longitude })}</p>
                 </div>
               </div>
             )}
@@ -1044,7 +1066,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
                   disabled={isDescribingImage_2}
                   className="w-full py-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white rounded text-[9px] font-bold disabled:opacity-50"
                 >
-                  {isDescribingImage_2 ? '分析中...' : '📝 AI 照片 ② 轉譯'}
+                  {isDescribingImage_2 ? t('forms.node.ai.analyzing') : t('forms.node.ai.describeButton2')}
                 </button>
                 {imageDescribeError_2 && (
                   <p className="text-[8px] text-red-600 font-bold mt-0.5">⚠️ {imageDescribeError_2}</p>
@@ -1060,7 +1082,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
         onClick={handleSubmit}
         disabled={isSubmitting || (!description.trim() && selectedTags.length === 0 && !photoBase64 && !photoBase64_2)}
       >
-        {isSubmitting ? '處理中 (若含照片可能需要較久)...' : '送出回饋'}
+        {isSubmitting ? t('forms.node.submit.processing') : t('forms.node.submit.button')}
       </button>
     </div>
   );
