@@ -10,7 +10,13 @@ import { pathForLocale } from './paths';
 export const LOCALES = ['zh', 'en'];
 export const DEFAULT_LOCALE = 'zh';
 
-const LocaleContext = createContext({ locale: DEFAULT_LOCALE });
+// 預設值要跟 provider 提供的形狀一致（有 t、有 isEn）：後台等頁面沒有包 LocaleProvider，
+// 少了 t 會讓任何呼叫 t(...) 的元件整頁炸掉（2026-09-23 後台問卷分析頁踩過）。
+const LocaleContext = createContext({
+  locale: DEFAULT_LOCALE,
+  isEn: false,
+  t: (key, vars) => translate(DEFAULT_LOCALE, key, vars),
+});
 
 /**
  * 取字串。缺 key 或缺翻譯時 fallback 回中文，最後才回 key 本身，

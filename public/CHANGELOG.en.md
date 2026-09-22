@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.12.3] - 2026-09-23 - 🔧 - UPDATE - Fix: the Admin Thermal Comfort Analysis Panel Crashed on Open
+1. **Admin survey analysis panel fixed**: when the English edition shipped on 21 September, interface strings moved into a locale dictionary; the admin page is not wrapped in a locale provider, so the map component it reuses could not reach the translation function and the whole page failed with "This page couldn't load" as soon as the thermal comfort analysis tab was opened. The locale context default now carries a working Chinese string function, so pages without a provider (currently only the admin page) work again.
+
 ## [v1.12.2] - 2026-09-23 - 📍 - UPDATE - Locations Outside the Taipei Area No Longer Move the Map
 1. **Range check on geolocation**: once location access is allowed, a fix that falls outside the Taipei metropolitan area (roughly 24.75–25.35° N, 121.25–121.85° E) is no longer shown and no longer recentres the map; a short note under the locate button explains why. Previously, opening the site abroad and allowing location sent the map straight out of Xinyi District, leaving the routes, stops and layers off screen.
 2. **The feedback form uses the same check**: the watercourse observation form now only adopts a location fix from the Taipei area, and keeps the Xinyi default otherwise.
