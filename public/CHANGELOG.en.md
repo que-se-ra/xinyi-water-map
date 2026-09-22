@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.12.2] - 2026-09-23 - 📍 - UPDATE - Locations Outside the Taipei Area No Longer Move the Map
+1. **Range check on geolocation**: once location access is allowed, a fix that falls outside the Taipei metropolitan area (roughly 24.75–25.35° N, 121.25–121.85° E) is no longer shown and no longer recentres the map; a short note under the locate button explains why. Previously, opening the site abroad and allowing location sent the map straight out of Xinyi District, leaving the routes, stops and layers off screen.
+2. **The feedback form uses the same check**: the watercourse observation form now only adopts a location fix from the Taipei area, and keeps the Xinyi default otherwise.
+
 ## [v1.12.1] - 2026-09-22 - 🔤 - UI - English Header Subtitle Restored to "Waters of Xinyi"
 1. **English header subtitle**: the subtitle beside the 信水義河 wordmark in the header changes from "Water Heritage Map · Xinyi" back to the project's English name, "Waters of Xinyi", matching the page titles and the survey and privacy pages. The Chinese edition is unchanged.
 

@@ -7,6 +7,7 @@ import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 import LanguageSwitcher from '@/i18n/LanguageSwitcher';
+import { isNearTaipei } from '@/lib/geo';
 
 // 語言切換要在「瀏覽器畫出來之前」就把 landing 關掉，否則會閃一下首頁動畫。
 // useLayoutEffect 在 SSR 會噴警告，所以伺服器端退回 useEffect（反正那邊沒有 window）。
@@ -110,10 +111,10 @@ export default function HomeApp() {
     if (activeTab === 'form' && typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
+          const { latitude, longitude } = position.coords;
+          // 台北都會區以外的定位不採用，維持信義區的預設座標（見 @/lib/geo）
+          if (!isNearTaipei(latitude, longitude)) return;
+          setUserLocation({ lat: latitude, lng: longitude });
         },
         (error) => {
           console.warn('Geolocation failed, using default coordinates:', error.message);

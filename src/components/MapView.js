@@ -17,6 +17,7 @@ import ZoningLayer from './layers/ZoningLayer';
 import ComfortLayer from './layers/ComfortLayer';
 import RouteLayer, { COMFORT_SCALE } from './layers/RouteLayer';
 import UserLocationLayer from './layers/UserLocationLayer';
+import { isNearTaipei } from '@/lib/geo';
 import HistoricalLayer, { HistoricalControl, HISTORICAL_MAPS } from './layers/HistoricalLayer';
 import TemperatureLayer, { TemperatureControl, useTemperatureLayer } from './layers/TemperatureLayer';
 import DataSourceControl from './layers/DataSourceControl';
@@ -306,9 +307,17 @@ export default function MapView({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
+        setLocating(false);
+        // 定位在台北都會區以外（例如在國外開這個網站）：不顯示位置、不移動地圖，
+        // 否則畫面會被拉離信義區，看不到路線與圖層。
+        if (!isNearTaipei(latitude, longitude)) {
+          setUserPos(null);
+          setAccuracy(null);
+          setLocateError('outside');
+          return;
+        }
         setUserPos([latitude, longitude]);
         setAccuracy(accuracy);
-        setLocating(false);
       },
       (err) => {
         setLocating(false);
@@ -327,6 +336,7 @@ export default function MapView({
     denied:      t('map.control.locateErrorDenied'),
     unsupported: t('map.control.locateErrorUnsupported'),
     failed:      t('map.control.locateErrorFailed'),
+    outside:     t('map.control.locateErrorOutside'),
   };
 
   return (

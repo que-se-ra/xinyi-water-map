@@ -36,6 +36,10 @@ const map = {
     zh: '⚠️ 您的瀏覽器不支援定位功能。',
     en: '⚠️ Your browser does not support geolocation.',
   },
+  'map.control.locateErrorOutside': {
+    zh: '📍 您目前不在台北一帶，地圖維持在信義區，方便您瀏覽路線與圖層。',
+    en: '📍 You appear to be outside the Taipei area, so the map stays on Xinyi District where the routes and layers are.',
+  },
   'map.control.locateErrorFailed': {
     zh: '⚠️ 無法取得位置，請稍後再試。',
     en: '⚠️ Could not get your location. Please try again shortly.',
