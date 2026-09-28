@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import SurveyAnalysisPanel from '@/components/admin/SurveyAnalysisPanel';
+import SongshanHydroPanel from '@/components/admin/SongshanHydroPanel';
 import Link from 'next/link';
 
 export default function AdminPage() {
@@ -12,7 +13,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'approved', 'rejected'
-  // 後台分區：'review' 地景審核、'survey' 熱舒適問卷分析
+  // 後台分區：'review' 地景審核、'survey' 熱舒適問卷分析、'songshan' 松菸水文踏查
   const [section, setSection] = useState('review');
   const [typeFilter, setTypeFilter] = useState('all'); // 'all', 'memory', 'report'
   const [actioningId, setActioningId] = useState(null);
@@ -347,7 +348,8 @@ export default function AdminPage() {
         <div className="flex gap-1 border-b border-white/10">
           {[
             ['review', '🗂️ 地景審核'],
-            ['survey', '📊 熱舒適問卷分析']
+            ['survey', '📊 熱舒適問卷分析'],
+            ['songshan', '🌊 松菸水文踏查']
           ].map(([key, label]) => (
             <button
               key={key}
@@ -370,6 +372,8 @@ export default function AdminPage() {
             }
           />
         )}
+
+        {section === 'songshan' && <SongshanHydroPanel />}
 
         {section === 'review' && (
         <>

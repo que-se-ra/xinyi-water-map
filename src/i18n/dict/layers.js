@@ -292,8 +292,8 @@ const layers = {
     en: '🏛️ Historical maps and aerial photography',
   },
   'layers.dataSource.historicalText': {
-    zh: '中央研究院 人社中心 GIS 專題中心（包含 1904 臺灣堡圖、1921 地形圖、1939 瑠公水利區域圖、1945 美軍地圖、1989 地形圖等）',
-    en: 'Center for GIS, Research Center for Humanities and Social Sciences, Academia Sinica (including the 1904 Taiwan Baotu, 1921 Topographic Map, 1939 Liu-kong-tsun Irrigation District Map, 1945 US Military Map and 1989 Topographic Map)',
+    zh: '中央研究院 人社中心 GIS 專題中心（包含 1904 臺灣堡圖、1921 地形圖、1939 瑠公水利區域圖、1944 美軍地形圖、1989 地形圖等）',
+    en: 'Center for GIS, Research Center for Humanities and Social Sciences, Academia Sinica (including the 1904 Taiwan Baotu, 1921 Topographic Map, 1939 Liu-kong-tsun Irrigation District Map, 1944 US Military Topographic Map and 1989 Topographic Map)',
   },
   'layers.dataSource.openDataHeading': {
     zh: '📊 政府開放資料 (Open Data)',

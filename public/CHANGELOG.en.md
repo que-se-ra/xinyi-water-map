@@ -1,5 +1,12 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.13.0] - 2026-09-28 - 🌊 - FEATURE - New Admin Study "Songshan Park Waterways"; 1944 Map No Longer Goes Blank When Zoomed In
+1. **New admin tab, "🌊 Songshan Park Waterways"**: pre-walk research for an ecology and hydrology tour of Songshan Cultural and Creative Park for the 2026 原創基地節 event, visible only in the admin area. It checks the claim that the Liu-kong-tsun Canal ran through the park (the waterway was the Xingya Branch Line (興雅派線), which left the canal's First Main Line (第一幹線) at the 頂店仔汴 Sluice and ran east along the factory's northern edge), with a verdict and evidence for each point, open questions and sources.
+2. **Then-and-now map**: a map centred on the park that switches between the 1904, 1921, 1939, 1944 and 1989 maps and today's basemap, with an opacity slider, plus the canal and natural drainage lines and the sluice location as read from the historical maps (marked as interpretations, possibly off by tens of metres).
+3. **Suggested walking route**: built on the event plan's original route, adding a lead-in that follows the old branch line into the park and a main stop at the ecological pond; seven stops in all (stop 0 optional), each with what to look at, what to say and what to do, including thermal-camera readings.
+4. **1944 US Military Topographic Map no longer goes blank**: Academia Sinica serves this map only up to zoom level 15, so zooming to 16 or beyond used to show nothing. The layer now sets `maxNativeZoom: 15` and scales up the level-15 tiles instead.
+5. **Year corrected in the data sources**: the data sources note said "1945 US Military Map", which did not match the layer name or the actual map (AM25K_1944A); it now says 1944.
+
 ## [v1.12.3] - 2026-09-23 - 🔧 - UPDATE - Fix: the Admin Thermal Comfort Analysis Panel Crashed on Open
 1. **Admin survey analysis panel fixed**: when the English edition shipped on 21 September, interface strings moved into a locale dictionary; the admin page is not wrapped in a locale provider, so the map component it reuses could not reach the translation function and the whole page failed with "This page couldn't load" as soon as the thermal comfort analysis tab was opened. The locale context default now carries a working Chinese string function, so pages without a provider (currently only the admin page) work again.
 

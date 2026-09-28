@@ -29,6 +29,9 @@ export const HISTORICAL_MAPS = [
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}',
     color: '#ea580c',
+    // 中研院這組圖磚只提供到第 15 級，更大的級數回 404；
+    // 設 maxNativeZoom 讓 Leaflet 放大第 15 級圖磚顯示，而不是整片空白。
+    maxNativeZoom: 15,
   },
   {
     id: 'tm1989',
@@ -57,6 +60,7 @@ export default function HistoricalLayer({ activeId, opacity }) {
       key={map.id}          // key forces remount when switching maps
       url={map.url}
       tileSize={256}
+      maxNativeZoom={map.maxNativeZoom}
       opacity={opacity}
       attribution={t('layers.historical.attribution')}
     />
