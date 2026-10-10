@@ -17,6 +17,22 @@ export const xinyi = {
   routes,
   routesEn,
   features: { survey: true },
+  // 平台首頁的專案卡片
+  card: {
+    zh: {
+      name: '信水義河',
+      subtitle: 'Waters of Xinyi',
+      partner: '信義社區大學',
+      summary: '四條水文走讀路線、57個站點，並蒐集居民對街道熱舒適的經驗。',
+    },
+    en: {
+      name: '信水義河',
+      subtitle: 'Waters of Xinyi',
+      partner: 'Taipei Xinyi Community College',
+      summary:
+        'Four walking routes and 57 stops tracing the waterways of Xinyi District, plus a survey of how the streets feel in the heat.',
+    },
+  },
   // SEO / 分享卡片文字（原本寫在 app/layout.js、app/en/layout.js 與 survey 頁）
   meta: {
     zh: {

@@ -9,8 +9,9 @@ import layers from './layers';
 import survey from './survey';
 import privacy from './privacy';
 import forms from './forms';
+import platform from './platform';
 
-const MODULES = [common, home, map, layers, survey, privacy, forms];
+const MODULES = [common, home, map, layers, survey, privacy, forms, platform];
 
 function flatten(modules) {
   const zh = {};

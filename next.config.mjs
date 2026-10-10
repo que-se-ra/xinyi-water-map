@@ -4,6 +4,12 @@ const nextConfig = {
   // 先用暫時轉址（307）：永久轉址會被瀏覽器長期快取，正式上線前再評估改成 permanent。
   async redirects() {
     return [
+      // 舊版首頁連結：語言切換鈕與分享出去的網址帶有 ?landing= / ?tab=，這類連結一定是要看信義地圖。
+      // 純 "/"（沒帶參數）現在是專案列表，不轉址。
+      ...['landing', 'tab'].flatMap((key) => [
+        { source: '/', has: [{ type: 'query', key }], destination: '/xinyi', permanent: false },
+        { source: '/en', has: [{ type: 'query', key }], destination: '/en/xinyi', permanent: false },
+      ]),
       { source: '/survey', destination: '/xinyi/survey', permanent: false },
       { source: '/en/survey', destination: '/en/xinyi/survey', permanent: false },
     ];

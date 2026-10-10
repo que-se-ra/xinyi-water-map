@@ -834,6 +834,12 @@ export default function HomeApp() {
           <div className="absolute top-4 right-4 md:top-6 md:right-8 z-30">
             <LanguageSwitcher variant="landing" stateParams={{ landing: '1' }} />
           </div>
+          <Link
+            href={lp('/')}
+            className="absolute top-4 left-4 md:top-6 md:left-8 z-30 px-3 py-1.5 rounded-xl text-xs md:text-sm tracking-wider text-slate-500 bg-white/85 border border-sky-200/80 shadow-md backdrop-blur-sm hover:text-sky-700 transition-colors"
+          >
+            {t('platform.back')}
+          </Link>
 
           {/* ── Water animation layer ── */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

@@ -1,15 +1,16 @@
 import './globals.css';
 
+// 這是「平台」層級的 metadata；各專案頁在自己的 generateMetadata 覆寫（見 src/projects/metadata.js）。
 // 沒有 metadataBase 的話，alternates 裡的相對網址不會被解析，hreflang 標籤不會產出。
 export const metadata = {
   metadataBase: new URL('https://xinyi-water-map-theta.vercel.app'),
-  title: '信水義河 — 信義社大水文導覽互動地圖',
+  title: '社區文史與環境感知互動地圖',
   description:
-    '四條路線、57個站點，帶你走讀台北信義區的水文故事。瑠公圳、永春陂、五分埔支線、三張犁排水系——兩百年的水路記憶，就藏在你每天走過的街道裡。',
-  keywords: '信義社大,水文導覽,瑠公圳,永春陂,五分埔,三張犁,信義區,台北,互動地圖',
+    '用地圖走讀社區的歷史與環境，邀請居民一起觀察、標記與回饋。目前有「信水義河」（信義社大合作），更多專案籌備中。',
+  keywords: '社區文史,環境感知,互動地圖,走讀,信水義河,信義社大,微氣候,台北',
   openGraph: {
-    title: '信水義河 — 信義社大水文導覽互動地圖',
-    description: '四條路線、57個站點，走讀台北信義區的水文故事',
+    title: '社區文史與環境感知互動地圖',
+    description: '用地圖走讀社區的歷史與環境，邀請居民一起觀察、標記與回饋。',
     type: 'website',
     locale: 'zh_TW',
   },

@@ -2,8 +2,10 @@
 // 共用的基礎圖層（古今地圖、衛星影像、公開資料）不屬於任何專案，所有專案都保留。
 
 import { xinyi } from './xinyi';
+import { songshan } from './songshan';
 
-export const PROJECTS = [xinyi];
+// 順序即平台首頁卡片順序
+export const PROJECTS = [xinyi, songshan];
 
 export const DEFAULT_PROJECT_SLUG = 'xinyi';
 
