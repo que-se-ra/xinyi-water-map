@@ -1,6 +1,7 @@
 // 中英路由對應。英文版一律掛在 /en 之下，中文版維持原網址不變。
 //   /            <->  /en
-//   /survey      <->  /en/survey
+//   /xinyi       <->  /en/xinyi          （各專案地圖）
+//   /xinyi/survey <-> /en/xinyi/survey
 //   /privacy     <->  /en/privacy
 
 export const EN_PREFIX = '/en';

@@ -33,7 +33,7 @@ const RELATION_VALUES = ['居住', '工作', '就學', '經常經過', '研究�
 // 信義區中心
 const XINYI_CENTER = [25.033, 121.565];
 
-// 地標快速跳轉（六張犁/永春座標取自 routeData.js 站點實測值）
+// 地標快速跳轉（六張犁/永春座標取自 projects/xinyi/routeData.js 站點實測值）
 const LANDMARKS = [
   { id: 'taipei101', lat: 25.0339, lng: 121.5645 },
   { id: 'cityHall', lat: 25.041, lng: 121.5652 },

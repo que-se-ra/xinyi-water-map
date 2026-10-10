@@ -1,10 +1,11 @@
 import { LocaleProvider } from '@/i18n/LocaleProvider';
-import HomeApp from '@/components/HomeApp';
+import PlatformHome from '@/components/PlatformHome';
+import { projectCards } from '@/projects/cards';
 
 export default function Page() {
   return (
     <LocaleProvider locale="en">
-      <HomeApp />
+      <PlatformHome cards={projectCards('en')} />
     </LocaleProvider>
   );
 }

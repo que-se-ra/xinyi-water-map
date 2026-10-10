@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMap } from 'react-leaflet';
 import { useT } from '@/i18n/LocaleProvider';
+import { useProject } from '@/projects/ProjectProvider';
 
 const SCORES = [
   { value: 1, labelKey: 'forms.route.score.veryBad', emoji: '😣' },
@@ -22,6 +23,7 @@ export const FACTORS = [
 
 export default function RouteFeedbackForm({ routeId, routeName, routeNameZh, segmentId }) {
   const t = useT();
+  const { feedbackProjectId } = useProject();
   const map = useMap();
   const [scores, setScores] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,6 +44,7 @@ export default function RouteFeedbackForm({ routeId, routeName, routeNameZh, seg
 
     const payload = {
       formType: 'route_comfort',
+      project_id: feedbackProjectId,
       timestamp: new Date().toISOString(),
       route_id: routeId,
       // 送出一律用中文原名：英文版的留言要跟中文版落在同一組路線名下才統計得了

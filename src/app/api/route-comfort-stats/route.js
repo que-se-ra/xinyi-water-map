@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { parseProjectParam, recordProjectId } from '@/lib/project-scope';
 
 const SCORE_KEYS = ['shade', 'surface', 'safety', 'comfort'];
 
@@ -15,8 +16,11 @@ const SCORE_KEYS = ['shade', 'surface', 'safety', 'comfort'];
  *   total: 57
  * }
  */
-export async function GET() {
+export async function GET(request) {
   try {
+    // ?project=xinyi 只統計該專案的評分；沒帶參數維持舊行為（全部）
+    const project = parseProjectParam(new URL(request.url).searchParams.get('project'));
+
     const targetUrl = process.env.SHEETS_API_URL;
 
     if (!targetUrl) {
@@ -60,6 +64,7 @@ export async function GET() {
     let total = 0;
 
     for (const row of records) {
+      if (project && recordProjectId(row) !== project) continue;
       const routeId = String(row.route_id ?? '').trim();
       const segmentId = String(row.segment_id ?? '').trim();
       if (!routeId || !segmentId) continue;

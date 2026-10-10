@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
+import { parseProjectParam, recordProjectId } from '@/lib/project-scope';
 
-export async function GET() {
+export async function GET(request) {
   try {
+    // ?project=xinyi 只回該專案；沒帶參數維持舊行為（全部已核准）
+    const project = parseProjectParam(new URL(request.url).searchParams.get('project'));
+
     const targetUrl = process.env.NODE_SHEETS_API_URL;
 
     if (!targetUrl) {
@@ -29,7 +33,9 @@ export async function GET() {
     
     // 伺服器端過濾：僅公開返回已審查通過 (status === 'approved') 的標記
     const approvedMarkers = Array.isArray(allRecords) 
-      ? allRecords.filter(record => record.status === 'approved')
+      ? allRecords.filter(record =>
+          record.status === 'approved' && (!project || recordProjectId(record) === project)
+        )
       : [];
 
     return NextResponse.json(approvedMarkers);

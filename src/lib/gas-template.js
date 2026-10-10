@@ -7,6 +7,10 @@
  *   2. 路線舒適度評分 — 分頁「路線舒適度評分」
  * 前端請求會依 payload 內容自動路由到正確分頁，只需要「一份試算表 + 一個部署」。
  *
+ * 多專案：兩個分頁都有 project_id 欄位（例如 xinyi、songshan），用來區分回饋屬於哪個專案。
+ * 加欄位之前的舊資料 project_id 是空白，前端／後台一律視為 xinyi。
+ * 已經建好的分頁不需要手動加欄位：第一次收到新回饋時，下面的 ensureProjectColumn 會自動補在最右邊。
+ *
  * 部署方式：
  * 1. 開啟該 Google 試算表 →「擴充功能」→「Apps Script」。
  * 2. 將此腳本完整複製並貼入（取代原有內容）。
@@ -23,6 +27,8 @@ var SHEET_NAMES = {
   node: "地景標記回饋",
   route: "路線舒適度評分"
 };
+// 所有專案的回饋照片共用同一個雲端資料夾（以名稱尋找，找不到才建立）；
+// 要分專案存放時，改成依 payload.project_id 取不同資料夾名稱。
 var DRIVE_FOLDER_NAME = "信水義河地景相片";
 
 /**
@@ -140,6 +146,7 @@ function handleUpdateStatus(sheet, payload) {
  * 處理新增地景標記回饋紀錄（地方記憶 / 環境通報）
  */
 function handleCreateNodeRecord(sheet, payload) {
+  ensureProjectColumn(sheet);
   var headers = sheet.getDataRange().getValues()[0];
 
   var uniqueId = payload.id || "node_" + new Date().getTime() + "_" + Math.random().toString(36).substr(2, 5);
@@ -222,6 +229,9 @@ function handleCreateNodeRecord(sheet, payload) {
       case "status":
         rowValues.push("pending"); // 所有新回饋預設為待審批
         break;
+      case "project_id":
+        rowValues.push(payload.project_id || "");
+        break;
       default:
         rowValues.push("");
     }
@@ -236,6 +246,7 @@ function handleCreateNodeRecord(sheet, payload) {
  * 處理新增路線舒適度評分紀錄
  */
 function handleCreateRouteRecord(sheet, payload) {
+  ensureProjectColumn(sheet);
   var headers = sheet.getDataRange().getValues()[0];
 
   var scores = payload.scores || {};
@@ -276,6 +287,9 @@ function handleCreateRouteRecord(sheet, payload) {
         break;
       case "score_comfort":
         rowValues.push(scoreComfort);
+        break;
+      case "project_id":
+        rowValues.push(payload.project_id || "");
         break;
       default:
         rowValues.push("");
@@ -320,6 +334,19 @@ function uploadPhotoToDrive(base64Data, filename) {
 }
 
 /**
+ * 舊分頁沒有 project_id 欄：第一次寫入前自動在標題列最右邊補上（只補一次，不動既有欄位順序）。
+ */
+function ensureProjectColumn(sheet) {
+  var lastCol = sheet.getLastColumn();
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  if (headers.indexOf("project_id") !== -1) return;
+  var cell = sheet.getRange(1, lastCol + 1);
+  cell.setValue("project_id");
+  cell.setFontWeight("bold");
+  cell.setBackground("#f1f5f9");
+}
+
+/**
  * 分頁初始化 — 地景標記回饋
  */
 function initNodeSheet(ss) {
@@ -340,7 +367,8 @@ function initNodeSheet(ss) {
     "photo_exif_longitude",
     "photo_exif_dateTime",
     "photo_exif_device",
-    "status"
+    "status",
+    "project_id"
   ];
 
   var range = sheet.getRange(1, 1, 1, columns.length);
@@ -365,7 +393,8 @@ function initRouteSheet(ss) {
     "score_shade",
     "score_surface",
     "score_safety",
-    "score_comfort"
+    "score_comfort",
+    "project_id"
   ];
 
   var range = sheet.getRange(1, 1, 1, columns.length);

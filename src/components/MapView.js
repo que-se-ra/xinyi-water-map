@@ -11,7 +11,7 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { routes as routesZh } from '@/data/routeData';
+import { useProject } from '@/projects/ProjectProvider';
 import { useRoutes } from '@/i18n/useRoutes';
 import ZoningLayer from './layers/ZoningLayer';
 import ComfortLayer from './layers/ComfortLayer';
@@ -79,15 +79,19 @@ const ROUTE_LABELS = [
 // ── FitBounds helper component ─────────────────────────────
 function FitBoundsOnLoad() {
   const map = useMap();
+  const project = useProject();
   useEffect(() => {
     // Gather all station coords
-    const allCoords = routesZh.flatMap((r) =>
+    const allCoords = project.routes.flatMap((r) =>
       r.stations.map((s) => [s.lat, s.lng])
     );
     if (allCoords.length > 0) {
       map.fitBounds(allCoords, { padding: [30, 30] });
+    } else {
+      // 專案還沒有路線時，退回專案設定的視角
+      map.setView(project.center, project.zoom);
     }
-  }, [map]);
+  }, [map, project]);
   return null;
 }
 
@@ -140,22 +144,23 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
+  const { defaultLayers: dl, feedbackProjectId } = useProject(); // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
-    routes.map(() => true)
+    routes.map(() => dl.routes)
   );
   const [expandPanel, setExpandPanel] = useState(false);
 
   // Open Data layers state (Toggles only)
-  const [showTrees, setShowTrees] = useState(false);
-  const [showSidewalks, setShowSidewalks] = useState(false);
-  const [showGreen, setShowGreen] = useState(false);
+  const [showTrees, setShowTrees] = useState(dl.trees);
+  const [showSidewalks, setShowSidewalks] = useState(dl.sidewalks);
+  const [showGreen, setShowGreen] = useState(dl.green);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
-  const [showZoning, setShowZoning] = useState(false);
+  const [showZoning, setShowZoning] = useState(dl.zoning);
   const [zoningOpacity, setZoningOpacity] = useState(0.45);
 
   // ShadeMap (Sun Shadow) state
-  const [showShadeMap, setShowShadeMap] = useState(false);
+  const [showShadeMap, setShowShadeMap] = useState(dl.shadeMap);
   // 圖層回報的建築圖資載入狀態：idle / loading / retrying / ready / error / zoom
   const [shadeMapStatus, setShadeMapStatus] = useState('idle');
   const [shadeMapOpacity, setShadeMapOpacity] = useState(0.6);
@@ -180,13 +185,13 @@ export default function MapView({
   };
 
   // Historical basemap state (null = none active)
-  const [activeHistory, setActiveHistory] = useState('liugong1939');
+  const [activeHistory, setActiveHistory] = useState(dl.history);
   const [historyOpacities, setHistoryOpacities] = useState(
     HISTORICAL_MAPS.reduce((acc, hm) => ({ ...acc, [hm.id]: hm.id === 'liugong1939' ? 0.55 : 0.7 }), {})
   );
 
   // Satellite layer state
-  const [activeSatellite, setActiveSatellite] = useState(null);
+  const [activeSatellite, setActiveSatellite] = useState(dl.satellite);
   const [satelliteOpacities, setSatelliteOpacities] = useState(
     SATELLITE_MAPS.reduce((acc, sm) => ({ ...acc, [sm.id]: 0.7 }), {})
   );
@@ -232,10 +237,10 @@ export default function MapView({
 
   // 社群審核通過地景標記狀態
   const [communityMarkers, setCommunityMarkers] = useState([]);
-  const [showCommunityMarkers, setShowCommunityMarkers] = useState(true);
+  const [showCommunityMarkers, setShowCommunityMarkers] = useState(dl.communityMarkers);
 
   // 路線舒適度檢視模式
-  const [showComfort, setShowComfort] = useState(false);
+  const [showComfort, setShowComfort] = useState(dl.comfort);
   const [comfortStats, setComfortStats] = useState(null); // null=未載入, {}=載入失敗或無資料
   const [comfortLoading, setComfortLoading] = useState(false);
 
@@ -245,7 +250,7 @@ export default function MapView({
     // 首次開啟時才載入統計
     if (next && comfortStats === null && !comfortLoading) {
       setComfortLoading(true);
-      fetch('/api/route-comfort-stats')
+      fetch(`/api/route-comfort-stats?project=${feedbackProjectId}`)
         .then(res => res.ok ? res.json() : Promise.reject(new Error('stats unavailable')))
         .then(data => setComfortStats(data.stats || {}))
         .catch(err => {
@@ -260,7 +265,7 @@ export default function MapView({
   useEffect(() => {
     async function loadCommunityMarkers() {
       try {
-        const res = await fetch('/api/feedback-list');
+        const res = await fetch(`/api/feedback-list?project=${feedbackProjectId}`);
         if (res.ok) {
           const data = await res.json();
           setCommunityMarkers(Array.isArray(data) ? data : []);
@@ -270,7 +275,7 @@ export default function MapView({
       }
     }
     loadCommunityMarkers();
-  }, [newMarkerPos]);
+  }, [newMarkerPos, feedbackProjectId]);
 
   const polylines = useMemo(
     () => routes.map((r) => buildPolyline(r)),

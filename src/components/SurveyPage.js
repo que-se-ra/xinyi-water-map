@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useProjectPath } from '@/projects/ProjectProvider';
 import { useT, useLocalePath } from '@/i18n/LocaleProvider';
 import LanguageSwitcher from '@/i18n/LanguageSwitcher';
 
@@ -25,6 +26,7 @@ const ThermalSurveyForm = dynamic(() => import('@/components/forms/ThermalSurvey
 export default function SurveyPage() {
   const t = useT();
   const lp = useLocalePath();
+  const pp = useProjectPath();
   return (
     // globals.css 將 html/body 鎖 overflow:hidden（全屏地圖需要），此頁必須自成滾動容器
     <div className="h-dvh overflow-y-auto bg-sky-50">
@@ -48,7 +50,7 @@ export default function SurveyPage() {
         <div className="flex items-center gap-2 md:gap-3">
           <LanguageSwitcher />
           <Link
-            href={lp('/')}
+            href={lp(pp('/'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-slate-500 bg-sky-50/80 border border-sky-200/70 hover:bg-sky-100 hover:text-sky-700 transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
           >
             <span>🗺️</span>
