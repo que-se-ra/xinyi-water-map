@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
-import { useProjectPath } from '@/projects/ProjectProvider';
+import { useProjectPath, useProject } from '@/projects/ProjectProvider';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 import LanguageSwitcher from '@/i18n/LanguageSwitcher';
 import { isNearTaipei } from '@/lib/geo';
@@ -89,6 +89,9 @@ export default function HomeApp() {
   const { locale } = useLocale();
   const lp = useLocalePath();
   const pp = useProjectPath();
+  const project = useProject();
+  const hasRoutes = project.routes.length > 0;
+  const tabsOn = project.ui.tabs;
   const [activeTab, setActiveTab] = useState('map'); // 'map', 'layers', 'form', 'history', 'changelog'
   const [fontSize, setFontSize] = useState('medium'); // 'small', 'medium', 'large'
   const [showLanding, setShowLanding] = useState(true);
@@ -106,7 +109,7 @@ export default function HomeApp() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('landing') === '0') setShowLanding(false);
     const tab = params.get('tab');
-    if (tab && TABS.includes(tab)) setActiveTab(tab);
+    if (tab && TABS.includes(tab) && tabsOn.includes(tab)) setActiveTab(tab);
   }, []);
 
   useEffect(() => {
@@ -295,7 +298,7 @@ export default function HomeApp() {
               }
             }
           },
-          {
+          ...(hasRoutes ? [{
             element: '#tour-route-toggles',
             popover: {
               title: t('tour.routes.title'),
@@ -303,7 +306,7 @@ export default function HomeApp() {
               side: 'left',
               align: 'start'
             }
-          },
+          }] : []),
           {
             element: '#tour-open-data-toggles',
             popover: {
@@ -390,6 +393,7 @@ export default function HomeApp() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <LanguageSwitcher stateParams={{ landing: showLanding ? '1' : '0', tab: activeTab }} />
+          {project.features.survey && (
           <Link
             href={lp(pp('/survey'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 border border-amber-400/40 transition-all duration-300 cursor-pointer shadow-md shadow-orange-200 active:scale-95 animate-pulse hover:animate-none"
@@ -399,6 +403,7 @@ export default function HomeApp() {
             <span className="hidden md:inline">{t('header.survey')}</span>
             <span className="md:hidden">{t('header.surveyShort')}</span>
           </Link>
+          )}
           <Link
             href={lp('/privacy')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-slate-500 bg-sky-50/80 border border-sky-200/70 hover:bg-sky-100 hover:text-sky-700 transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
@@ -450,6 +455,7 @@ export default function HomeApp() {
           <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">Layers</span>
         </button>
 
+        {tabsOn.includes('form') && (
         <button
           onClick={() => setActiveTab('form')}
           className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 ${activeTab === 'form' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
@@ -459,7 +465,9 @@ export default function HomeApp() {
           <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.form')}</span>
           <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">Feedback</span>
         </button>
+        )}
 
+        {tabsOn.includes('history') && (
         <button
           onClick={() => setActiveTab('history')}
           className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 ${activeTab === 'history' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
@@ -469,8 +477,9 @@ export default function HomeApp() {
           <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.history')}</span>
           <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">History</span>
         </button>
+        )}
 
-        <div className="mt-auto opacity-30 text-[10px] font-mono -rotate-90 whitespace-nowrap tracking-[0.3em] text-slate-400 hidden md:block">XINYI_MAP</div>
+        <div className="mt-auto opacity-30 text-[10px] font-mono -rotate-90 whitespace-nowrap tracking-[0.3em] text-slate-400 hidden md:block">{project.slug.toUpperCase()}_MAP</div>
 
         {/* Changelog Button */}
         <div className="w-full px-1 pt-3 flex-shrink-0">
@@ -530,6 +539,8 @@ export default function HomeApp() {
           <MapView onStartTour={startTour} />
         </div>
 
+        {tabsOn.includes('form') && (
+<>
         {/* ── Overlay: Form ── */}
         <div 
           className={`absolute inset-0 z-[1000] bg-slate-50/95 backdrop-blur-sm transition-transform duration-500 ease-in-out ${activeTab === 'form' ? 'translate-x-0' : '-translate-x-full'}`}
@@ -559,6 +570,8 @@ export default function HomeApp() {
             </button>
           </div>
         </div>
+</>
+        )}
 
         {/* ── Overlay: Layers Info ── */}
         <div 
@@ -661,6 +674,7 @@ export default function HomeApp() {
                   <p className="text-slate-600">{t('layersTab.temp.body')}</p>
                 </div>
 
+                {hasRoutes && (
                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                   <h3 className="text-xl font-bold text-slate-900 mb-2">{t('layersTab.routes.title')}</h3>
                   <p className="text-slate-600 mb-3">{t('layersTab.routes.intro')}</p>
@@ -671,6 +685,7 @@ export default function HomeApp() {
                     <li>• <strong>{t('layersTab.routes.r4.label')}</strong> - {t('layersTab.routes.r4.name')}</li>
                   </ul>
                 </div>
+                )}
               </div>
 
               <button 
@@ -683,6 +698,8 @@ export default function HomeApp() {
           </div>
         </div>
 
+        {tabsOn.includes('history') && (
+<>
         {/* ── Overlay: History ── */}
         <div 
           className={`absolute inset-0 z-[1000] bg-white transition-transform duration-500 ease-in-out ${activeTab === 'history' ? 'translate-x-0' : '-translate-x-full'}`}
@@ -717,6 +734,8 @@ export default function HomeApp() {
             </div>
           </div>
         </div>
+</>
+        )}
 
         {/* ── Overlay: Changelog ── */}
         <div
@@ -992,6 +1011,7 @@ export default function HomeApp() {
                 <span>{t('landing.ctaMap')}</span>
                 <span className="group-hover:translate-x-1 transition-transform text-sky-200">→</span>
               </button>
+              {project.features.survey && (
               <Link
                 href={lp(pp('/survey'))}
                 className="w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-orange-200 hover:shadow-orange-300 active:scale-95 flex items-center justify-center gap-2 border border-amber-400/30 group tracking-widest"
@@ -1001,8 +1021,11 @@ export default function HomeApp() {
                 <span>{t('landing.ctaSurvey')}</span>
                 <span className="group-hover:translate-x-1 transition-transform text-amber-100">→</span>
               </Link>
+              )}
             </div>
 
+            {project.ui.landingCards && (
+<>
             {/* Section title */}
             <div className="w-full text-center mt-4">
               <h3
@@ -1046,6 +1069,8 @@ export default function HomeApp() {
                 </div>
               ))}
             </div>
+</>
+            )}
 
             {/* Footer */}
             <footer className="w-full text-center mt-6 pb-4 flex flex-col items-center gap-3">

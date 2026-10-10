@@ -19,6 +19,8 @@ export const xinyi = {
   routesEn,
   defaultLayers: BASE_DEFAULT_LAYERS,
   features: { survey: true },
+  // 介面區塊：側欄有哪些分頁、開場頁是否顯示功能介紹卡
+  ui: { tabs: ['map', 'layers', 'form', 'history', 'changelog'], landingCards: true },
   // 後台「環境通報彙整」AI 提示詞用的單位與地區描述（原本寫死在 api/admin/report-summary）
   reportSummary: {
     org: '臺北市信義社區大學「信水義河」水文地圖計畫',

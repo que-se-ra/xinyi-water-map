@@ -5,7 +5,7 @@ import LangSync from '@/i18n/LangSync';
 export const metadata = {
   title: 'Community History & Environmental Sensing Map',
   description:
-    'Walk through the history and environment of a neighbourhood on a map, and share what you notice along the way. Currently featuring 信水義河 Waters of Xinyi, with more projects on the way.',
+    'Walk through the history and environment of a neighbourhood on a map, and share what you notice along the way. Currently featuring 信水義河 Waters of Xinyi and Urban Microclimate Observation (with Songshan Cultural and Creative Park).',
   keywords:
     'community history, environmental sensing, interactive map, walking tour, Waters of Xinyi, microclimate, Taipei',
   openGraph: {

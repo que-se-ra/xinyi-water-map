@@ -43,7 +43,7 @@ export default async function Page({ params }) {
     );
   }
   return (
-    <LocaleProvider locale="en">
+    <LocaleProvider locale="en" overrides={project.copy?.en}>
       <ProjectProvider slug={project.slug}>
         <HomeApp />
       </ProjectProvider>
