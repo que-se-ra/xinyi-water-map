@@ -20,7 +20,14 @@ export async function generateMetadata({ params }) {
   // 籌備中的專案不給搜尋引擎收錄
   if (project.status !== 'active') {
     const card = projectCard(project.slug, 'en');
-    return { title: card.name, robots: { index: false, follow: false } };
+    return {
+      title: card.name,
+      robots: { index: false, follow: false },
+      alternates: {
+        canonical: '/en/' + project.slug,
+        languages: { 'zh-Hant': '/' + project.slug, en: '/en/' + project.slug },
+      },
+    };
   }
   return projectMetadata(project, 'en');
 }
