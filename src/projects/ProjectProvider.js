@@ -17,3 +17,12 @@ export function ProjectProvider({ slug, children }) {
 export function useProject() {
   return useContext(ProjectContext);
 }
+
+/**
+ * 專案內連結：pp('/survey') → '/xinyi/survey'，pp('/') → '/xinyi'。
+ * 要再套語言前綴時接 lp：lp(pp('/survey'))，英文版得到 '/en/xinyi/survey'。
+ */
+export function useProjectPath() {
+  const { slug } = useContext(ProjectContext);
+  return (sub = '/') => (sub === '/' ? `/${slug}` : `/${slug}${sub}`);
+}

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
+import { useProjectPath } from '@/projects/ProjectProvider';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 import LanguageSwitcher from '@/i18n/LanguageSwitcher';
 import { isNearTaipei } from '@/lib/geo';
@@ -87,6 +88,7 @@ export default function HomeApp() {
   const t = useT();
   const { locale } = useLocale();
   const lp = useLocalePath();
+  const pp = useProjectPath();
   const [activeTab, setActiveTab] = useState('map'); // 'map', 'layers', 'form', 'history', 'changelog'
   const [fontSize, setFontSize] = useState('medium'); // 'small', 'medium', 'large'
   const [showLanding, setShowLanding] = useState(true);
@@ -389,7 +391,7 @@ export default function HomeApp() {
         <div className="flex items-center gap-2 md:gap-3">
           <LanguageSwitcher stateParams={{ landing: showLanding ? '1' : '0', tab: activeTab }} />
           <Link
-            href={lp('/survey')}
+            href={lp(pp('/survey'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 border border-amber-400/40 transition-all duration-300 cursor-pointer shadow-md shadow-orange-200 active:scale-95 animate-pulse hover:animate-none"
             title={t('header.surveyTitle')}
           >
@@ -985,7 +987,7 @@ export default function HomeApp() {
                 <span className="group-hover:translate-x-1 transition-transform text-sky-200">→</span>
               </button>
               <Link
-                href={lp('/survey')}
+                href={lp(pp('/survey'))}
                 className="w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-orange-200 hover:shadow-orange-300 active:scale-95 flex items-center justify-center gap-2 border border-amber-400/30 group tracking-widest"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >

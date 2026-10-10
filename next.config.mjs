@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 舊網址轉址：問卷頁搬進專案之下。已分享的 /survey 連結要能繼續使用。
+  // 先用暫時轉址（307）：永久轉址會被瀏覽器長期快取，正式上線前再評估改成 permanent。
+  async redirects() {
+    return [
+      { source: '/survey', destination: '/xinyi/survey', permanent: false },
+      { source: '/en/survey', destination: '/en/xinyi/survey', permanent: false },
+    ];
+  },
   async rewrites() {
     return [
       {
