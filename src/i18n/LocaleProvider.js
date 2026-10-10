@@ -23,9 +23,10 @@ const LocaleContext = createContext({
  * 好讓漏譯在畫面上看得見（顯示中文），而不是整塊空白。
  * 支援 {name} 佔位符：t('foo.bar', { n: 3 })
  */
-function translate(locale, key, vars) {
+function translate(locale, key, vars, overrides) {
   const table = dict[locale] || dict[DEFAULT_LOCALE];
-  let s = table[key];
+  // overrides：專案自己的文案（src/projects/<slug>/index.js 的 copy），優先於全站字典
+  let s = overrides && overrides[key] !== undefined ? overrides[key] : table[key];
   if (s === undefined) s = dict[DEFAULT_LOCALE][key];
   if (s === undefined) {
     if (process.env.NODE_ENV !== 'production') {
@@ -41,14 +42,14 @@ function translate(locale, key, vars) {
   return s;
 }
 
-export function LocaleProvider({ locale = DEFAULT_LOCALE, children }) {
+export function LocaleProvider({ locale = DEFAULT_LOCALE, overrides = null, children }) {
   const value = useMemo(
     () => ({
       locale,
       isEn: locale === 'en',
-      t: (key, vars) => translate(locale, key, vars),
+      t: (key, vars) => translate(locale, key, vars, overrides),
     }),
-    [locale]
+    [locale, overrides]
   );
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

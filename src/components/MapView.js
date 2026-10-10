@@ -144,7 +144,8 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
-  const { defaultLayers: dl, feedbackProjectId } = useProject(); // 預設圖層狀態由專案設定決定
+  const { defaultLayers: dl, feedbackProjectId } = useProject();
+  const hasRoutes = routes.length > 0; // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
     routes.map(() => dl.routes)
   );
@@ -577,6 +578,7 @@ export default function MapView({
             <div className="flex-1 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
             {/* Route toggles */}
+            {hasRoutes && (
             <div id="tour-route-toggles" className="w-full">
               <div className="space-y-2 mb-4">
                 {routes.map((route, idx) => (
@@ -667,6 +669,7 @@ export default function MapView({
                 )}
               </div>
             </div>
+            )}
 
             {/* 後台專用：問卷地點圖層 */}
             {surveyPoints && (

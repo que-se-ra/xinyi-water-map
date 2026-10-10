@@ -21,7 +21,7 @@ export default async function Page({ params }) {
   const project = getProject((await params).project);
   if (!project || project.status !== 'active') notFound();
   return (
-    <LocaleProvider locale="en">
+    <LocaleProvider locale="en" overrides={project.copy?.en}>
       <ProjectProvider slug={project.slug}>
         <SurveyPage />
       </ProjectProvider>

@@ -1,5 +1,12 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.15.0] - 2026-10-10 - 🗺️ - UPDATE - Songshan Project Enabled with Base Layers (Routes to Be Designed)
+1. **Songshan project is open**: `/songshan` (English `/en/songshan`) is now a working interactive map centred on Songshan Cultural and Creative Park, with only the 1939 Liu-kong-tsun Irrigation District Map on by default.
+2. **All shared base layers kept**: historical maps (1904 / 1921 / 1939 / 1944 / 1989), satellite imagery and environmental indices, street trees, parks and green space, pavements, urban planning zones, surface temperature and sun shadow are all available. Open-data coverage around the park was verified.
+3. **Routes deliberately not copied**: the walking routes for this workshop will be designed from scratch, so Songshan has no routes or stops for now; with no routes, the route toggles, the walking comfort view and the route step of the tour are hidden automatically.
+4. **Interface follows the project**: sidebar tabs, the survey entry and the landing feature cards now come from the project config; Songshan keeps only Map / Layer guide / Changelog and uses its own title and wording instead of the Xinyi-specific copy (the Xinyi pages are unchanged).
+5. **Feedback**: feedback from the Songshan map carries `project_id: songshan` and is counted separately; the admin project filter gains Songshan automatically.
+
 ## [v1.14.0] - 2026-10-10 - 🧱 - UPDATE - Now a Multi-Project Platform
 1. **Project registry**: new `src/projects/` holds each project's config and route data. The Waters of Xinyi routes, stops and English translations moved into `src/projects/xinyi/` with their content untouched. Shared base layers (historical maps, satellite imagery, open data) belong to no project and stay available to every project.
 2. **Current project comes from a provider**: route data, station image URLs and the initial map view are now read from the current project instead of being hard-coded to Xinyi. Appearance and behavior are unchanged at this stage.
