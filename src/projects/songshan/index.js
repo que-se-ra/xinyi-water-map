@@ -3,6 +3,8 @@
 // 之後要做時：在這個資料夾放 routeData.js / routeData.en.js、把 status 改成 'active'、
 // 補上 meta 與 defaultLayers，並把路線 id 加專案前綴（例如 songshan-route-01）避免與其他專案的回饋統計混在一起。
 
+import { BASE_DEFAULT_LAYERS } from '../defaultLayers';
+
 export const songshan = {
   id: 'songshan',
   slug: 'songshan',
@@ -14,6 +16,7 @@ export const songshan = {
   zoom: 15,
   routes: [],
   routesEn: {},
+  defaultLayers: BASE_DEFAULT_LAYERS,
   features: { survey: false },
   card: {
     zh: {

@@ -1,6 +1,7 @@
 // 信水義河（信義社大合作）專案設定。
 // 路線／站點資料與這份設定放在同一個資料夾；共用圖層（古今地圖、衛星、公開資料）不在這裡。
 
+import { BASE_DEFAULT_LAYERS } from '../defaultLayers';
 import { routes, BASE_URL } from './routeData';
 import { routesEn } from './routeData.en';
 
@@ -16,6 +17,7 @@ export const xinyi = {
   zoom: 14,
   routes,
   routesEn,
+  defaultLayers: BASE_DEFAULT_LAYERS,
   features: { survey: true },
   // 平台首頁的專案卡片
   card: {

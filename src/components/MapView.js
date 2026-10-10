@@ -144,22 +144,23 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
+  const { defaultLayers: dl } = useProject(); // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
-    routes.map(() => true)
+    routes.map(() => dl.routes)
   );
   const [expandPanel, setExpandPanel] = useState(false);
 
   // Open Data layers state (Toggles only)
-  const [showTrees, setShowTrees] = useState(false);
-  const [showSidewalks, setShowSidewalks] = useState(false);
-  const [showGreen, setShowGreen] = useState(false);
+  const [showTrees, setShowTrees] = useState(dl.trees);
+  const [showSidewalks, setShowSidewalks] = useState(dl.sidewalks);
+  const [showGreen, setShowGreen] = useState(dl.green);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
-  const [showZoning, setShowZoning] = useState(false);
+  const [showZoning, setShowZoning] = useState(dl.zoning);
   const [zoningOpacity, setZoningOpacity] = useState(0.45);
 
   // ShadeMap (Sun Shadow) state
-  const [showShadeMap, setShowShadeMap] = useState(false);
+  const [showShadeMap, setShowShadeMap] = useState(dl.shadeMap);
   // 圖層回報的建築圖資載入狀態：idle / loading / retrying / ready / error / zoom
   const [shadeMapStatus, setShadeMapStatus] = useState('idle');
   const [shadeMapOpacity, setShadeMapOpacity] = useState(0.6);
@@ -184,13 +185,13 @@ export default function MapView({
   };
 
   // Historical basemap state (null = none active)
-  const [activeHistory, setActiveHistory] = useState('liugong1939');
+  const [activeHistory, setActiveHistory] = useState(dl.history);
   const [historyOpacities, setHistoryOpacities] = useState(
     HISTORICAL_MAPS.reduce((acc, hm) => ({ ...acc, [hm.id]: hm.id === 'liugong1939' ? 0.55 : 0.7 }), {})
   );
 
   // Satellite layer state
-  const [activeSatellite, setActiveSatellite] = useState(null);
+  const [activeSatellite, setActiveSatellite] = useState(dl.satellite);
   const [satelliteOpacities, setSatelliteOpacities] = useState(
     SATELLITE_MAPS.reduce((acc, sm) => ({ ...acc, [sm.id]: 0.7 }), {})
   );
@@ -236,10 +237,10 @@ export default function MapView({
 
   // 社群審核通過地景標記狀態
   const [communityMarkers, setCommunityMarkers] = useState([]);
-  const [showCommunityMarkers, setShowCommunityMarkers] = useState(true);
+  const [showCommunityMarkers, setShowCommunityMarkers] = useState(dl.communityMarkers);
 
   // 路線舒適度檢視模式
-  const [showComfort, setShowComfort] = useState(false);
+  const [showComfort, setShowComfort] = useState(dl.comfort);
   const [comfortStats, setComfortStats] = useState(null); // null=未載入, {}=載入失敗或無資料
   const [comfortLoading, setComfortLoading] = useState(false);
 
