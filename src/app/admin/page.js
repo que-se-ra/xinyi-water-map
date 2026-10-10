@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { PROJECTS } from '@/projects/registry';
+import { recordProjectId } from '@/lib/project-scope';
 import SurveyAnalysisPanel from '@/components/admin/SurveyAnalysisPanel';
 import Link from 'next/link';
 
@@ -15,6 +17,7 @@ export default function AdminPage() {
   // 後台分區：'review' 地景審核、'survey' 熱舒適問卷分析
   const [section, setSection] = useState('review');
   const [typeFilter, setTypeFilter] = useState('all'); // 'all', 'memory', 'report'
+  const [projectFilter, setProjectFilter] = useState('all'); // 'all' 或專案的 feedbackProjectId
   const [actioningId, setActioningId] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryResult, setSummaryResult] = useState(null); // { text: string } | null
@@ -126,18 +129,24 @@ export default function AdminPage() {
     }
   };
 
-  // 分類統計
+  // 專案篩選：舊資料沒有 project_id 欄位，一律視為信水義河（見 lib/project-scope.js）
+  const scopedRecords = projectFilter === 'all'
+    ? records
+    : records.filter(r => recordProjectId(r) === projectFilter);
+  const projectName = (id) => PROJECTS.find(p => p.feedbackProjectId === id)?.card.zh.name || id;
+
+  // 分類統計（跟著專案篩選走，數字才會和下方清單對得上）
   const counts = {
-    pending: records.filter(r => r.status === 'pending' || !r.status).length,
-    approved: records.filter(r => r.status === 'approved').length,
-    rejected: records.filter(r => r.status === 'rejected').length,
+    pending: scopedRecords.filter(r => r.status === 'pending' || !r.status).length,
+    approved: scopedRecords.filter(r => r.status === 'approved').length,
+    rejected: scopedRecords.filter(r => r.status === 'rejected').length,
   };
 
   // 舊資料沒有 feedback_type 欄位，缺失或空值一律視為 'memory'
   const getFeedbackType = (r) => r.feedback_type === 'report' ? 'report' : 'memory';
 
   // 當前標籤 + 類型過濾後的紀錄
-  const filteredRecords = records.filter(r => {
+  const filteredRecords = scopedRecords.filter(r => {
     if (activeTab === 'pending') {
       if (r.status !== 'pending' && r.status) return false;
     } else if (r.status !== activeTab) {
@@ -168,12 +177,13 @@ export default function AdminPage() {
   const handleExportCsv = () => {
     if (filteredRecords.length === 0) return;
 
-    const columns = ['id', 'timestamp', 'feedback_type', 'status', 'station_id', 'lat', 'lng', 'tags', 'description', 'ai_summary', 'photo_url', 'photo_url_2'];
+    const columns = ['id', 'timestamp', 'project_id', 'feedback_type', 'status', 'station_id', 'lat', 'lng', 'tags', 'description', 'ai_summary', 'photo_url', 'photo_url_2'];
     const header = columns.join(',');
     const rows = filteredRecords.map(r => {
       const rowValues = {
         id: r.id,
         timestamp: r.timestamp,
+        project_id: recordProjectId(r),
         feedback_type: getFeedbackType(r),
         status: r.status || 'pending',
         station_id: r.station_id,
@@ -193,7 +203,7 @@ export default function AdminPage() {
     const url = URL.createObjectURL(blob);
 
     const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const filename = `信水義河回饋_${activeTab}_${typeFilter}_${dateStr}.csv`;
+    const filename = `回饋_${projectFilter === 'all' ? '全部專案' : projectFilter}_${activeTab}_${typeFilter}_${dateStr}.csv`;
 
     const link = document.createElement('a');
     link.href = url;
@@ -463,6 +473,24 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* Project Filter */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-bold text-slate-500 tracking-wider mr-1">專案篩選：</span>
+            {[{ id: 'all', name: '全部' }, ...PROJECTS.map(p => ({ id: p.feedbackProjectId, name: p.card.zh.name }))].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setProjectFilter(opt.id)}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+                  projectFilter === opt.id
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    : 'bg-slate-900/40 border-white/10 text-slate-400 hover:bg-slate-800/60'
+                }`}
+              >
+                {opt.name}
+              </button>
+            ))}
+          </div>
+
           {/* Type Filter */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-bold text-slate-500 tracking-wider mr-1">類型篩選：</span>
@@ -518,7 +546,7 @@ export default function AdminPage() {
                     <div>
                       {/* Top Meta info */}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 mb-2 font-mono">
-                        <span>🆔 {record.id}</span>
+                        <span>🆔 {record.id} · 🗂️ {projectName(recordProjectId(record))}</span>
                         <span>📅 {formattedDate}</span>
                       </div>
 

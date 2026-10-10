@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import exifr from 'exifr';
 import { useT, useLocale } from '@/i18n/LocaleProvider';
+import { useProject } from '@/projects/ProjectProvider';
 
 // 顯示走 t()，送出仍用這裡的原始中文字串（value）——payload.tags 直接引用 value，
 // 不可改成 key 或翻譯後的文字，否則會跟既有送出資料對不上。
@@ -30,6 +31,7 @@ const FEEDBACK_TYPES = [
 
 export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onClose }) {
   const t = useT();
+  const { feedbackProjectId } = useProject();
   const { locale } = useLocale();
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
@@ -502,6 +504,7 @@ export default function NodeFeedbackForm({ lat, lng, stationId, stationName, onC
     const payload = {
       id: feedbackId,
       formType: 'node_feedback',
+      project_id: feedbackProjectId,
       timestamp: new Date().toISOString(),
       lat,
       lng,

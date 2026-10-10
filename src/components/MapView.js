@@ -144,7 +144,7 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
-  const { defaultLayers: dl } = useProject(); // 預設圖層狀態由專案設定決定
+  const { defaultLayers: dl, feedbackProjectId } = useProject(); // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
     routes.map(() => dl.routes)
   );
@@ -250,7 +250,7 @@ export default function MapView({
     // 首次開啟時才載入統計
     if (next && comfortStats === null && !comfortLoading) {
       setComfortLoading(true);
-      fetch('/api/route-comfort-stats')
+      fetch(`/api/route-comfort-stats?project=${feedbackProjectId}`)
         .then(res => res.ok ? res.json() : Promise.reject(new Error('stats unavailable')))
         .then(data => setComfortStats(data.stats || {}))
         .catch(err => {
@@ -265,7 +265,7 @@ export default function MapView({
   useEffect(() => {
     async function loadCommunityMarkers() {
       try {
-        const res = await fetch('/api/feedback-list');
+        const res = await fetch(`/api/feedback-list?project=${feedbackProjectId}`);
         if (res.ok) {
           const data = await res.json();
           setCommunityMarkers(Array.isArray(data) ? data : []);
@@ -275,7 +275,7 @@ export default function MapView({
       }
     }
     loadCommunityMarkers();
-  }, [newMarkerPos]);
+  }, [newMarkerPos, feedbackProjectId]);
 
   const polylines = useMemo(
     () => routes.map((r) => buildPolyline(r)),
