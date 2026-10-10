@@ -234,7 +234,8 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           passcode: passcode.trim(),
-          records: reportRecordsForSummary
+          records: reportRecordsForSummary,
+          project: projectFilter
         })
       });
 
@@ -272,7 +273,7 @@ export default function AdminPage() {
           
           <div className="text-center mb-8">
             <h1 className="text-2xl font-black bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent tracking-widest mb-2 font-sans">
-              信水義河・管理後台
+              互動地圖・管理後台
             </h1>
             <p className="text-xs text-white/50 tracking-wider">
               請輸入管理通行密碼以審查社區地景標記
@@ -333,7 +334,7 @@ export default function AdminPage() {
           </Link>
           <div className="h-4 w-px bg-white/10" />
           <h1 className="text-lg font-black bg-gradient-to-r from-blue-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent tracking-widest font-sans">
-            信水義河地景 審核大廳
+            地景回饋 審核大廳
           </h1>
         </div>
 

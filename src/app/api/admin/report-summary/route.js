@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { PROJECTS } from '@/projects/registry';
 
 export const preferredRegion = 'hnd1';
 
@@ -8,12 +9,13 @@ const MAX_RECORDS = 100;
  * POST - 產生環境通報彙整摘要（供送交環保局/水利處等機關參考）
  * 受管理員 passcode 保護。接收選定的通報紀錄，交由 Gemini 產生正式格式的彙整報告。
  *
- * Request body: { passcode: string, records: Array<record> }
+ * Request body: { passcode: string, records: Array<record>, project?: string }
+ *   project = 後台目前篩選的專案 feedbackProjectId（'all' 或不帶 → 通用說法）
  * Response: { success: true, summary: string } | { error: string }
  */
 export async function POST(request) {
   try {
-    const { passcode, records } = await request.json();
+    const { passcode, records, project: projectId } = await request.json();
 
     const configuredPasscode = process.env.ADMIN_PASSCODE;
     if (!configuredPasscode) {
@@ -48,8 +50,13 @@ export async function POST(request) {
       AI整理摘要: (r.ai_summary || '').slice(0, 300),
     }));
 
-    const systemPrompt = `你是臺北市信義社區大學「信水義河」水文地圖計畫的行政協力人員。
-社區大學透過互動地圖收集了民眾對信義區水文環境的觀察通報（如積水、異味、疑似污染排放、缺乏遮蔭、垃圾堆積等），
+    // 依後台目前篩選的專案帶入單位與地區；「全部專案」或未登記的專案用通用說法
+    const project = PROJECTS.find((p) => p.feedbackProjectId === projectId);
+    const org = project?.reportSummary?.org || '「社區文史與環境感知互動地圖」平台';
+    const area = project?.reportSummary?.area || '社區環境';
+
+    const systemPrompt = `你是${org}的行政協力人員。
+計畫透過互動地圖收集了民眾對${area}的觀察通報（如積水、異味、疑似污染排放、缺乏遮蔭、垃圾堆積等），
 現在需要將這些通報彙整成一份可供送交臺北市政府環境保護局或水利處參考的正式摘要文件。
 
 以下是民眾通報的原始資料（JSON 格式，共 ${sanitized.length} 筆）：

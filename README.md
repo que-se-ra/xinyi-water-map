@@ -1,4 +1,24 @@
-# 信水義河 — 信義社大水文導覽互動地圖
+# 社區文史與環境感知互動地圖
+
+多專案互動地圖平台。每個專案有自己的網址、路線與回饋資料；古今地圖、衛星影像、公開資料等基礎圖層所有專案共用。
+
+| 專案 | 網址 | 狀態 |
+|------|------|------|
+| 信水義河（信義社大合作） | `/xinyi`、`/en/xinyi` | 開放中 |
+| 城市裡的微氣候觀察｜互動地圖工作坊（松山文創園區合作） | `/songshan`、`/en/songshan` | 籌備中（只有說明頁） |
+
+平台首頁（`/`、`/en`）列出所有專案。舊連結 `/survey`、`/en/survey` 與帶 `?landing=` / `?tab=` 的首頁連結會自動轉到信水義河。
+
+## 新增一個專案
+
+1. 建 `src/projects/<slug>/`：`index.js`（專案設定，可參考 `xinyi/index.js`）、`routeData.js`、`routeData.en.js`。
+   路線 id 請加專案前綴（例如 `songshan-route-01`），避免舒適度統計與其他專案混在一起。
+2. 在 `src/projects/registry.js` 的 `PROJECTS` 加進去，`status` 改成 `'active'`。
+3. 圖層預設值在 `src/projects/defaultLayers.js`；專案可以在自己的設定覆寫（例如改選別張古地圖）。
+4. `<slug>` 不可以是 `registry.js` 的 `RESERVED_SLUGS` 內的名稱。
+5. 回饋資料靠試算表的 `project_id` 欄位區分，不需要另外建試算表。
+
+## 信水義河專案：路線總覽
 
 四條路線、57 個站點，帶你走讀台北信義區兩百年的水文故事。
 
@@ -55,10 +75,10 @@ vercel
 xinyi-water-map/
 ├── src/
 │   ├── app/
-│   │   ├── page.js           # 首頁（landing + 地圖 + 側欄分頁）
+│   │   ├── page.js           # 平台首頁（專案列表）
+│   │   ├── [project]/        # 各專案地圖（HomeApp）與 survey；/en/[project] 為英文版
 │   │   ├── layout.js         # Root layout + 字型 + SEO
 │   │   ├── globals.css       # 全域樣式（注意：為全螢幕地圖鎖住 html/body 捲動）
-│   │   ├── survey/           # 熱舒適經驗調查問卷（居民活動用）
 │   │   ├── admin/            # 管理後台（審核回饋、匯出）
 │   │   ├── privacy/          # 隱私權說明
 │   │   └── api/              # survey-submit、feedback-node、temperature、
@@ -70,7 +90,11 @@ xinyi-water-map/
 │   ├── lib/
 │   │   ├── basemap.js        # 底圖網址與版權標示（CARTO API Key 由此帶入）
 │   │   └── gas-template.js   # Google Apps Script 範本
-│   └── data/routeData.js     # 四條路線完整站點資料
+│   └── projects/
+│       ├── registry.js       # 專案登記表
+│       ├── defaultLayers.js  # 進入地圖時的預設圖層
+│       ├── ProjectProvider.js# 目前專案（context）
+│       └── xinyi/            # 信水義河：設定 + 四條路線完整站點資料（中英文）
 ├── public/
 │   ├── CHANGELOG.md          # 更新日誌（網站 UI 會動態讀取，每次改動都要更新）
 │   └── TaipeiTree_filtered.json  # 行道樹資料（由 processTrees.js 產生）

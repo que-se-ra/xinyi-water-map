@@ -27,3 +27,13 @@
 目前只有 `瑠公圳 → Liu-kong-tsun` 是確立的。以下保留中文原名：
 柴頭陂、永春陂、允龜陂、舊陂溪、新埤溪、蝴蝶陂、沈祖厝陂。
 若社大有慣用羅馬拼法，給我一份對照表即可全站替換。
+
+## 6. 多專案平台的英文名稱（暫譯，待確認）
+2026-10-10 改成多專案平台時，下列英文名稱是暫譯，請確認或指定：
+- 平台總標題「社區文史與環境感知互動地圖」→ **Community History & Environmental Sensing Map**
+  （備選：Community Heritage and Environmental Sensing Interactive Map）
+- 專案「城市裡的微氣候觀察｜互動地圖工作坊」→ **Urban Microclimate Observation | Interactive Mapping Workshop**
+- 合作單位「松山文創園區」→ **Songshan Cultural and Creative Park**
+- 專案「信水義河」維持 2026-09-20 的決定：中文字標 + 英文副標 Waters of Xinyi。
+改名只需要動 `src/i18n/dict/platform.js`、`src/app/en/layout.js`、`src/projects/songshan/index.js`。
+

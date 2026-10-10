@@ -27,6 +27,8 @@ var SHEET_NAMES = {
   node: "地景標記回饋",
   route: "路線舒適度評分"
 };
+// 所有專案的回饋照片共用同一個雲端資料夾（以名稱尋找，找不到才建立）；
+// 要分專案存放時，改成依 payload.project_id 取不同資料夾名稱。
 var DRIVE_FOLDER_NAME = "信水義河地景相片";
 
 /**
