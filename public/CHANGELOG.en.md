@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.13.0] - 2026-10-10 - 🧱 - UPDATE - Becoming a Multi-Project Platform (In Progress)
+1. **Project registry**: new `src/projects/` holds each project's config and route data. The Waters of Xinyi routes, stops and English translations moved into `src/projects/xinyi/` with their content untouched. Shared base layers (historical maps, satellite imagery, open data) belong to no project and stay available to every project.
+2. **Current project comes from a provider**: route data, station image URLs and the initial map view are now read from the current project instead of being hard-coded to Xinyi. Appearance and behavior are unchanged at this stage.
+
 ## [v1.12.3] - 2026-09-23 - 🔧 - UPDATE - Fix: the Admin Thermal Comfort Analysis Panel Crashed on Open
 1. **Admin survey analysis panel fixed**: when the English edition shipped on 21 September, interface strings moved into a locale dictionary; the admin page is not wrapped in a locale provider, so the map component it reuses could not reach the translation function and the whole page failed with "This page couldn't load" as soon as the thermal comfort analysis tab was opened. The locale context default now carries a working Chinese string function, so pages without a provider (currently only the admin page) work again.
 

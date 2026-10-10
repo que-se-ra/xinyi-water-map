@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Polyline, CircleMarker, Popup, LayerGroup, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
-import { BASE_URL } from '@/data/routeData';
 import PopupLightbox from './PopupLightbox';
 import RouteFeedbackForm, { FACTORS } from '../forms/RouteFeedbackForm';
 import StationPopupContent from './StationPopupContent';

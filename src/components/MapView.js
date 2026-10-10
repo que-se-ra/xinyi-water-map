@@ -11,7 +11,7 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { routes as routesZh } from '@/data/routeData';
+import { useProject } from '@/projects/ProjectProvider';
 import { useRoutes } from '@/i18n/useRoutes';
 import ZoningLayer from './layers/ZoningLayer';
 import ComfortLayer from './layers/ComfortLayer';
@@ -79,15 +79,19 @@ const ROUTE_LABELS = [
 // ── FitBounds helper component ─────────────────────────────
 function FitBoundsOnLoad() {
   const map = useMap();
+  const project = useProject();
   useEffect(() => {
     // Gather all station coords
-    const allCoords = routesZh.flatMap((r) =>
+    const allCoords = project.routes.flatMap((r) =>
       r.stations.map((s) => [s.lat, s.lng])
     );
     if (allCoords.length > 0) {
       map.fitBounds(allCoords, { padding: [30, 30] });
+    } else {
+      // 專案還沒有路線時，退回專案設定的視角
+      map.setView(project.center, project.zoom);
     }
-  }, [map]);
+  }, [map, project]);
   return null;
 }
 

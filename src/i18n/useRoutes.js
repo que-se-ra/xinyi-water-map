@@ -1,7 +1,8 @@
 'use client';
 
 // 路線／站點是資料不是介面文字，所以走「平行英文資料檔」而不是字典 key：
-// routeData.js（中文，原封不動）+ routeData.en.js（英文，依 id 對應）。
+// <專案>/routeData.js（中文，原封不動）+ routeData.en.js（英文，依 id 對應）。
+// 現在是哪個專案由 ProjectProvider 決定（見 src/projects）。
 // 缺翻譯的欄位自動退回中文——譯到一半也能跑，漏譯在畫面上看得見。
 //
 // 🔴 每個 route / station 一律額外帶一個 nameZh（永遠是中文原名）。
@@ -9,8 +10,7 @@
 // 英文版使用者留言若把站名寫成英文，就會跟中文回饋混在同一張 Google 表裡對不起來。
 
 import { useMemo } from 'react';
-import { routes as routesZh } from '@/data/routeData';
-import { routesEn } from '@/data/routeData.en';
+import { useProject } from '@/projects/ProjectProvider';
 import { useLocale } from './LocaleProvider';
 
 function pick(en, zh) {
@@ -47,8 +47,9 @@ export function localizeRoutes(routes, overrides) {
 
 export function useRoutes() {
   const { locale } = useLocale();
+  const project = useProject();
   return useMemo(
-    () => localizeRoutes(routesZh, locale === 'en' ? routesEn : null),
-    [locale]
+    () => localizeRoutes(project.routes, locale === 'en' ? project.routesEn : null),
+    [locale, project]
   );
 }

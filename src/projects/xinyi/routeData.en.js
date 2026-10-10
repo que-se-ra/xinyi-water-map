@@ -1,6 +1,6 @@
 // routeData.en.js —— 57 站的英文內容，依 route id / station id 對應中文版。
 // 缺的欄位（空字串或缺 key）會自動退回中文，見 src/i18n/useRoutes.js。
-// 中文原檔 src/data/routeData.js 不要改。
+// 中文原檔 src/projects/xinyi/routeData.js 不要改。
 
 export const routesEn = {
   'route-01': {

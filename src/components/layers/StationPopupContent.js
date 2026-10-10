@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMap } from 'react-leaflet';
-import { BASE_URL } from '@/data/routeData';
+import { useProject } from '@/projects/ProjectProvider';
 import NodeFeedbackForm from '../forms/NodeFeedbackForm';
 import { useT } from '@/i18n/LocaleProvider';
 
@@ -8,6 +8,7 @@ export default function StationPopupContent({ station, routeColor }) {
   const [showFeedback, setShowFeedback] = useState(false);
   const map = useMap();
   const t = useT();
+  const { assetBaseUrl } = useProject();
 
   if (showFeedback) {
     return (
@@ -62,7 +63,7 @@ export default function StationPopupContent({ station, routeColor }) {
           {station.imgs.map((img, i) => (
             <figure key={i} className="popup-figure">
               <img
-                src={`${BASE_URL}${img.src}`}
+                src={`${assetBaseUrl}${img.src}`}
                 alt={img.cap || station.name}
                 loading="lazy"
                 className="popup-img cursor-pointer hover:opacity-90 transition-opacity"
