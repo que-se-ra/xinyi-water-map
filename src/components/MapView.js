@@ -144,7 +144,8 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
-  const { defaultLayers: dl, feedbackProjectId } = useProject();
+  const project = useProject();
+  const { defaultLayers: dl, feedbackProjectId } = project;
   const hasRoutes = routes.length > 0; // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
     routes.map(() => dl.routes)
@@ -604,7 +605,7 @@ export default function MapView({
                         {t(ROUTE_LABELS[idx].labelKey)}
                       </span>
                     </label>
-                    <InfoTooltip id={`route-${idx}`} />
+                    <InfoTooltip id={`${project.tooltipPrefix || ''}route-${idx}`} />
                   </div>
                 ))}
               </div>

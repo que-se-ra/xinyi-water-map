@@ -679,10 +679,9 @@ export default function HomeApp() {
                   <h3 className="text-xl font-bold text-slate-900 mb-2">{t('layersTab.routes.title')}</h3>
                   <p className="text-slate-600 mb-3">{t('layersTab.routes.intro')}</p>
                   <ul className="text-sm text-slate-600 space-y-2 ml-4">
-                    <li>• <strong>{t('layersTab.routes.r1.label')}</strong> - {t('layersTab.routes.r1.name')}</li>
-                    <li>• <strong>{t('layersTab.routes.r2.label')}</strong> - {t('layersTab.routes.r2.name')}</li>
-                    <li>• <strong>{t('layersTab.routes.r3.label')}</strong> - {t('layersTab.routes.r3.name')}</li>
-                    <li>• <strong>{t('layersTab.routes.r4.label')}</strong> - {t('layersTab.routes.r4.name')}</li>
+                    {[1, 2, 3, 4].slice(0, project.routes.length).map((n) => (
+                      <li key={n}>• <strong>{t(`layersTab.routes.r${n}.label`)}</strong> - {t(`layersTab.routes.r${n}.name`)}</li>
+                    ))}
                   </ul>
                 </div>
                 )}
