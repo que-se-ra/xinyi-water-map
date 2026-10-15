@@ -41,5 +41,5 @@
 - 站名英文為暫譯：文創大街 Creative Street、新仁里農園 Xinren Village Farm、巴洛克花園 Baroque Garden、
   楓香大道 Sweetgum Avenue、松山匯 遊客中心 Songshan Hub Visitor Centre。若園區有官方英文名稱請指定，
   只需改 `src/projects/songshan/routeData.en.js` 與 `index.js` 的 `copy.en`。
-- 巴洛克花園（C）沒有 GPX 航點，座標由 OpenStreetMap 底圖目測推算，需現場確認；E→C、B→C 兩段是直線示意。
+- 巴洛克花園（C）沒有 GPX 航點，座標由 OpenStreetMap 底圖目測推算；使用者 2026-10-15 已確認位置正確。路線為直角示意圖，非實測軌跡。
 
