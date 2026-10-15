@@ -63,6 +63,9 @@ function buildPolyline(route) {
       seg.waypoints.forEach((wp) => pts.push([wp.lat, wp.lng]));
     }
     pts.push(to);
+    // skipLeading：從頭省略 N 個點不畫。用在「折返」的路段——回頭走的那一段和來時路重疊，
+    // 不重複畫（資料見 projects/songshan/routeData.js）。站點、回饋與評分仍以完整的起訖站為準。
+    if (seg.skipLeading) pts.splice(0, seg.skipLeading);
     lines.push(pts);
   });
   return lines;

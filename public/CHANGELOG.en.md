@@ -1,5 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.16.1] - 2026-10-15 - 🧭 - UPDATE - Songshan Routes Redrawn as a Right-Angle Schematic, No Doubled-Back Lines
+1. **Straight lines and right angles**: both routes now follow the park's outline with straight lines and right angles (top A–B, right, bottom, left), and the stops are snapped to that grid (at most about 15 m from the surveyed positions). These are schematic routes, not GPS tracks; the version drawn from the GPX track is kept in git history (commit 51b09b8).
+2. **No doubled-back lines**: when Route 1 turns back from the farm (B), the stretch of the top edge it already walked is drawn once, only from the top-right corner down to Sweetgum Avenue; Route 2 does the same on its way from the farm to the Baroque Garden. This uses a new segment option `skipLeading` (omit the first N points when drawing); stops, feedback and ratings still use the full from/to stops.
+3. **With both routes shown**: shared stretches show only the colour of the top route (Route 1's blue); either route alone is fully visible.
+
 ## [v1.16.0] - 2026-10-15 - 🚶 - FEATURE - Songshan Park: Two Walking Routes (Local Build)
 1. **Two routes, five stops**: A Creative Street, B Xinren Village Farm, C Baroque Garden, D Sweetgum Avenue, E Songshan Hub Visitor Centre. Route 1 (blue) goes A→B→D→E→C, Route 2 (orange) A→E→D→B→C. Routes start switched off and are turned on from the layer panel; stops can be tapped to leave feedback.
 2. **Paths come from the on-site GPX**: the coordinates of A, B, D and E and the paths A→B, B→D, D→E and E→A come from the 2026-10-15 walk (duplicate points removed, only turns kept). Route 2's A→E, E→D and D→B are the reverse of the matching legs.
