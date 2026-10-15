@@ -37,3 +37,9 @@
 - 專案「信水義河」維持 2026-09-20 的決定：中文字標 + 英文副標 Waters of Xinyi。
 改名只需要動 `src/i18n/dict/platform.js`、`src/app/en/layout.js`、`src/projects/songshan/index.js`。
 
+## 7. 松山路線的站名英文與巴洛克花園座標（2026-10-15，待確認）
+- 站名英文為暫譯：文創大街 Creative Street、新仁里農園 Xinren Village Farm、巴洛克花園 Baroque Garden、
+  楓香大道 Sweetgum Avenue、松山匯 遊客中心 Songshan Hub Visitor Centre。若園區有官方英文名稱請指定，
+  只需改 `src/projects/songshan/routeData.en.js` 與 `index.js` 的 `copy.en`。
+- 巴洛克花園（C）沒有 GPX 航點，座標由 OpenStreetMap 底圖目測推算；使用者 2026-10-15 已確認位置正確。路線為直角示意圖，非實測軌跡。
+

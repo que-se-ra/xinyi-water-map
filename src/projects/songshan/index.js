@@ -1,15 +1,17 @@
 // 「城市裡的微氣候觀察｜互動地圖工作坊」（與松山文創園區合作）。
 //
-// 目前狀態（2026-10-10）：地圖與所有共用基礎圖層（古今地圖、衛星影像、開放資料、日照陰影、
-// 溫度圖層）已啟用；**路線與站點還沒有**——這次工作坊的走讀路線要重新設計，所以刻意不複製信義的路線。
-// 沒有路線時，介面會自動隱藏路線開關、步行舒適度、導覽的路線步驟。
+// 目前狀態（2026-10-15）：兩條走讀路線已建（路線一 A→B→D→E→C、路線二 A→E→D→B→C），
+// 站點與路徑來自使用者的 GPX，細節與待確認項目見 routeData.js 開頭註解。站點的講解文字尚未撰寫。
+// 路線預設關閉（同信義），由使用者在圖層面板打開。
 //
-// 之後做路線：在這個資料夾放 routeData.js / routeData.en.js，匯入後填進下面的 routes / routesEn；
-// 路線 id 請加專案前綴（例如 songshan-route-01），避免和其他專案的回饋統計混在一起。
+// 之後新增或調整路線：改 routeData.js / routeData.en.js；路線 id 保持專案前綴（songshan-route-0N），
+// 避免和其他專案的回饋統計混在一起。
 //
 // 松山文創園區在信義區（光復南路），共用的行道樹、綠地、都市計畫分區資料已涵蓋園區（2026-10-10 查證）。
 
 import { BASE_DEFAULT_LAYERS } from '../defaultLayers';
+import { routes } from './routeData';
+import { routesEn } from './routeData.en';
 
 export const songshan = {
   id: 'songshan',
@@ -20,8 +22,10 @@ export const songshan = {
   // 松山文創園區（地圖在沒有路線時以此為視角）
   center: [25.0439, 121.5605],
   zoom: 16,
-  routes: [],
-  routesEn: {},
+  routes,
+  routesEn,
+  // 圖層面板路線旁的 ⓘ 說明框：信義的 route-0.. 說明不適用，加前綴讓它找不到資料（就不顯示）
+  tooltipPrefix: 'songshan-',
   defaultLayers: BASE_DEFAULT_LAYERS,
   // 沒有專屬問卷；側欄先只留地圖與圖層說明（水文調查表單、歷史故事是信義專屬內容）
   features: { survey: false },
@@ -65,6 +69,13 @@ export const songshan = {
   copy: {
     zh: {
       'site.title': '城市裡的微氣候觀察',
+      'map.route.line1': '路線一：文創大街 → 新仁里農園 → 楓香大道 → 松山匯 → 巴洛克花園',
+      'map.route.line2': '路線二：文創大街 → 松山匯 → 楓香大道 → 新仁里農園 → 巴洛克花園',
+      'tour.routes.title': '🚶 走讀路線',
+      'tour.routes.body': '包含兩條不同顏色的走讀路線。您可以勾選來顯示或隱藏路線，或點擊地圖上的站點標記查看站點資訊。也可利用全選/全清按鈕快速切換。',
+      'layersTab.routes.intro': '兩條走讀路線：',
+      'layersTab.routes.r1.name': '文創大街 → 新仁里農園 → 楓香大道 → 松山匯 → 巴洛克花園',
+      'layersTab.routes.r2.name': '文創大街 → 松山匯 → 楓香大道 → 新仁里農園 → 巴洛克花園',
       'site.tagline': '互動地圖工作坊',
       'org.badge': '與松山文創園區合作',
       'org.full': '松山文創園區',
@@ -81,6 +92,14 @@ export const songshan = {
     },
     en: {
       'site.title': 'Urban Microclimate Observation',
+      'map.route.line1': 'Route 1: Creative Street → Xinren Village Farm → Sweetgum Avenue → Songshan Hub → Baroque Garden',
+      'map.route.line2': 'Route 2: Creative Street → Songshan Hub → Sweetgum Avenue → Xinren Village Farm → Baroque Garden',
+      'tour.routes.title': '🚶 Walking routes',
+      'tour.routes.body':
+        'There are two walking routes, each in a different colour. Tick a route to show or hide it, or tap a stop marker on the map to read about the stop. Use the select-all / clear-all buttons to switch quickly.',
+      'layersTab.routes.intro': 'Two walking routes:',
+      'layersTab.routes.r1.name': 'Creative Street → Xinren Village Farm → Sweetgum Avenue → Songshan Hub → Baroque Garden',
+      'layersTab.routes.r2.name': 'Creative Street → Songshan Hub → Sweetgum Avenue → Xinren Village Farm → Baroque Garden',
       'site.tagline': 'Interactive Mapping Workshop',
       'org.badge': 'In partnership with Songshan Cultural and Creative Park',
       'org.full': 'Songshan Cultural and Creative Park',

@@ -23,6 +23,9 @@ export const HISTORICAL_MAPS = [
     emoji: '🗺️',
     url: 'https://gis.sinica.edu.tw/taipei/file-exists.php?img=liugong_1939-jpg-{z}-{x}-{y}',
     color: '#0284c7', // light blue
+    // 這組圖磚到第 17 級有內容，第 18 級以上只回空白圖（2026-10-15 在松山文創園區實測）；
+    // 設 maxNativeZoom 讓 Leaflet 放大第 17 級圖磚顯示，而不是整片空白。
+    maxNativeZoom: 17,
   },
   {
     id: 'am1944',

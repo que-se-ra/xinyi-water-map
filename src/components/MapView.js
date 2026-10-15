@@ -63,6 +63,9 @@ function buildPolyline(route) {
       seg.waypoints.forEach((wp) => pts.push([wp.lat, wp.lng]));
     }
     pts.push(to);
+    // skipLeading：從頭省略 N 個點不畫。用在「折返」的路段——回頭走的那一段和來時路重疊，
+    // 不重複畫（資料見 projects/songshan/routeData.js）。站點、回饋與評分仍以完整的起訖站為準。
+    if (seg.skipLeading) pts.splice(0, seg.skipLeading);
     lines.push(pts);
   });
   return lines;
@@ -144,7 +147,8 @@ export default function MapView({
 }) {
   const t = useT();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
-  const { defaultLayers: dl, feedbackProjectId } = useProject();
+  const project = useProject();
+  const { defaultLayers: dl, feedbackProjectId } = project;
   const hasRoutes = routes.length > 0; // 預設圖層狀態由專案設定決定
   const [visibility, setVisibility] = useState(
     routes.map(() => dl.routes)
@@ -604,7 +608,7 @@ export default function MapView({
                         {t(ROUTE_LABELS[idx].labelKey)}
                       </span>
                     </label>
-                    <InfoTooltip id={`route-${idx}`} />
+                    <InfoTooltip id={`${project.tooltipPrefix || ''}route-${idx}`} />
                   </div>
                 ))}
               </div>

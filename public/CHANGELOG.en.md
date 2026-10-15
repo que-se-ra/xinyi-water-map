@@ -1,5 +1,18 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.16.1] - 2026-10-15 - 🧭 - UPDATE - Songshan Routes Redrawn as a Right-Angle Schematic, No Doubled-Back Lines
+1. **Straight lines and right angles**: both routes now follow the park's outline with straight lines and right angles (top A–B, right, bottom, left), and the stops are snapped to that grid (at most about 15 m from the surveyed positions). These are schematic routes, not GPS tracks; the version drawn from the GPX track is kept in git history (commit 51b09b8).
+2. **No doubled-back lines**: when Route 1 turns back from the farm (B), the stretch of the top edge it already walked is drawn once, only from the top-right corner down to Sweetgum Avenue; Route 2 does the same on its way from the farm to the Baroque Garden. This uses a new segment option `skipLeading` (omit the first N points when drawing); stops, feedback and ratings still use the full from/to stops.
+3. **With both routes shown**: shared stretches show only the colour of the top route (Route 1's blue); either route alone is fully visible.
+4. **Baroque Garden position confirmed**: the estimated coordinate was confirmed correct. The history story for each stop is not written yet.
+
+## [v1.16.0] - 2026-10-15 - 🚶 - FEATURE - Songshan Park: Two Walking Routes (Local Build)
+1. **Two routes, five stops**: A Creative Street, B Xinren Village Farm, C Baroque Garden, D Sweetgum Avenue, E Songshan Hub Visitor Centre. Route 1 (blue) goes A→B→D→E→C, Route 2 (orange) A→E→D→B→C. Routes start switched off and are turned on from the layer panel; stops can be tapped to leave feedback.
+2. **Paths come from the on-site GPX**: the coordinates of A, B, D and E and the paths A→B, B→D, D→E and E→A come from the 2026-10-15 walk (duplicate points removed, only turns kept). Route 2's A→E, E→D and D→B are the reverse of the matching legs.
+3. **To be confirmed on site**: the Baroque Garden (C) has no GPX waypoint, so its coordinate is estimated from the basemap (the fountain lawn in the middle of the park); the two legs into C (E→C, B→C) have no recorded track and are straight lines for now. Stop descriptions are not written yet.
+4. **Route interface follows the project**: route names in the layer panel, the route list in the layer guide and the route step of the tour use Songshan's own wording; Xinyi's route info boxes do not appear on the Songshan map.
+5. **Fixed blank 1939 Liu-kong-tsun map when zoomed in**: this tile set has content up to zoom 17 and only blank images from 18, and the park's default view is zoom 18. It now uses `maxNativeZoom: 17`, enlarging the zoom-17 tiles (the Xinyi map benefits too).
+
 ## [v1.15.0] - 2026-10-10 - 🗺️ - UPDATE - Songshan Project Enabled with Base Layers (Routes to Be Designed)
 1. **Songshan project is open**: `/songshan` (English `/en/songshan`) is now a working interactive map centred on Songshan Cultural and Creative Park, with only the 1939 Liu-kong-tsun Irrigation District Map on by default.
 2. **All shared base layers kept**: historical maps (1904 / 1921 / 1939 / 1944 / 1989), satellite imagery and environmental indices, street trees, parks and green space, pavements, urban planning zones, surface temperature and sun shadow are all available. Open-data coverage around the park was verified.
