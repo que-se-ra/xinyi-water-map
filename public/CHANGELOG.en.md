@@ -1,10 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
-## [v1.17.1] - 2026-10-16 - ➡️ - FEATURE - Direction Arrows on the Songshan Routes
-1. **Route direction arrows**: both Songshan routes now carry small arrows pointing the way to walk, each in its own route colour. Route 1 goes east from Creative Street to the farm, back and south to Sweetgum Avenue, west to Songshan Hub and finally to the Baroque Garden; Route 2's arrows go the other way round.
-2. **Still readable with both routes on**: arrows sit on the right-hand side of the direction of travel (like driving on the right), so on shared stretches where the two routes run in opposite directions the arrows fall on opposite sides of the line instead of overlapping.
-3. **Does not get in the way**: tapping an arrow passes through to the segment underneath and opens the rating window as usual; arrows are hidden when zoomed out below level 16 to avoid clutter, and their spacing adapts to the zoom.
-4. **Per-project setting**: this is the project option `ui.routeArrows`; only Songshan has it on, Waters of Xinyi is unchanged.
+## [v1.17.1] - 2026-10-16 - ➡️ - FEATURE - Direction Arrows on the Songshan Routes; Creative Street–Farm Out-and-Back Drawn as a "ㄇ"
+1. **Out and back drawn apart (ㄇ shape)**: the Creative Street to Xinren Village Farm stretch is walked there and back, and used to be drawn on a single line. It is now two parallel lines (about 10 m apart) joined by a short link at the farm end, like a "ㄇ": the outward leg uses the upper line (Creative Street), the return leg the lower one. Both routes use it, so neither route overlaps itself any more.
+2. **Direction arrows**: both Songshan routes carry small arrows on the line pointing the way to walk, in each route's colour. Each sufficiently long edge gets one arrow (two on very long edges), drawn directly on the line; very short links and positions next to a stop are skipped.
+3. **Does not get in the way**: tapping an arrow passes through to the segment underneath and opens the rating window as usual; arrows are hidden below zoom level 16 and their spacing follows the zoom. Where the two routes run in opposite directions on the same edge, the two arrows are positioned apart automatically.
+4. **Per-project setting**: arrows are the project option `ui.routeArrows`; only Songshan has it on, Waters of Xinyi is unchanged.
 
 ## [v1.16.1] - 2026-10-15 - 🧭 - UPDATE - Songshan Routes Redrawn as a Right-Angle Schematic, No Doubled-Back Lines
 1. **Straight lines and right angles**: both routes now follow the park's outline with straight lines and right angles (top A–B, right, bottom, left), and the stops are snapped to that grid (at most about 15 m from the surveyed positions). These are schematic routes, not GPS tracks; the version drawn from the GPX track is kept in git history (commit 51b09b8).

@@ -140,7 +140,7 @@ function RouteSegment({ route, positions, segmentId, comfortData }) {
   );
 }
 
-export default function RouteLayer({ route, polylines, comfortData = null, routeIndex = 0 }) {
+export default function RouteLayer({ route, polylines, comfortData = null }) {
   const project = useProject();
   // 已畫出的折線清單（單一折線與多段兩種格式都統一成「折線陣列」）
   const lines = Array.isArray(polylines[0]) && Array.isArray(polylines[0][0]) ? polylines : [polylines];
@@ -170,7 +170,7 @@ export default function RouteLayer({ route, polylines, comfortData = null, route
         : null}
 
       {/* 方向箭頭：專案選用（ui.routeArrows） */}
-      {project.ui?.routeArrows && <RouteArrows route={route} lines={lines} phaseIndex={routeIndex} />}
+      {project.ui?.routeArrows && <RouteArrows route={route} lines={lines} />}
 
       {/* Station markers — zoom-aware size, soft earth-tone border */}
       {route.stations.map((station) => (

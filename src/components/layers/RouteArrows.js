@@ -1,14 +1,14 @@
 'use client';
 
-// 路線方向箭頭：沿著路線每隔一段距離放一個小箭頭，指向「走的方向」。
+// 路線方向箭頭：每一條夠長的直線邊放一個箭頭（很長的邊放兩三個），箭頭直接畫在線上，指向「走的方向」。
 // 只有專案設定 ui.routeArrows 為 true 時才會用到（見 projects/<slug>/index.js）。
 //
 // 設計重點
-// - 間隔以「螢幕像素」計（放大縮小時箭頭疏密差不多），縮得太小就不畫，避免擠成一團。
+// - 數量少：以「螢幕像素」計間隔（SPACING_PX），放大縮小時疏密差不多；縮得太小（< MIN_ZOOM）就不畫。
+// - 箭頭放在每條邊的 40% 處（而不是正中間）。兩條路線在同一條邊上走法相反時，兩個箭頭
+//   各自離「自己的起點」40%，也就是彼此錯開邊長的 20%，不會疊在一起。
 // - 箭頭一律不可互動（pointer-events 為 none），點擊會穿透到下面的路段，不影響路段評分。
-// - 避開站點與轉角：箭頭太靠近站點圓點或折線轉折處就略過。
-// - 兩條路線共用同一段路時，起始位置錯開（phase），箭頭不會疊在一起；
-//   方向相反時兩個顏色各自指向自己的走法。
+// - 太靠近站點圓點就略過（改試另一側 60% 處，仍擋到才不放）。
 // - 顏色用該路線的深色加白邊，在一般模式與舒適度上色模式（線條改成紅綠色階）都看得清楚。
 
 import { useState } from 'react';
@@ -16,12 +16,11 @@ import L from 'leaflet';
 import { Marker, useMap, useMapEvents } from 'react-leaflet';
 
 const MIN_ZOOM = 16; // 低於這個縮放等級不畫箭頭
-const SPACING_PX = 110; // 箭頭間隔（螢幕像素）
-const STATION_CLEARANCE_M = 16; // 離站點多近就不放
-const CORNER_CLEARANCE_M = 9; // 離折線轉折多近就不放
-const MIN_EDGE_FOR_ARROW_M = 25; // 邊短於這個長度就不強制放箭頭
-const ICON_SIZE = 20;
-const LANE_OFFSET_PX = 7; // 箭頭往行進方向右側偏移（像靠右行駛），相反方向的箭頭才不會疊在一起
+const SPACING_PX = 260; // 同一條邊上箭頭的間隔（螢幕像素）；比這短的邊只放一個
+const MIN_EDGE_M = 25; // 短於這個長度的邊（例如ㄇ字的短連接線）不放箭頭
+const STATION_CLEARANCE_M = 14; // 離站點多近就不放
+const FRACTION = 0.4; // 箭頭在邊上的位置（從該邊的起點算起）
+const ICON_SIZE = 16;
 
 const toRad = (d) => (d * Math.PI) / 180;
 
@@ -39,55 +38,30 @@ function bearingDeg(a, b) {
 }
 
 /**
- * 沿一條折線每隔 spacingM 取一個點（起點偏移 spacingM * phase）。
- * 回傳 [{ pos: [lat, lng], bearing }]；太短、一個都放不下的路段改放在正中間。
+ * 一條折線上要放的箭頭。回傳 [{ pos: [lat, lng], bearing }]。
+ * 每條邊（相鄰兩個轉折點）：長度 < MIN_EDGE_M 不放；否則放 round(長度 / spacingM) 個（至少 1 個），
+ * 第 k 個在 (k + FRACTION) / n 處。
  */
-export function arrowsAlong(line, spacingM, phase, stations = []) {
+export function arrowsAlong(line, spacingM, stations = []) {
   if (!line || line.length < 2) return [];
-  const edges = [];
-  let total = 0;
-  for (let i = 0; i < line.length - 1; i++) {
-    const len = lengthM(line[i], line[i + 1]);
-    edges.push({ a: line[i], b: line[i + 1], len, start: total });
-    total += len;
-  }
-
-  const at = (dist) => {
-    const e = edges.find((x) => dist >= x.start && dist <= x.start + x.len) || edges[edges.length - 1];
-    const t = e.len === 0 ? 0 : (dist - e.start) / e.len;
-    return {
-      pos: [e.a[0] + (e.b[0] - e.a[0]) * t, e.a[1] + (e.b[1] - e.a[1]) * t],
-      bearing: bearingDeg(e.a, e.b),
-      toCorner: Math.min(dist - e.start, e.start + e.len - dist),
-      isInnerCornerStart: e.start > 0,
-      isInnerCornerEnd: e.start + e.len < total,
-    };
-  };
-
-  const ok = (p) => {
-    // 只有「路段內部的轉角」才需要避開；路段的頭尾是站點，由站點距離處理
-    const nearCorner =
-      p.toCorner < CORNER_CLEARANCE_M && (p.isInnerCornerStart || p.isInnerCornerEnd);
-    if (nearCorner) return false;
-    return !stations.some((s) => lengthM(p.pos, s) < STATION_CLEARANCE_M);
-  };
-
   const out = [];
-  for (let d = spacingM * phase; d < total; d += spacingM) {
-    const p = at(d);
-    if (ok(p)) out.push({ pos: p.pos, bearing: p.bearing });
-  }
-  // 每一條夠長的邊至少要有一個箭頭（短邊容易剛好被站點／轉角避讓掉）：
-  // 沒有就放在邊的正中間，仍然擋到就不放。
-  for (const e of edges) {
-    if (e.len < MIN_EDGE_FOR_ARROW_M) continue;
-    const hasArrow = out.some((a) => {
-      const along = lengthM(e.a, a.pos) + lengthM(a.pos, e.b);
-      return Math.abs(along - e.len) < 1; // 箭頭落在這條邊上
-    });
-    if (hasArrow) continue;
-    const p = at(e.start + e.len / 2);
-    if (ok(p)) out.push({ pos: p.pos, bearing: p.bearing });
+  for (let i = 0; i < line.length - 1; i++) {
+    const a = line[i];
+    const b = line[i + 1];
+    const len = lengthM(a, b);
+    if (len < MIN_EDGE_M) continue;
+
+    const n = Math.max(1, Math.round(len / spacingM));
+    const bearing = bearingDeg(a, b);
+    for (let k = 0; k < n; k++) {
+      // 先試 40% 處，被站點擋到就試對稱的 60% 處
+      for (const f of [(k + FRACTION) / n, (k + 1 - FRACTION) / n]) {
+        const pos = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+        if (stations.some((s) => lengthM(pos, s) < STATION_CLEARANCE_M)) continue;
+        out.push({ pos, bearing });
+        break;
+      }
+    }
   }
   return out;
 }
@@ -99,26 +73,16 @@ function arrowIcon(color, bearing) {
     iconAnchor: [ICON_SIZE / 2, ICON_SIZE / 2],
     html:
       `<svg width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 20 20" ` +
-      `style="transform:rotate(${bearing.toFixed(1)}deg);display:block;pointer-events:none;` +
-      `filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))">` +
+      `style="transform:rotate(${bearing.toFixed(1)}deg);display:block;pointer-events:none">` +
       `<path d="M10 1.5 L17.5 17 L10 13 L2.5 17 Z" fill="${color}" stroke="#ffffff" ` +
-      `stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+      `stroke-width="1.8" stroke-linejoin="round"/></svg>`,
   });
 }
 
 /**
  * lines：該路線所有已畫出的折線（每條是 [[lat,lng], ...]），順序與走向就是路線的走法。
- * phaseIndex：第幾條路線，用來把箭頭的起始位置錯開。
  */
-// 把箭頭往行進方向的右側挪 offsetM 公尺
-function shiftRight(pos, bearing, offsetM) {
-  const th = toRad(bearing);
-  const east = Math.cos(th) * offsetM; // 右手邊 = (cosθ 東, -sinθ 北)
-  const north = -Math.sin(th) * offsetM;
-  return [pos[0] + north / 111320, pos[1] + east / (111320 * Math.cos(toRad(pos[0])))];
-}
-
-export default function RouteArrows({ route, lines, phaseIndex = 0 }) {
+export default function RouteArrows({ route, lines }) {
   const map = useMap();
   const [zoom, setZoom] = useState(map.getZoom());
   useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
@@ -128,17 +92,16 @@ export default function RouteArrows({ route, lines, phaseIndex = 0 }) {
   const lat = route.stations[0]?.lat ?? map.getCenter().lat;
   const metersPerPx = (156543.03392 * Math.cos(toRad(lat))) / 2 ** zoom;
   const spacingM = SPACING_PX * metersPerPx;
-  const phase = phaseIndex % 2 === 0 ? 0.5 : 0.27; // 兩條路線錯開
   const stations = route.stations.map((s) => [s.lat, s.lng]);
   const color = route.colorDark || route.color;
 
   return (
     <>
       {lines.flatMap((line, li) =>
-        arrowsAlong(line, spacingM, phase, stations).map((a, ai) => (
+        arrowsAlong(line, spacingM, stations).map((a, ai) => (
           <Marker
             key={`${route.id}-arrow-${li}-${ai}-${zoom}`}
-            position={shiftRight(a.pos, a.bearing, LANE_OFFSET_PX * metersPerPx)}
+            position={a.pos}
             icon={arrowIcon(color, a.bearing)}
             interactive={false}
             keyboard={false}

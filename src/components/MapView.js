@@ -397,7 +397,6 @@ export default function MapView({
             <RouteLayer
               key={route.id}
               route={route}
-              routeIndex={ri}
               polylines={polylines[ri]}
               comfortData={showComfort ? (comfortStats?.[String(route.id)] ?? {}) : null}
             />
