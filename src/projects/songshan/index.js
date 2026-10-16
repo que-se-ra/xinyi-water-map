@@ -29,7 +29,7 @@ export const songshan = {
   defaultLayers: BASE_DEFAULT_LAYERS,
   // 沒有專屬問卷；側欄先只留地圖與圖層說明（水文調查表單、歷史故事是信義專屬內容）
   features: { survey: false },
-  ui: { tabs: ['map', 'layers', 'changelog'], landingCards: false },
+  ui: { tabs: ['map', 'layers', 'changelog'], landingCards: false, routeArrows: true },
   reportSummary: {
     org: '「城市裡的微氣候觀察｜互動地圖工作坊」（松山文創園區）',
     area: '園區周邊環境',

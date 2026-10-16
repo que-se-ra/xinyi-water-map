@@ -13,7 +13,7 @@
 
 1. 建 `src/projects/<slug>/`：`index.js`（專案設定，可參考 `xinyi/index.js`）、`routeData.js`、`routeData.en.js`。
    路線 id 請加專案前綴（例如 `songshan-route-01`），避免舒適度統計與其他專案混在一起。
-2. 在 `src/projects/registry.js` 的 `PROJECTS` 加進去，`status` 改成 `'active'`（`'coming-soon'` 只顯示說明頁）。專案沒有路線時（`routes: []`），介面會自動隱藏路線開關與步行舒適度；`ui.tabs` 決定側欄分頁、`copy` 覆寫信義專屬文案，可參考 `songshan/index.js`。
+2. 在 `src/projects/registry.js` 的 `PROJECTS` 加進去，`status` 改成 `'active'`（`'coming-soon'` 只顯示說明頁）。專案沒有路線時（`routes: []`），介面會自動隱藏路線開關與步行舒適度；`ui.routeArrows: true` 會在路線上畫方向箭頭；`ui.tabs` 決定側欄分頁、`copy` 覆寫信義專屬文案，可參考 `songshan/index.js`。
 3. 圖層預設值在 `src/projects/defaultLayers.js`；專案可以在自己的設定覆寫（例如改選別張古地圖）。
 4. `<slug>` 不可以是 `registry.js` 的 `RESERVED_SLUGS` 內的名稱。
 5. 回饋資料靠試算表的 `project_id` 欄位區分，不需要另外建試算表。
