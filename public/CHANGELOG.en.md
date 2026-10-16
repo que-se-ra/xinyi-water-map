@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.17.1] - 2026-10-16 - ➡️ - FEATURE - Direction Arrows on the Songshan Routes; Creative Street–Farm Out-and-Back Drawn as a "ㄇ"
+1. **Out and back drawn apart (ㄇ shape)**: the Creative Street to Xinren Village Farm stretch is walked there and back, and used to be drawn on a single line. It is now two parallel lines (about 10 m apart) joined by a short link at the farm end, like a "ㄇ": the outward leg uses the upper line (Creative Street), the return leg the lower one. Both routes use it, so neither route overlaps itself any more.
+2. **Direction arrows**: both Songshan routes carry small arrows on the line pointing the way to walk, in each route's colour. Each sufficiently long edge gets one arrow (two on very long edges), drawn directly on the line; very short links and positions next to a stop are skipped.
+3. **Does not get in the way**: tapping an arrow passes through to the segment underneath and opens the rating window as usual; arrows are hidden below zoom level 16 and their spacing follows the zoom. Where the two routes run in opposite directions on the same edge, the two arrows are positioned apart automatically.
+4. **Per-project setting**: arrows are the project option `ui.routeArrows`; only Songshan has it on, Waters of Xinyi is unchanged.
+
 ## [v1.16.1] - 2026-10-15 - 🧭 - UPDATE - Songshan Routes Redrawn as a Right-Angle Schematic, No Doubled-Back Lines
 1. **Straight lines and right angles**: both routes now follow the park's outline with straight lines and right angles (top A–B, right, bottom, left), and the stops are snapped to that grid (at most about 15 m from the surveyed positions). These are schematic routes, not GPS tracks; the version drawn from the GPX track is kept in git history (commit 51b09b8).
 2. **No doubled-back lines**: when Route 1 turns back from the farm (B), the stretch of the top edge it already walked is drawn once, only from the top-right corner down to Sweetgum Avenue; Route 2 does the same on its way from the farm to the Baroque Garden. This uses a new segment option `skipLeading` (omit the first N points when drawing); stops, feedback and ratings still use the full from/to stops.

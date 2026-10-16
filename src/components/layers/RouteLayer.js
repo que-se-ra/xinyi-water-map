@@ -3,6 +3,8 @@ import { Polyline, CircleMarker, Popup, LayerGroup, FeatureGroup, useMap, useMap
 import PopupLightbox from './PopupLightbox';
 import RouteFeedbackForm, { FACTORS } from '../forms/RouteFeedbackForm';
 import StationPopupContent from './StationPopupContent';
+import RouteArrows from './RouteArrows';
+import { useProject } from '@/projects/ProjectProvider';
 import { useT } from '@/i18n/LocaleProvider';
 
 function markerRadius(zoom) {
@@ -139,6 +141,10 @@ function RouteSegment({ route, positions, segmentId, comfortData }) {
 }
 
 export default function RouteLayer({ route, polylines, comfortData = null }) {
+  const project = useProject();
+  // 已畫出的折線清單（單一折線與多段兩種格式都統一成「折線陣列」）
+  const lines = Array.isArray(polylines[0]) && Array.isArray(polylines[0][0]) ? polylines : [polylines];
+
   return (
     <LayerGroup>
       {/* Polylines */}
@@ -162,6 +168,9 @@ export default function RouteLayer({ route, polylines, comfortData = null }) {
             />
           )
         : null}
+
+      {/* 方向箭頭：專案選用（ui.routeArrows） */}
+      {project.ui?.routeArrows && <RouteArrows route={route} lines={lines} />}
 
       {/* Station markers — zoom-aware size, soft earth-tone border */}
       {route.stations.map((station) => (
