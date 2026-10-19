@@ -1,5 +1,14 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.19.0] - 2026-10-20 - 🇭🇰 - FEATURE - New /hkvisitors Walk Page for Hong Kong Visitors (Group Code Required)
+1. **New page `/hkvisitors`**: a guided page built for the 21 October 2026 walk with visitors from Hong Kong. It needs a group code, is not indexed by search engines, and is not part of the project registry, so the Xinyi, Songshan and NTU projects are untouched.
+2. **Written Chinese / Cantonese switch**: the whole page exists in both, switchable in the top right and remembered on the device. Station texts in written Chinese come straight from the Xinyi route 1 data; the Cantonese is a first draft.
+3. **Background sections**: six sections written for the visitors — why this waterway matters (with Hong Kong parallels), what a community college is, Xinyi Community College and "Waters of Xinyi", Taipei under Qing rule, the story of the Liu-kong-tsun canal, and how to use the page.
+4. **Checkpoint-style walk**: the map starts with the base map and route only. Coming within 50 m of a stop unlocks its text automatically; a manual "we are here" button covers poor GPS, indoor spots and denied permission. The next stop lights up with a NEW badge only after the current one has been read. Progress is stored on the device and can be reset.
+5. **Layers unlock as the walk proceeds**: 1904 and 1921 after stop A; 1939 after B; 1944 after D; 1989 plus land surface temperature, live sun shadow and the Esri and Sentinel-2 imagery after F; street tree shade and parks and woodland after H.
+6. **New knowledge stop on comfort and green space**: placed after knowledge stop 3, using the admin thermal comfort analysis — 14.1 percent green cover within 50 m of the most comfortable places against 5.9 percent for the least, about 2.4 times (August 2026, 26 responses).
+7. **No shared components changed**: the page has its own map container and only reuses existing layer components, so MapView and the project files are untouched.
+
 ## [v1.18.0] - 2026-10-20 - 🌡️ - FEATURE - New Project: NTU Campus Thermal Comfort Walk (Routes to Be Designed)
 1. **New project**: `/ntu` (English `/en/ntu`) is a new interactive map centred on the main campus of National Taiwan University, with its own card on the platform home page.
 2. **All historical maps and satellite imagery shared**: the historical maps (1904 / 1921 / 1939 / 1944 / 1989) and satellite imagery (Esri, Sentinel-2 natural colour / vegetation index / moisture index) are all available; only the 1939 Liu-kong-tsun Irrigation District Map is on by default. Tiles for all five historical maps were tested and cover the campus.
