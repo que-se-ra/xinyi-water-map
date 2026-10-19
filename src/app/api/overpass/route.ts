@@ -1,5 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 
+// 最壞情況三個鏡像各等 10 秒，預留到 40 秒，免得 Vercel 先一步中斷函式
+export const maxDuration = 40;
+
 export async function POST(req: NextRequest) {
   try {
     const { query } = await req.json();
@@ -7,9 +10,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing query' }, { status: 400 });
     }
 
-    // List of Overpass API mirrors
+    // Overpass 公共鏡像，依序嘗試（逐個試而不是同時打，避免加重公共服務負擔）。
+    // 2026-10-20 實測：overpass.nchc.org.tw 網域已不存在（ENOTFOUND）；
+    // overpass-api.de 斷線、kumi.systems 逾時；overpass.private.coffee 正常且不限流，所以排第一。
+    // 之後若又全部失敗，先查各鏡像的 /api/status，再調整這個清單。
     const mirrors = [
-      'https://overpass.nchc.org.tw/api/interpreter',
+      'https://overpass.private.coffee/api/interpreter',
       'https://overpass-api.de/api/interpreter',
       'https://overpass.kumi.systems/api/interpreter'
     ];
@@ -19,7 +25,7 @@ export async function POST(req: NextRequest) {
       try {
         console.log(`Trying Overpass mirror: ${url}`);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout per mirror
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 每個鏡像最多等 10 秒
 
         const res = await fetch(url, {
           method: 'POST',
