@@ -3,9 +3,10 @@
 
 import { xinyi } from './xinyi';
 import { songshan } from './songshan';
+import { ntu } from './ntu';
 
 // 順序即平台首頁卡片順序
-export const PROJECTS = [xinyi, songshan];
+export const PROJECTS = [xinyi, songshan, ntu];
 
 export const DEFAULT_PROJECT_SLUG = 'xinyi';
 
