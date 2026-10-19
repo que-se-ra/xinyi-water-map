@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.18.0] - 2026-10-20 - 🌡️ - FEATURE - New Project: NTU Campus Thermal Comfort Walk (Routes to Be Designed)
+1. **New project**: `/ntu` (English `/en/ntu`) is a new interactive map centred on the main campus of National Taiwan University, with its own card on the platform home page.
+2. **All historical maps and satellite imagery shared**: the historical maps (1904 / 1921 / 1939 / 1944 / 1989) and satellite imagery (Esri, Sentinel-2 natural colour / vegetation index / moisture index) are all available; only the 1939 Liu-kong-tsun Irrigation District Map is on by default. Tiles for all five historical maps were tested and cover the campus.
+3. **No routes yet**: routes and stops have not been designed; without routes, the route toggles in the layer panel, the walking-comfort view and the route step of the guided tour are hidden automatically.
+4. **Interface**: the sidebar has only Map / Layer guide / Changelog for now, with the project's own title and text in place of the Xinyi-specific copy. Feedback carries `project_id: ntu` and is counted separately from other projects.
+
 ## [v1.17.1] - 2026-10-16 - ➡️ - FEATURE - Direction Arrows on the Songshan Routes; Creative Street–Farm Out-and-Back Drawn as a "ㄇ"
 1. **Out and back drawn apart (ㄇ shape)**: the Creative Street to Xinren Village Farm stretch is walked there and back, and used to be drawn on a single line. It is now two parallel lines (about 10 m apart) joined by a short link at the farm end, like a "ㄇ": the outward leg uses the upper line (Creative Street), the return leg the lower one. Both routes use it, so neither route overlaps itself any more.
 2. **Direction arrows**: both Songshan routes carry small arrows on the line pointing the way to walk, in each route's colour. Each sufficiently long edge gets one arrow (two on very long edges), drawn directly on the line; very short links and positions next to a stop are skipped.
