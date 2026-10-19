@@ -126,7 +126,7 @@ export default function HkTourClient() {
           name: { zh: st.name, yue: y.name || st.name },
           hook: { zh: st.hook, yue: y.hook || st.hook },
           body: { zh: st.body, yue: y.body || st.body },
-          hk: y.hk ? { zh: y.hk, yue: y.hk } : null,
+          hk: extra.hk || null,
           imgs: st.imgs || [],
           unlock: extra.unlock || [],
           kit: Boolean(extra.kit),
@@ -171,6 +171,7 @@ export default function HkTourClient() {
   // 地表溫度圖磚網址：自己取，唔好喺呢個檔 import TemperatureLayer（見檔頭）。
   const [temperatureUrl, setTemperatureUrl] = useState('');
   const [temperatureError, setTemperatureError] = useState(false);
+  const [shadowOpacity, setShadowOpacity] = useState(0.35);   // 日照陰影透明度（圖層列可調）
   // 「即時」日照陰影：每 5 分鐘更新一次太陽位置（走讀會行兩三個鐘，唔可以定死喺開頁嗰一刻）
   const [shadeDate, setShadeDate] = useState(() => new Date());
   useEffect(() => {
@@ -578,6 +579,7 @@ export default function HkTourClient() {
           layers={layerState}
           temperatureUrl={temperatureUrl}
           shadeDate={shadeDate}
+          shadowOpacity={shadowOpacity}
           onSelectStop={(id) => { if (doneSet.has(id)) { setOpenId(id); setPanel('card'); } }}
         />
 
@@ -807,6 +809,21 @@ export default function HkTourClient() {
                         </button>
                       ))}
                     </div>
+                    {g.id === 'toggle' && layerState.shadow && (
+                      <label className="mt-3 flex items-center gap-3 text-xs text-slate-500">
+                        <span className="shrink-0">{lang === 'zh' ? '陰影深淺' : '陰影深淺'}</span>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="0.8"
+                          step="0.05"
+                          value={shadowOpacity}
+                          onChange={(e) => setShadowOpacity(parseFloat(e.target.value))}
+                          className="flex-1 accent-sky-600"
+                        />
+                        <span className="w-9 text-right font-mono">{Math.round(shadowOpacity * 100)}%</span>
+                      </label>
+                    )}
                   </section>
                 );
               })}

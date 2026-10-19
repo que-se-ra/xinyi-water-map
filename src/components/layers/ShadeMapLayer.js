@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useMap, Polygon, Pane } from 'react-leaflet';
 import SunCalc from 'suncalc';
+import { STATIC_BUILDING_TILES } from '@/lib/static-building-tiles';
 
 // 公尺 → 經緯度的換算（台北信義區緯度約 25.03）
 const M_PER_DEG_LAT = 111000;
@@ -12,6 +13,25 @@ const M_PER_DEG_LNG = 100500;
 const FETCH_DEBOUNCE_MS = 500;
 const RETRY_DELAY_MS = 2000;
 const BBOX_CACHE_LIMIT = 24;
+
+// 預先整理的建築格子（每格 0.01°，見 src/lib/static-building-tiles.js）。
+// 視野一次最多讀幾格；超過代表地圖縮得太小，請使用者放大。
+const STATIC_TILE_LIMIT = 16;
+const staticTileCache = new Map();   // key → Promise<建築陣列>，整個頁面共用，同一格只下載一次
+function loadStaticTile(key) {
+  if (!staticTileCache.has(key)) {
+    staticTileCache.set(
+      key,
+      fetch(`/buildings/tiles/${key}.json`)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`tile ${key} ${r.status}`))))
+        .catch((err) => {
+          staticTileCache.delete(key);   // 失敗的不留快取，下次再試
+          throw err;
+        })
+    );
+  }
+  return staticTileCache.get(key);
+}
 
 export default function ShadeMapLayer({
   show,
@@ -164,6 +184,38 @@ export default function ShadeMapLayer({
           )
         );
         reportStatus('ready');
+        return;
+      }
+
+      // 全站預先整理的建築格子（信義四條路線、松山文創園區、台大校園）：
+      // 視野碰到有資料的格子就讀檔，不打 Overpass（2026-10 公共 Overpass 鏡像長期逾時）。
+      // 視野完全在覆蓋範圍外，才走下面的 Overpass。
+      const tileKeys = [];
+      for (let la = Math.floor(south * 100); la <= Math.floor(north * 100); la++) {
+        for (let ln = Math.floor(west * 100); ln <= Math.floor(east * 100); ln++) tileKeys.push(`${la}_${ln}`);
+      }
+      const coveredKeys = tileKeys.filter((k) => STATIC_BUILDING_TILES.has(k));
+      if (coveredKeys.length) {
+        if (coveredKeys.length > STATIC_TILE_LIMIT) {
+          setBuildings([]);
+          reportStatus('zoom');
+          return;
+        }
+        const staticRequestId = ++requestIdRef.current;
+        reportStatus('loading');
+        try {
+          const lists = await Promise.all(coveredKeys.map(loadStaticTile));
+          if (staticRequestId !== requestIdRef.current) return;
+          setBuildings(
+            lists.flat().filter((b) =>
+              b.coordinates.some(([lon, lat]) => lat >= south && lat <= north && lon >= west && lon <= east)
+            )
+          );
+          reportStatus('ready');
+        } catch (err) {
+          console.error('Error loading prepared building tiles:', err);
+          if (staticRequestId === requestIdRef.current) reportStatus('error');
+        }
         return;
       }
 

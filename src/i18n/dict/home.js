@@ -116,6 +116,7 @@ const home = {
   'landing.tagline': { zh: '以水文地景為經緯，編織信義區的在地記憶', en: 'Weaving Xinyi District\'s local memory from its watercourses and landscape.' },
   'landing.ctaMap': { zh: '展開水文地圖探索', en: 'Explore the hydrology map' },
   'landing.ctaSurvey': { zh: '填寫熱舒適問卷', en: 'Take the thermal comfort survey' },
+  'landing.ctaTour': { zh: '走讀導覽專用', en: 'Guided walk' },
   'landing.featuresTitle': { zh: '功能介紹', en: 'Features' },
   'landing.featuresSubtitle': { zh: '了解本網站如何協助您探索社區水文', en: 'How this site helps you explore the community\'s hydrology' },
 

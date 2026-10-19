@@ -168,7 +168,8 @@ export default function MapView({
   const [showShadeMap, setShowShadeMap] = useState(dl.shadeMap);
   // 圖層回報的建築圖資載入狀態：idle / loading / retrying / ready / error / zoom
   const [shadeMapStatus, setShadeMapStatus] = useState('idle');
-  const [shadeMapOpacity, setShadeMapOpacity] = useState(0.6);
+  // 日照陰影預設 35%：60% 時深藍色陰影會把底下的古地圖、底圖蓋住（2026-10-20 使用者回饋）
+  const [shadeMapOpacity, setShadeMapOpacity] = useState(0.35);
   const nowMinutes = (() => {
     const n = new Date();
     const m = n.getHours() * 60 + n.getMinutes();

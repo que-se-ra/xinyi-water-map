@@ -102,6 +102,7 @@ export default function HkTourMap({
   layers,            // { historical, satellite, trees, green, lst, shadow, 'kit-shops', 'kit-mrt' }
   temperatureUrl,
   shadeDate,
+  shadowOpacity = 0.35,
   onSelectStop,
 }) {
   const center = useMemo(() => {
@@ -148,7 +149,7 @@ export default function HkTourMap({
       <ComfortLayer showTrees={layers.trees} showSidewalks={false} showGreen={layers.green} />
       <TemperatureLayer show={layers.lst} url={temperatureUrl} opacity={0.65} />
       {layers.shadow && buildings && (
-        <ShadeMapLayer show date={shadeDate} opacity={0.5} showTrees={layers.trees} staticBuildings={buildings} />
+        <ShadeMapLayer show date={shadeDate} opacity={shadowOpacity} showTrees={layers.trees} staticBuildings={buildings} />
       )}
 
       {/* 路線 */}

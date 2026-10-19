@@ -1010,7 +1010,27 @@ export default function HomeApp() {
                 <span>{t('landing.ctaMap')}</span>
                 <span className="group-hover:translate-x-1 transition-transform text-sky-200">→</span>
               </button>
-              {project.features.survey && (
+              {project.features.survey && project.ui.landingTour && locale === 'zh' ? (
+                // 問卷按鈕縮成一半，另一半給走讀導覽專頁（目前只有信水義河設定 landingTour）
+                <div className="w-full sm:w-auto flex gap-2">
+                  <Link
+                    href={lp(pp('/survey'))}
+                    className="flex-1 sm:flex-none px-4 py-4 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-orange-200 hover:shadow-orange-300 active:scale-95 flex items-center justify-center gap-1.5 border border-amber-400/30 tracking-wider"
+                    style={{ fontFamily: 'var(--font-serif)' }}
+                  >
+                    <span>🌡️</span>
+                    <span>{t('landing.ctaSurvey')}</span>
+                  </Link>
+                  <Link
+                    href={project.ui.landingTour}
+                    className="flex-1 sm:flex-none px-4 py-4 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-emerald-200 hover:shadow-emerald-300 active:scale-95 flex items-center justify-center gap-1.5 border border-emerald-400/30 tracking-wider"
+                    style={{ fontFamily: 'var(--font-serif)' }}
+                  >
+                    <span>🚶</span>
+                    <span>{t('landing.ctaTour')}</span>
+                  </Link>
+                </div>
+              ) : project.features.survey ? (
               <Link
                 href={lp(pp('/survey'))}
                 className="w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-orange-200 hover:shadow-orange-300 active:scale-95 flex items-center justify-center gap-2 border border-amber-400/30 group tracking-widest"
@@ -1020,7 +1040,7 @@ export default function HomeApp() {
                 <span>{t('landing.ctaSurvey')}</span>
                 <span className="group-hover:translate-x-1 transition-transform text-amber-100">→</span>
               </Link>
-              )}
+              ) : null}
             </div>
 
             {project.ui.landingCards && (
