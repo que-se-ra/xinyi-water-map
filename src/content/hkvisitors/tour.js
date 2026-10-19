@@ -38,7 +38,7 @@ export const RATING_SCALE = {
 export const RATING_PROJECT_ID = 'hkvisitors';
 
 /** 終點的兩個按鈕。回饋表單網址要換成別的表單，改這一行即可。 */
-export const FEEDBACK_FORM_URL = '/xinyi/survey';
+export const FEEDBACK_FORM_URL = '/xinyi?landing=0&tab=form';   // 主地圖的「回饋表單」分頁（水文調查表單）
 export const MAIN_MAP_URL = '/xinyi';
 
 /** 介面文字 */
