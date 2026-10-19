@@ -393,7 +393,7 @@ export default function HomeApp() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <LanguageSwitcher stateParams={{ landing: showLanding ? '1' : '0', tab: activeTab }} />
-          {project.features.survey && (
+          {project.features.survey && project.ui?.headerSurvey !== false && (
           <Link
             href={lp(pp('/survey'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 border border-amber-400/40 transition-all duration-300 cursor-pointer shadow-md shadow-orange-200 active:scale-95 animate-pulse hover:animate-none"

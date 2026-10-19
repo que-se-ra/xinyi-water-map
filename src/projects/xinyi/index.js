@@ -20,7 +20,8 @@ export const xinyi = {
   defaultLayers: BASE_DEFAULT_LAYERS,
   features: { survey: true },
   // 介面區塊：側欄有哪些分頁、開場頁是否顯示功能介紹卡
-  ui: { tabs: ['map', 'layers', 'form', 'history', 'changelog'], landingCards: true },
+  // headerSurvey：頁頂右上角的「熱舒適問卷」按鈕（2026-10-20 使用者要求隱藏；問卷頁本身與開場頁按鈕仍在）
+  ui: { tabs: ['map', 'layers', 'form', 'history', 'changelog'], landingCards: true, headerSurvey: false },
   // 後台「環境通報彙整」AI 提示詞用的單位與地區描述（原本寫死在 api/admin/report-summary）
   reportSummary: {
     org: '臺北市信義社區大學「信水義河」水文地圖計畫',

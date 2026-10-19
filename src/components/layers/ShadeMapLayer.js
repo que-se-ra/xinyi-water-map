@@ -18,7 +18,11 @@ export default function ShadeMapLayer({
   date,
   opacity = 0.6,
   showTrees = false,
-  onStatusChange
+  onStatusChange,
+  // 選用：預先準備好的建築輪廓（格式同下方 parsedBuildings：{ id, coordinates, height }）。
+  // 有傳就直接用，不打 Overpass；沒傳（其他所有頁面）行為完全不變。
+  // 目前只有 /hkvisitors 使用，因為 Overpass 鏡像在正式站時常逾時，走讀現場不能賭。
+  staticBuildings = null
 }) {
   const map = useMap();
   const [buildings, setBuildings] = useState([]);
@@ -152,6 +156,17 @@ export default function ShadeMapLayer({
         return;
       }
 
+      // 有預先準備的建築就只取視野內的，不打 Overpass
+      if (staticBuildings) {
+        setBuildings(
+          staticBuildings.filter((b) =>
+            b.coordinates.some(([lon, lat]) => lat >= south && lat <= north && lon >= west && lon <= east)
+          )
+        );
+        reportStatus('ready');
+        return;
+      }
+
       const cacheKey = [south, west, north, east].map((v) => v.toFixed(3)).join(',');
       const cached = bboxCacheRef.current.get(cacheKey);
       if (cached) {
@@ -250,7 +265,7 @@ export default function ShadeMapLayer({
         }
       }
     },
-    [show, map, reportStatus]
+    [show, map, reportStatus, staticBuildings]
   );
 
   // 3. Listen to map changes to fetch new building footprints（debounce 後才發請求）
