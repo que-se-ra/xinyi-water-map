@@ -104,7 +104,8 @@ export default function HomeApp() {
   const [showLanding, setShowLanding] = useState(true);
 
   // 左側選單收合狀態（預設開啟，使用者可點擊 ☰ 按鈕進行收合）
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // 手機版側欄預設收起，地圖用全寬；電腦版的側欄寬度由 md: 樣式固定，不受這個狀態影響
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 動態更新日誌狀態
   const [changelog, setChangelog] = useState([]);
@@ -262,6 +263,7 @@ export default function HomeApp() {
 
   const startTour = () => {
     setActiveTab('map');
+    setIsSidebarOpen(true); // 導覽有一步介紹側欄，手機版要先展開
     
     setTimeout(() => {
       const driverObj = driver({
@@ -437,7 +439,7 @@ export default function HomeApp() {
             z-[2000] backdrop-blur-md border-r border-sky-200/50
             flex flex-col items-center shadow-md transition-all duration-300 ease-in-out
             ${isSidebarOpen ? 'w-20 py-4 px-2 gap-3' : 'w-0 p-0 border-r-0 overflow-hidden gap-0'}
-            md:w-24 md:py-6 md:px-2 md:gap-3 md:flex
+            md:w-24 md:py-6 md:px-2 md:gap-3 md:flex md:border-r md:overflow-visible
           `}
           style={{ background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 60%, #f0f9ff 100%)' }}
         >
