@@ -16,7 +16,7 @@
 5. **/hkvisitors location help**: opening the page inside LINE, Facebook or Instagram shows a prompt to switch to Safari or Chrome (LINE gets a one-tap external browser link), and denied location shows setup steps for iPhone and Android. Sun shadows on this page use a prepared building file along the route, independent of Overpass, and the sun position refreshes every 5 minutes.
 6. **Header survey button removed**: the survey button no longer appears at the top right of the Xinyi pages in either language; the survey page itself and the landing page button remain.
 
-## [v1.19.0] - 2026-10-20 - 🇭🇰 - FEATURE - New /hkvisitors Walk Page for Hong Kong Visitors (Group Code Required)
+## [v1.19.0] - 2026-10-20 - 🚶 - FEATURE - New /hkvisitors Walk Page for Hong Kong Visitors (Group Code Required)
 1. **New page `/hkvisitors`**: a guided page built for the 21 October 2026 walk with visitors from Hong Kong. It needs a group code, is not indexed by search engines, and is not part of the project registry, so the Xinyi, Songshan and NTU projects are untouched.
 2. **Written Chinese / Cantonese switch**: the whole page exists in both, switchable in the top right and remembered on the device. Station texts in written Chinese come straight from the Xinyi route 1 data; the Cantonese is a first draft.
 3. **Background sections**: six sections written for the visitors — why this waterway matters (with Hong Kong parallels), what a community college is, Xinyi Community College and "Waters of Xinyi", Taipei under Qing rule, the story of the Liu-kong-tsun canal, and how to use the page.

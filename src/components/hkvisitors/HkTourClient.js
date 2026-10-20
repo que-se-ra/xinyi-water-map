@@ -697,7 +697,8 @@ export default function HkTourClient() {
                 ))}
                 {openStop.hk && (
                   <p className="mt-3 text-[14px] leading-[1.9] text-amber-900 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-                    🇭🇰 {openStop.hk[lang]}
+                    <span className="block text-[11px] font-bold tracking-wider text-amber-700">香港對照</span>
+                    {openStop.hk[lang].replace(/^香港對照：/, '')}
                   </p>
                 )}
                 {openStop.link && (
