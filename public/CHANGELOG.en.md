@@ -1,5 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.22.0] - 2026-10-20 - 🔍 - FEATURE - Place Search on the Map; Easier-to-Hide Sidebar on Phones
+1. **Place search**: a search box at the top left of the map finds places, landmarks or this project's walking-tour stops. Stops come first (marked "Stop"); the rest come from OpenStreetMap, with places near the current map view preferred. Tapping a result moves the map there and drops a marker; ✕ clears it. Following OpenStreetMap's usage policy, it searches when you press Search or Enter, not while you type.
+2. **Sidebar handle on phones**: a "‹" handle on the sidebar's right edge hides it so the map fills the screen; a "›" handle on the left edge brings it back. The ☰ in the header still works. The desktop layout is unchanged.
+3. **Map resizes itself**: when the sidebar is hidden or the phone is rotated, the map recalculates its size so no blank strip is left.
+
 ## [v1.21.2] - 2026-10-20 - 📱 - UI - Fix the Project List Not Scrolling on Phones
 1. **The project list scrolls again**: the whole site turns off page scrolling for the map pages, and the project list (`/`, `/en`) inherited that, so on phones — where the cards stack in one column — the third card onward and the privacy link at the bottom could not be reached. The page now has its own scroll area.
 2. **The "coming soon" project page** gets the same fix. The desktop layout is unchanged.

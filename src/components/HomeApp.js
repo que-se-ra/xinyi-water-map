@@ -541,6 +541,18 @@ export default function HomeApp() {
 
       {/* ── Main Content Area (Map Background) ── */}
       <div className="relative flex-1 h-full overflow-hidden">
+        {/* 手機版側欄收合把手：貼在側欄右緣（收起時在畫面左緣），比頁首的 ☰ 好找 */}
+        <button
+          type="button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-[1100] w-6 h-14 flex items-center justify-center rounded-r-xl bg-white/95 border border-l-0 border-sky-200 shadow-md text-sky-700 text-lg active:scale-95 transition-all"
+          aria-label={isSidebarOpen ? t('nav.collapseSidebar') : t('nav.expandSidebar')}
+          aria-expanded={isSidebarOpen}
+          aria-controls="sidebar-navigation"
+          title={isSidebarOpen ? t('nav.collapseSidebar') : t('nav.expandSidebar')}
+        >
+          {isSidebarOpen ? '‹' : '›'}
+        </button>
         {/* The Map stays here at the bottom layer */}
         <div className="absolute inset-0 z-0">
           <MapView onStartTour={startTour} />

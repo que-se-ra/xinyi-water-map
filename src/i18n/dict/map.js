@@ -84,6 +84,13 @@ const map = {
     zh: '自由新增地景標記',
     en: 'Add a landscape marker',
   },
+  // 地點搜尋（PlaceSearch）
+  'map.search.placeholder': { zh: '搜尋地點、地標或站點', en: 'Search places, landmarks or stops' },
+  'map.search.button': { zh: '搜尋', en: 'Search' },
+  'map.search.clear': { zh: '清除搜尋', en: 'Clear search' },
+  'map.search.none': { zh: '找不到符合的地點，試試換個說法或加上路名。', en: 'No matching place found. Try other words or add a street name.' },
+  'map.search.error': { zh: '地名搜尋暫時無法使用，請稍後再試。', en: 'Place search is unavailable right now. Please try again shortly.' },
+  'map.search.stationBadge': { zh: '站點', en: 'Stop' },
   'map.control.comfortModeOn': {
     zh: '點擊地圖選擇評分地點 (點此取消)',
     en: 'Tap the map to choose a spot (tap here to cancel)',
