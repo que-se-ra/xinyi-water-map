@@ -322,6 +322,35 @@ export default function HkTourClient() {
 
   const skipRating = () => setPendingRating(null);   // 起點不變：下一站會一次過評整段
 
+  // 「上一步」：撤回最後一個看完／到達的站（撳錯、或者 GPS 太早解鎖時用）。
+  // 評分起點不用改：已送出的評分照舊，未送出的就收起；再到一次會重新問。
+  const undoneRef = useRef(null);   // 剛撤回的實地站：人仍在 50 米內時不要即刻又自動解鎖
+  const stepBack = () => {
+    if (!done.length) return;
+    const id = done[done.length - 1];
+    const stop = sequence.find((s) => s.id === id);
+    const prevDone = done.slice(0, -1);
+    setDone(prevDone);
+    write(LS_DONE, prevDone);
+    if (arrivedAt[id]) {
+      const { [id]: _drop, ...rest } = arrivedAt;
+      setArrivedAt(rest);
+      write(LS_ARRIVED, rest);
+    }
+    if (pendingRating && pendingRating.to === id) setPendingRating(null);
+    // 這一站解鎖的圖層收回，開著的順手關掉
+    (stop?.unlock || []).forEach((l) => {
+      const info = LAYER_INFO[l];
+      if (!info) return;
+      if (info.kind === 'historical') setLayerState((st) => (st.historical === l ? { ...st, historical: null } : st));
+      else if (info.kind === 'satellite') setLayerState((st) => (st.satellite === l ? { ...st, satellite: null } : st));
+      else setLayerState((st) => ({ ...st, [l]: false }));
+    });
+    if (stop && stop.kind === 'geo') undoneRef.current = id;
+    setOpenId(prevDone.length ? prevDone[prevDone.length - 1] : null);
+    setPanel('card');
+  };
+
   // 第一次開地表溫度先去攞圖磚網址（Google Earth Engine）
   useEffect(() => {
     if (!layerState.lst || temperatureUrl || temperatureError) return;
@@ -366,7 +395,13 @@ export default function HkTourClient() {
     if (geoState !== 'on' || !nextGeoStop || !userPos || pendingRating) return;
     // 只有輪到這一站（前面的站都看完）才會自動解鎖
     if (nextStop && nextStop.id !== nextGeoStop.id) return;
-    if (distanceToNext != null && distanceToNext <= REACH_RADIUS_M) markDone(nextGeoStop.id);
+    if (distanceToNext == null) return;
+    // 剛撤回的站：要先行開（超過 80 米）先會再自動解鎖，否則撳完「上一步」即刻又跳返去
+    if (undoneRef.current === nextGeoStop.id) {
+      if (distanceToNext > REACH_RADIUS_M + 30) undoneRef.current = null;
+      return;
+    }
+    if (distanceToNext <= REACH_RADIUS_M) markDone(nextGeoStop.id);
   }, [geoState, userPos, distanceToNext, nextGeoStop, nextStop, markDone, pendingRating]);
 
   // 圖層列：第一次出現的標 NEW
@@ -601,9 +636,26 @@ export default function HkTourClient() {
         </button>
 
         {/* 下一站提示 */}
+        {!nextStop && !pendingRating && done.length > 0 && (
+          <button
+            onClick={stepBack}
+            className="absolute left-3 bottom-3 z-[1000] px-3 py-2 rounded-xl bg-white/95 border border-slate-200 shadow-md text-xs font-bold text-slate-600 active:scale-95"
+          >
+            ↩ {T('stepBack')}
+          </button>
+        )}
         {nextStop && !pendingRating && (
           <div className="absolute left-3 right-3 bottom-3 z-[1000] bg-white/95 backdrop-blur rounded-2xl border border-sky-100 shadow-lg px-4 py-3">
             <div className="flex items-center gap-3">
+              {done.length > 0 && (
+                <button
+                  onClick={stepBack}
+                  aria-label={T('stepBack')}
+                  className="shrink-0 -ml-1 px-2 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 text-[11px] font-bold leading-tight active:scale-95"
+                >
+                  ↩<span className="block">{T('stepBack')}</span>
+                </button>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold tracking-wider text-sky-700">
                   {T('nextStop')} · {nextStop.badge[lang]}
@@ -661,6 +713,9 @@ export default function HkTourClient() {
             </div>
             <div className="mt-2 flex items-center justify-between gap-2">
               <p className="text-[10px] leading-snug text-slate-400 flex-1">{T('rateHint')}</p>
+              <button onClick={stepBack} className="shrink-0 text-xs font-bold text-slate-400 hover:text-slate-800 px-2 py-1">
+                ↩ {T('stepBack')}
+              </button>
               <button onClick={skipRating} className="shrink-0 text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-1">
                 {T('rateSkip')} →
               </button>

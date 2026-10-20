@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.22.2] - 2026-10-21 - ↩️ - UI - "Back" Step on the Guided Walk
+1. **Undo the last stop**: the "next stop" bar on the guided walk page now has a "Back" button. If a stop was marked by mistake or unlocked too early by GPS, it can be undone, and the layers it unlocked are hidden again.
+2. **Also on the rating card**: the segment comfort rating card has the same button; ratings already sent are kept.
+
 ## [v1.22.1] - 2026-10-20 - 📱 - UI - Sidebar Starts Hidden on Phones
 1. **Full-width map by default**: on phones the left sidebar now starts hidden so the map uses the whole width; open it with the "›" on the left edge or the ☰ in the header.
 2. **The guided tour opens the sidebar**: pressing "How to use" opens the sidebar first, so the step that introduces it is visible.

@@ -70,6 +70,7 @@ export const ui = {
   locked: { zh: '未解鎖', yue: '未解鎖' },
   newBadge: { zh: 'NEW', yue: 'NEW' },
   readDone: { zh: '看完了，繼續', yue: '睇完喇，繼續' },
+  stepBack: { zh: '上一步', yue: '上一步' },
   layersTitle: { zh: '可用圖層', yue: '可以開嘅圖層' },
   layersLocked: { zh: '走到後面的站就會解鎖更多圖層', yue: '行到後面嘅站就會解鎖更多圖層' },
   gpsOff: { zh: '📍 未開定位，請手動解鎖', yue: '📍 未開定位，請手動解鎖' },
