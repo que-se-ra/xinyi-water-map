@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.22.3] - 2026-10-21 - 🏪 - DATA - Walk Page Shops Re-checked
+1. **Official store lists**: convenience stores now come from the 7-ELEVEN, FamilyMart, Hi-Life and OK Mart store finders (61 stores); drink shops are listed only when the brand's own site still shows them (9 shops), so nobody is sent to a shop that has closed.
+2. **MRT stations and exits unchanged**.
+
 ## [v1.22.2] - 2026-10-21 - ↩️ - UI - "Back" Step on the Guided Walk
 1. **Undo the last stop**: the "next stop" bar on the guided walk page now has a "Back" button. If a stop was marked by mistake or unlocked too early by GPS, it can be undone, and the layers it unlocked are hidden again.
 2. **Also on the rating card**: the segment comfort rating card has the same button; ratings already sent are kept.
