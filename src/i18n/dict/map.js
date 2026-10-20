@@ -84,6 +84,14 @@ const map = {
     zh: '自由新增地景標記',
     en: 'Add a landscape marker',
   },
+  'map.control.comfortModeOn': {
+    zh: '點擊地圖選擇評分地點 (點此取消)',
+    en: 'Tap the map to choose a spot (tap here to cancel)',
+  },
+  'map.control.comfortModeOff': {
+    zh: '熱舒適評分',
+    en: 'Rate thermal comfort',
+  },
   'map.control.selectAll': {
     zh: '全選',
     en: 'All on',

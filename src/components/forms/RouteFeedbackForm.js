@@ -3,7 +3,8 @@ import { useMap } from 'react-leaflet';
 import { useT } from '@/i18n/LocaleProvider';
 import { useProject } from '@/projects/ProjectProvider';
 
-const SCORES = [
+// SCORES / FACTORS 也給 PointComfortForm（地點熱舒適評分）共用，兩種評分量尺一致。
+export const SCORES = [
   { value: 1, labelKey: 'forms.route.score.veryBad', emoji: '😣' },
   { value: 2, labelKey: 'forms.route.score.bad', emoji: '😕' },
   { value: 3, labelKey: 'forms.route.score.neutral', emoji: '😐' },
