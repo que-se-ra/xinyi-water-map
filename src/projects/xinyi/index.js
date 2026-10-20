@@ -22,7 +22,8 @@ export const xinyi = {
   // 介面區塊：側欄有哪些分頁、開場頁是否顯示功能介紹卡
   // headerSurvey：頁頂右上角的「熱舒適問卷」按鈕（2026-10-20 使用者要求隱藏；問卷頁本身與開場頁按鈕仍在）
   // landingTour：開場頁問卷按鈕旁的「走讀導覽專用」連結（中文版才顯示，因為導覽頁只有中文與粵語）
-  ui: { tabs: ['map', 'layers', 'form', 'history', 'changelog'], landingCards: true, headerSurvey: false, landingTour: '/hkvisitors' },
+  // landingTourUntil：過了這個時間按鈕自動隱藏（2026-10-20 走讀當天限定；下次活動改日期即可）
+  ui: { tabs: ['map', 'layers', 'form', 'history', 'changelog'], landingCards: true, headerSurvey: false, landingTour: '/hkvisitors', landingTourUntil: '2026-10-21T00:00:00+08:00' },
   // 後台「環境通報彙整」AI 提示詞用的單位與地區描述（原本寫死在 api/admin/report-summary）
   reportSummary: {
     org: '臺北市信義社區大學「信水義河」水文地圖計畫',

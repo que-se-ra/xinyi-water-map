@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.20.5] - 2026-10-20 - ⏰ - UI - Guided Walk Button Shows Only on the Day of the Walk
+1. **Time-limited button**: the landing page "guided walk" button appears only on 20 October 2026 (Taipei time) and hides itself from 00:00 on the 21st, when the survey button returns to full width, so visitors without a group code are not led to a page they cannot open.
+2. **Date correction**: the walk page now shows the event date as Tuesday, 20 October 2026.
+
 ## [v1.20.4] - 2026-10-20 - 🖼️ - UPDATE - Walk Page Restores the Original Stop Photos
 1. **Stop photos**: each /hkvisitors stop text now shows the original Waters of Xinyi stop photos and captions (16 in total, from the Xinyi Community College water heritage exhibition); tapping a photo opens the full image.
 

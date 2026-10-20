@@ -90,6 +90,13 @@ export default function HomeApp() {
   const lp = useLocalePath();
   const pp = useProjectPath();
   const project = useProject();
+  // 「走讀導覽專用」按鈕只在 landingTourUntil 之前出現。在瀏覽器端判斷（effect），
+  // 因為頁面是 build 時預先算好的，直接在 render 判斷會讓過期後的頁面仍顯示按鈕。
+  const [tourActive, setTourActive] = useState(false);
+  useEffect(() => {
+    const until = project.ui?.landingTourUntil;
+    setTourActive(Boolean(project.ui?.landingTour) && (!until || Date.now() < new Date(until).getTime()));
+  }, [project]);
   const hasRoutes = project.routes.length > 0;
   const tabsOn = project.ui.tabs;
   const [activeTab, setActiveTab] = useState('map'); // 'map', 'layers', 'form', 'history', 'changelog'
@@ -1010,7 +1017,7 @@ export default function HomeApp() {
                 <span>{t('landing.ctaMap')}</span>
                 <span className="group-hover:translate-x-1 transition-transform text-sky-200">→</span>
               </button>
-              {project.features.survey && project.ui.landingTour && locale === 'zh' ? (
+              {project.features.survey && tourActive && locale === 'zh' ? (
                 // 問卷按鈕縮成一半，另一半給走讀導覽專頁（目前只有信水義河設定 landingTour）
                 <div className="w-full sm:w-auto flex gap-2">
                   <Link
