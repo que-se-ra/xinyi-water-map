@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.20.4] - 2026-10-20 - 🖼️ - UPDATE - Walk Page Restores the Original Stop Photos
+1. **Stop photos**: each /hkvisitors stop text now shows the original Waters of Xinyi stop photos and captions (16 in total, from the Xinyi Community College water heritage exhibition); tapping a photo opens the full image.
+
 ## [v1.20.3] - 2026-10-20 - 📍 - UI - Walk Page Gains "Back to My Location"; Hong Kong Comparisons Labelled in Text
 1. **Back to my location**: a 📍 button at the top right of the /hkvisitors map centres and zooms the map on the current position; without a location fix it opens the location setup help instead.
 2. **Hong Kong comparison label**: the Hong Kong comparison notes are now labelled with the words "Hong Kong comparison" rather than a flag icon.

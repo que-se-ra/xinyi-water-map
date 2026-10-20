@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { routes } from '@/projects/xinyi/routeData';
+import { routes, BASE_URL } from '@/projects/xinyi/routeData';
 import {
   TOUR_CODE,
   ROUTE_ID,
@@ -712,6 +712,24 @@ export default function HkTourClient() {
                 {openStop.body[lang].split('\n\n').map((p, i) => (
                   <p key={i} className="mt-3 text-[15px] leading-[1.9] text-slate-700">{p}</p>
                 ))}
+                {(openStop.imgs || []).length > 0 && (
+                  <div className="mt-4 space-y-3">
+                    {openStop.imgs.map((img, i) => (
+                      <figure key={i}>
+                        {/* 站點原有圖片（信義社大特展），撳圖開原圖 */}
+                        <a href={`${BASE_URL}${img.src}`} target="_blank" rel="noopener noreferrer">
+                          <img
+                            src={`${BASE_URL}${img.src}`}
+                            alt={img.cap || openStop.name[lang]}
+                            loading="eager"
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50"
+                          />
+                        </a>
+                        {img.cap && <figcaption className="mt-1 text-[12px] leading-relaxed text-slate-500">{img.cap}</figcaption>}
+                      </figure>
+                    ))}
+                  </div>
+                )}
                 {openStop.hk && (
                   <p className="mt-3 text-[14px] leading-[1.9] text-amber-900 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                     <span className="block text-[11px] font-bold tracking-wider text-amber-700">香港對照</span>
