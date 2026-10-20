@@ -1,5 +1,12 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.21.0] - 2026-10-20 - 🌡️ - FEATURE - Thermal Comfort Rating at Any Spot on the Map, for All Projects
+1. **Separate button**: a new "🌡️ Rate thermal comfort" button sits below "Add a landscape marker" in the layer panel. Press it, tap the map to choose a spot, and the rating form opens straight away; it and the marker tool are mutually exclusive.
+2. **Questions**: the same four aspects as the route rating (shade, surface, safety, overall comfort, each 1–5), plus an open question, "What makes this spot comfortable or uncomfortable for you?" (optional, up to 1,000 characters).
+3. **Not public**: ratings are written only to a new spreadsheet tab, 地點熱舒適評分 (coordinates, four scores, the open answer, `project_id`); they are not shown on the map and do not go through marker review.
+4. **Backend script must be updated**: `src/lib/gas-template.js` adds the new tab and a `?sheet=capabilities` check. The site checks that the script has been updated before sending; until then submissions fail with an error instead of landing in the marker tab. Open answers starting with `=`, `+`, `-` or `@` get a leading apostrophe so the spreadsheet does not treat them as formulas.
+5. **All feedback in one master spreadsheet**: the Apps Script was rewritten. Three master tabs (landscape markers, route comfort, spot thermal comfort) collect every project, told apart by `project_id`; the script also creates a read-only "專案｜…" view tab for each project automatically. A one-off `migrateLegacy` function renames the old "信水義河…" tabs, fills in `project_id`, and archives the test-only tabs by renaming them (nothing is deleted). It also fixes the second photo never being saved.
+
 ## [v1.20.5] - 2026-10-20 - ⏰ - UI - Guided Walk Button Shows Only on the Day of the Walk
 1. **Time-limited button**: the landing page "guided walk" button appears only on 20 October 2026 (Taipei time) and hides itself from 00:00 on the 21st, when the survey button returns to full width, so visitors without a group code are not led to a page they cannot open.
 2. **Date correction**: the walk page now shows the event date as Tuesday, 20 October 2026.

@@ -22,6 +22,7 @@ import HistoricalLayer, { HistoricalControl, HISTORICAL_MAPS } from './layers/Hi
 import TemperatureLayer, { TemperatureControl, useTemperatureLayer } from './layers/TemperatureLayer';
 import DataSourceControl from './layers/DataSourceControl';
 import NodeFeedbackForm from './forms/NodeFeedbackForm';
+import PointComfortForm from './forms/PointComfortForm';
 import InfoTooltip from './layers/info-tooltip/InfoTooltip';
 import dynamic from 'next/dynamic';
 const ShadeMapLayer = dynamic(() => import('./layers/ShadeMapLayer'), { ssr: false });
@@ -136,6 +137,9 @@ const communityIcon = typeof window !== 'undefined'
   ? makeCommunityIcon('🧡', '#ea580c', '#fffbeb') : null;
 const reportIcon = typeof window !== 'undefined'
   ? makeCommunityIcon('⚠️', '#dc2626', '#fef2f2') : null;
+// 地點熱舒適評分的暫時標記（只在填寫時出現，送出後不公開顯示）
+const comfortRateIcon = typeof window !== 'undefined'
+  ? makeCommunityIcon('🌡️', '#f97316', '#fff7ed') : null;
 
 // ── Main map component ─────────────────────────────────────
 export default function MapView({
@@ -239,6 +243,19 @@ export default function MapView({
   const handleAddMarker = (latlng) => {
     setNewMarkerPos(latlng);
     setIsAddMarkerMode(false); // Disable mode after placing the marker
+  };
+
+  // 地點熱舒適評分：與自由新增標記同樣是「按鈕 → 點地圖 → 跳出表單」，兩種模式互斥
+  const [isComfortRateMode, setIsComfortRateMode] = useState(false);
+  const [comfortRatePos, setComfortRatePos] = useState(null);
+
+  const handleMapPick = (latlng) => {
+    if (isComfortRateMode) {
+      setComfortRatePos(latlng);
+      setIsComfortRateMode(false);
+    } else {
+      handleAddMarker(latlng);
+    }
   };
 
   // 社群審核通過地景標記狀態
@@ -367,7 +384,7 @@ export default function MapView({
         />
         <FitBoundsOnLoad />
         <MapFlyTo center={userPos} />
-        <AddMarkerInteraction isAddMode={isAddMarkerMode} onAddMarker={handleAddMarker} />
+        <AddMarkerInteraction isAddMode={isAddMarkerMode || isComfortRateMode} onAddMarker={handleMapPick} />
 
         {/* ── Historical basemap (below all data layers) ── */}
         <HistoricalLayer
@@ -421,6 +438,30 @@ export default function MapView({
                 lat={newMarkerPos.lat}
                 lng={newMarkerPos.lng}
                 onClose={() => setNewMarkerPos(null)}
+              />
+            </Popup>
+          </Marker>
+        )}
+        {/* 地點熱舒適評分表單 */}
+        {comfortRatePos && (
+          <Marker
+            position={comfortRatePos}
+            icon={comfortRateIcon}
+            // 放下標記就直接打開評分表，少一次點擊
+            eventHandlers={{ add: (e) => setTimeout(() => e.target.openPopup(), 0) }}
+          >
+            <Popup
+              className="feedback-popup"
+              minWidth={300}
+              maxWidth={400}
+              eventHandlers={{
+                remove: () => setComfortRatePos(null)
+              }}
+            >
+              <PointComfortForm
+                lat={comfortRatePos.lat}
+                lng={comfortRatePos.lng}
+                onClose={() => setComfortRatePos(null)}
               />
             </Popup>
           </Marker>
@@ -562,6 +603,7 @@ export default function MapView({
               <button
                 onClick={() => {
                   setIsAddMarkerMode(!isAddMarkerMode);
+                  setIsComfortRateMode(false);
                   if (newMarkerPos) setNewMarkerPos(null);
                 }}
                 className={`
@@ -576,6 +618,26 @@ export default function MapView({
                   <><span>🎯</span> {t('map.control.addMarkerModeOn')}</>
                 ) : (
                   <><span>📍</span> {t('map.control.addMarkerModeOff')}</>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setIsComfortRateMode(!isComfortRateMode);
+                  setIsAddMarkerMode(false);
+                  if (comfortRatePos) setComfortRatePos(null);
+                }}
+                className={`
+                  mt-2 w-full py-2.5 rounded-lg font-bold text-sm transition-all
+                  flex items-center justify-center gap-2
+                  ${isComfortRateMode
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-orange-50 hover:bg-orange-100 text-orange-800'}
+                `}
+              >
+                {isComfortRateMode ? (
+                  <><span>🎯</span> {t('map.control.comfortModeOn')}</>
+                ) : (
+                  <><span>🌡️</span> {t('map.control.comfortModeOff')}</>
                 )}
               </button>
             </div>
@@ -950,7 +1012,7 @@ export default function MapView({
       </div>
 
       {/* Global overlay cursor hint for add mode */}
-      {isAddMarkerMode && (
+      {(isAddMarkerMode || isComfortRateMode) && (
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
 

@@ -380,6 +380,23 @@ const forms = {
   'forms.route.factor.surface': { zh: '路面狀況', en: 'Surface' },
   'forms.route.factor.safety': { zh: '安全感', en: 'Safety' },
   'forms.route.factor.comfort': { zh: '整體舒適度', en: 'Overall comfort' },
+
+  // ── point: 地點熱舒適評分（PointComfortForm；量尺與面向沿用 forms.route.*） ──
+  'forms.point.title': { zh: '🌡️ 這裡的熱舒適度', en: '🌡️ Thermal comfort here' },
+  'forms.point.privacyNote': {
+    zh: '評分只供研究分析，不會公開顯示在地圖上。',
+    en: 'Ratings are used for research only and are not shown on the map.',
+  },
+  'forms.point.reason.label': {
+    zh: '是什麼讓您覺得舒適或不舒適？',
+    en: 'What makes this spot comfortable or uncomfortable for you?',
+  },
+  'forms.point.reason.optional': { zh: '（選填）', en: '(optional)' },
+  'forms.point.reason.placeholder': {
+    zh: '例如：有大樹遮蔭、風很涼；或是地面反射很熱、沒有地方躲太陽',
+    en: 'e.g. big trees for shade and a cool breeze; or heat bouncing off the pavement with nowhere to escape the sun',
+  },
+  'forms.point.submit': { zh: '送出評分', en: 'Submit rating' },
 };
 
 export default forms;
