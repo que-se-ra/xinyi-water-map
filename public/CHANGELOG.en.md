@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.21.1] - 2026-10-20 - 🎨 - UPDATE - Feedback Spreadsheet Formatting (Apps Script `formatSheets`)
+1. **Master tabs**: header row in the site's light blue, frozen; each English column name gets a Chinese note (shown on hover); cream row banding; long text columns such as descriptions and open answers are wider and wrap.
+2. **Colour coding**: the four scores shade from light red (1) to light green (5); review status is yellow for pending, green for approved, grey for rejected.
+3. **Technical columns hidden**: photo EXIF (coordinates, time, device) and voice input are collapsed by default and can be expanded.
+4. **Project view tabs**: column names shown in Chinese, each of the three blocks has a light title band, and new project tabs created later get the same look. Tab colours: blue for master tabs, brown for project views, grey for archives. Appearance only; no data is changed.
+
 ## [v1.21.0] - 2026-10-20 - 🌡️ - FEATURE - Thermal Comfort Rating at Any Spot on the Map, for All Projects
 1. **Separate button**: a new "🌡️ Rate thermal comfort" button sits below "Add a landscape marker" in the layer panel. Press it, tap the map to choose a spot, and the rating form opens straight away; it and the marker tool are mutually exclusive.
 2. **Questions**: the same four aspects as the route rating (shade, surface, safety, overall comfort, each 1–5), plus an open question, "What makes this spot comfortable or uncomfortable for you?" (optional, up to 1,000 characters).

@@ -22,8 +22,13 @@
  *     （分頁名稱已先拿掉「信水義河」前綴也能處理；路線評分若已是英文欄名就不動）
  *   - 建立各專案的檢視分頁
  *
+ * ── 外觀排版（可重複執行，只改樣式）──────────────────────────
+ * 函式選單選「formatSheets」→「執行」：標題列配色與中文註解、分數與審核狀態上色、
+ * 欄寬與換行、隱藏照片 EXIF 等技術欄位、分頁標籤上色。新長出來的專案檢視分頁會自動套用。
+ *
  * ── 更新既有部署（網址不變）────────────────────────────────
  * 「部署」→「管理部署」→ 點既有部署的鉛筆圖示 →「版本」選「新版本」→「部署」。
+ * ⚠️ 左側清單有好幾筆部署（2026-10-20 時有 6 筆），每一筆都要這樣更新，網站用的可能是任何一筆。
  * 不要用「新增部署」：那會產生新網址，得再改 Vercel 的 NODE_SHEETS_API_URL / SHEETS_API_URL。
  *
  * ── 第一次全新部署 ────────────────────────────────────────
@@ -93,6 +98,76 @@ var DRIVE_FOLDER_NAME = "信水義河地景相片";
 
 // 這份腳本支援的功能；網站 /api/feedback-point 送出前會用 ?sheet=capabilities 確認
 var CAPABILITIES = ["point_comfort", "project_views"];
+
+/* ── 外觀（formatSheets 與專案檢視分頁使用；只改樣式，不動資料） ── */
+
+// 欄位中文名：總表顯示在欄名的註解（滑鼠移上去看得到），專案檢視分頁直接當欄名
+var COLUMN_LABELS = {
+  id: "編號",
+  timestamp: "送出時間（UTC，台灣 +8 小時）",
+  lat: "緯度",
+  lng: "經度",
+  station_id: "站點",
+  feedback_type: "類型（memory 地方記憶／report 環境通報）",
+  description: "描述",
+  tags: "標籤",
+  photo_url: "照片 1",
+  ai_summary: "AI 摘要",
+  is_voice: "語音輸入",
+  photo_exif_latitude: "照片 1 拍攝緯度",
+  photo_exif_longitude: "照片 1 拍攝經度",
+  photo_exif_dateTime: "照片 1 拍攝時間",
+  photo_exif_device: "照片 1 裝置",
+  status: "審核狀態（pending 待審／approved 通過／rejected 拒絕）",
+  photo_url_2: "照片 2",
+  photo_exif_2_latitude: "照片 2 拍攝緯度",
+  photo_exif_2_longitude: "照片 2 拍攝經度",
+  photo_exif_2_dateTime: "照片 2 拍攝時間",
+  photo_exif_2_device: "照片 2 裝置",
+  project_id: "專案",
+  route_id: "路線代號",
+  route_name: "路線名稱",
+  segment_id: "路段",
+  score_shade: "遮蔭（1–5）",
+  score_surface: "路面（1–5）",
+  score_safety: "安全感（1–5）",
+  score_comfort: "整體舒適（1–5）",
+  reason: "舒適／不舒適的原因"
+};
+
+// 預設隱藏的技術欄位（點欄位上方的小箭頭即可展開）
+var HIDDEN_COLUMNS = [
+  "is_voice",
+  "photo_exif_latitude", "photo_exif_longitude", "photo_exif_dateTime", "photo_exif_device",
+  "photo_exif_2_latitude", "photo_exif_2_longitude", "photo_exif_2_dateTime", "photo_exif_2_device"
+];
+
+// 欄寬（像素）；沒列到的用 DEFAULT_WIDTH
+var COLUMN_WIDTHS = {
+  id: 150, timestamp: 190, description: 320, reason: 320, ai_summary: 260, tags: 150,
+  photo_url: 170, photo_url_2: 170, route_name: 170, status: 110, feedback_type: 110
+};
+var DEFAULT_WIDTH = 100;
+var WRAP_COLUMNS = ["description", "reason", "ai_summary", "tags"];
+var SCORE_COLUMNS = ["score_shade", "score_surface", "score_safety", "score_comfort"];
+
+// 配色：沿用網站的淺藍、暖棕、米色
+var COLORS = {
+  headerBg: "#dbeafe",     // 淺藍
+  headerText: "#1e3a5f",
+  band: "#fdf8ef",         // 米色隔列
+  white: "#ffffff",
+  scoreLow: "#f6c9c4",     // 1 分
+  scoreMid: "#fdf3dc",     // 3 分
+  scoreHigh: "#cfe8cf",    // 5 分
+  pending: "#fff1c2",
+  approved: "#d6efd6",
+  rejected: "#e5e7eb",
+  tabMaster: "#3b82f6",
+  tabView: "#b08968",      // 暖棕
+  tabArchive: "#9ca3af",
+  blockTitle: { node: "#f3e8d8", route: "#dbeafe", point: "#fde2cf" }
+};
 
 /* ═══════════════════════ 網頁應用程式入口 ═══════════════════════ */
 
@@ -309,6 +384,8 @@ function buildProjectView(ss, projectId) {
     sheet = ss.insertSheet(name);
   }
 
+  sheet.getBandings().forEach(function (b) { b.remove(); });
+  var rules = [];
   var col = 1;
   ["node", "route", "point"].forEach(function (type) {
     var src = getOrInitSheet(ss, type);
@@ -324,9 +401,10 @@ function buildProjectView(ss, projectId) {
       ? "(" + pidRange + "=\"" + projectId + "\")+(" + pidRange + "=\"\")*(" + srcName + "!A2:A<>\"\")"
       : pidRange + "=\"" + projectId + "\"";
 
+    sheet.getRange(1, col, 1, width).setBackground(COLORS.blockTitle[type]);
     sheet.getRange(1, col).setValue(BLOCK_TITLES[type]).setFontWeight("bold").setFontSize(12);
     var headerRange = sheet.getRange(2, col, 1, width);
-    headerRange.setValues([headers]);
+    headerRange.setValues([headers.map(function (h) { return COLUMN_LABELS[h] || h; })]);
     styleHeader(headerRange);
     sheet.getRange(3, col).setFormula(
       "=IFERROR(FILTER(" + srcName + "!A2:" + lastLetter + ", " + cond + "), \"（尚無資料）\")"
@@ -337,10 +415,13 @@ function buildProjectView(ss, projectId) {
         sheet.getRange(3, col + i, Math.max(sheet.getMaxRows() - 2, 1), 1).setNumberFormat("yyyy/mm/dd hh:mm");
       }
     });
+    rules = rules.concat(formatBlock(sheet, headers, 2, col));
     col += width + 1; // 區塊之間空一欄
   });
 
+  sheet.setConditionalFormatRules(rules);
   sheet.setFrozenRows(2);
+  sheet.setTabColor(COLORS.tabView);
   // 防止誤改：編輯時跳出警告（仍可強制編輯，不會鎖死）
   var protections = sheet.getProtections(SpreadsheetApp.ProtectionType.SHEET);
   if (protections.length === 0) {
@@ -363,6 +444,94 @@ function refreshProjectViews() {
   });
   Object.keys(ids).forEach(function (id) { buildProjectView(ss, id); });
   return Object.keys(ids);
+}
+
+/* ═══════════════════════ 外觀排版（手動執行，可重複） ═══════════════════════ */
+
+/**
+ * 整份試算表套用統一外觀：總表、專案檢視分頁、封存分頁。只改樣式，不動任何資料。
+ * 在 Apps Script 編輯器的函式選單選「formatSheets」→「執行」。
+ */
+function formatSheets() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var log = [];
+
+  ["node", "route", "point"].forEach(function (type) {
+    var sheet = getOrInitSheet(ss, type);
+    var width = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, width).getValues()[0];
+
+    var headerRange = sheet.getRange(1, 1, 1, width);
+    styleHeader(headerRange);
+    headerRange.setNotes([headers.map(function (h) { return COLUMN_LABELS[h] || ""; })]);
+    sheet.setRowHeight(1, 36);
+    sheet.setFrozenRows(1);
+
+    sheet.getBandings().forEach(function (b) { b.remove(); });
+    var dataRows = Math.max(sheet.getMaxRows() - 1, 1);
+    var banding = sheet.getRange(2, 1, dataRows, width).applyRowBanding();
+    banding.setFirstRowColor(COLORS.white).setSecondRowColor(COLORS.band);
+
+    sheet.setConditionalFormatRules(formatBlock(sheet, headers, 1, 1));
+    sheet.setTabColor(COLORS.tabMaster);
+    log.push("總表「" + SHEET_NAMES[type] + "」");
+  });
+
+  log.push("專案檢視分頁：" + refreshProjectViews().join("、"));
+
+  ss.getSheets().forEach(function (sheet) {
+    if (sheet.getName().indexOf("封存") === 0) {
+      sheet.setTabColor(COLORS.tabArchive);
+      log.push("封存分頁「" + sheet.getName() + "」標成灰色");
+    }
+  });
+
+  Logger.log(log.join("\n"));
+  return log;
+}
+
+/**
+ * 一個資料區塊的欄寬、換行、隱藏欄與條件式格式（分數上色、審核狀態上色）。
+ * headerRow：欄名所在列；startCol：區塊第一欄。回傳條件式格式規則（由呼叫端一次設定）。
+ */
+function formatBlock(sheet, headers, headerRow, startCol) {
+  var firstData = headerRow + 1;
+  var rows = Math.max(sheet.getMaxRows() - headerRow, 1);
+  var rules = [];
+
+  headers.forEach(function (h, i) {
+    var c = startCol + i;
+    var colRange = sheet.getRange(firstData, c, rows, 1);
+    sheet.setColumnWidth(c, COLUMN_WIDTHS[h] || DEFAULT_WIDTH);
+    colRange.setVerticalAlignment("top");
+    if (WRAP_COLUMNS.indexOf(h) !== -1) colRange.setWrap(true);
+    if (HIDDEN_COLUMNS.indexOf(h) !== -1) {
+      sheet.hideColumns(c);
+    } else {
+      sheet.showColumns(c);
+    }
+
+    if (SCORE_COLUMNS.indexOf(h) !== -1) {
+      colRange.setHorizontalAlignment("center");
+      rules.push(SpreadsheetApp.newConditionalFormatRule()
+        .setGradientMinpointWithValue(COLORS.scoreLow, SpreadsheetApp.InterpolationType.NUMBER, "1")
+        .setGradientMidpointWithValue(COLORS.scoreMid, SpreadsheetApp.InterpolationType.NUMBER, "3")
+        .setGradientMaxpointWithValue(COLORS.scoreHigh, SpreadsheetApp.InterpolationType.NUMBER, "5")
+        .setRanges([colRange])
+        .build());
+    }
+    if (h === "status") {
+      colRange.setHorizontalAlignment("center");
+      [["pending", COLORS.pending], ["approved", COLORS.approved], ["rejected", COLORS.rejected]].forEach(function (pair) {
+        rules.push(SpreadsheetApp.newConditionalFormatRule()
+          .whenTextEqualTo(pair[0])
+          .setBackground(pair[1])
+          .setRanges([colRange])
+          .build());
+      });
+    }
+  });
+  return rules;
 }
 
 /* ═══════════════════════ 舊版升級（手動執行一次） ═══════════════════════ */
@@ -434,7 +603,10 @@ function ensureColumn(sheet, name) {
 
 function styleHeader(range) {
   range.setFontWeight("bold");
-  range.setBackground("#f1f5f9");
+  range.setBackground(COLORS.headerBg);
+  range.setFontColor(COLORS.headerText);
+  range.setVerticalAlignment("middle");
+  range.setWrap(true);
 }
 
 function pick(v) {
