@@ -23,6 +23,7 @@ import TemperatureLayer, { TemperatureControl, useTemperatureLayer } from './lay
 import DataSourceControl from './layers/DataSourceControl';
 import NodeFeedbackForm from './forms/NodeFeedbackForm';
 import PointComfortForm from './forms/PointComfortForm';
+import PlaceSearch from './layers/PlaceSearch';
 import InfoTooltip from './layers/info-tooltip/InfoTooltip';
 import dynamic from 'next/dynamic';
 const ShadeMapLayer = dynamic(() => import('./layers/ShadeMapLayer'), { ssr: false });
@@ -158,6 +159,16 @@ export default function MapView({
     routes.map(() => dl.routes)
   );
   const [expandPanel, setExpandPanel] = useState(false);
+  // Leaflet 地圖實例（給地圖外層的搜尋框用）
+  const [mapInstance, setMapInstance] = useState(null);
+
+  // 側欄收合、視窗旋轉等會改變地圖容器大小；Leaflet 只監聽視窗 resize，容器變了要手動通知
+  useEffect(() => {
+    if (!mapInstance || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => mapInstance.invalidateSize());
+    ro.observe(mapInstance.getContainer());
+    return () => ro.disconnect();
+  }, [mapInstance]);
 
   // Open Data layers state (Toggles only)
   const [showTrees, setShowTrees] = useState(dl.trees);
@@ -376,6 +387,7 @@ export default function MapView({
         className="w-full h-full z-0"
         zoomControl={false}
         preferCanvas={true}
+        ref={setMapInstance}
       >
         <TileLayer
           attribution={CARTO_ATTRIBUTION}
@@ -1015,6 +1027,9 @@ export default function MapView({
       {(isAddMarkerMode || isComfortRateMode) && (
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
+
+      {/* ── 地點搜尋（左上角） ── */}
+      <PlaceSearch map={mapInstance} routes={routes} />
 
       {/* ── Locate Button (Below panel toggle or bottom right) ── */}
       <button

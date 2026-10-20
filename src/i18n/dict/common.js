@@ -28,6 +28,8 @@ const common = {
 
   'nav.map': { zh: '地圖', en: 'Map' },
   'nav.mapTitle': { zh: '地圖 (Map)', en: 'Map' },
+  'nav.collapseSidebar': { zh: '收起側欄', en: 'Hide sidebar' },
+  'nav.expandSidebar': { zh: '展開側欄', en: 'Show sidebar' },
   'nav.layers': { zh: '圖層說明', en: 'Layer guide' },
   'nav.layersTitle': { zh: '圖層說明 (Layers)', en: 'Layer guide' },
   'nav.form': { zh: '回饋表單', en: 'Feedback' },
