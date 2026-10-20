@@ -1,5 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.22.1] - 2026-10-20 - 📱 - UI - Sidebar Starts Hidden on Phones
+1. **Full-width map by default**: on phones the left sidebar now starts hidden so the map uses the whole width; open it with the "›" on the left edge or the ☰ in the header.
+2. **The guided tour opens the sidebar**: pressing "How to use" opens the sidebar first, so the step that introduces it is visible.
+3. **Desktop unchanged**: the sidebar stays fixed as before.
+
 ## [v1.22.0] - 2026-10-20 - 🔍 - FEATURE - Place Search on the Map; Easier-to-Hide Sidebar on Phones
 1. **Place search**: a search box at the top left of the map finds places, landmarks or this project's walking-tour stops. Stops come first (marked "Stop"); the rest come from OpenStreetMap, with places near the current map view preferred. Tapping a result moves the map there and drops a marker; ✕ clears it. Following OpenStreetMap's usage policy, it searches when you press Search or Enter, not while you type.
 2. **Sidebar handle on phones**: a "‹" handle on the sidebar's right edge hides it so the map fills the screen; a "›" handle on the left edge brings it back. The ☰ in the header still works. The desktop layout is unchanged.
