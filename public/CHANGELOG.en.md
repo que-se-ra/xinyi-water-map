@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.20.3] - 2026-10-20 - 📍 - UI - Walk Page Gains "Back to My Location"; Hong Kong Comparisons Labelled in Text
+1. **Back to my location**: a 📍 button at the top right of the /hkvisitors map centres and zooms the map on the current position; without a location fix it opens the location setup help instead.
+2. **Hong Kong comparison label**: the Hong Kong comparison notes are now labelled with the words "Hong Kong comparison" rather than a flag icon.
+
 ## [v1.20.2] - 2026-10-20 - 🎁 - UI - Walk Page Help No Longer Previews What Unlocks
 1. **Keeping the surprise**: the "how to use this page" section of /hkvisitors no longer lists which layers each stop unlocks; it now just says you will find out when you get there.
 

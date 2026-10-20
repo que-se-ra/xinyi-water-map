@@ -85,6 +85,7 @@ export const ui = {
     yue: '粵語版係初稿，走讀前仲可以改。',
   },
   openMap: { zh: '看地圖', yue: '睇地圖' },
+  recenter: { zh: '回到我的位置', yue: '返去我嘅位置' },
   extraBadge: { zh: '額外站・不屬於信水義河路線', yue: '額外站・唔屬於信水義河路線' },
   kitTitle: { zh: '🎁 你收到一個錦囊！', yue: '🎁 你收到一個錦囊！' },
   kitBody: {

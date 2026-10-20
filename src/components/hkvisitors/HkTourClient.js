@@ -171,7 +171,8 @@ export default function HkTourClient() {
   // 地表溫度圖磚網址：自己取，唔好喺呢個檔 import TemperatureLayer（見檔頭）。
   const [temperatureUrl, setTemperatureUrl] = useState('');
   const [temperatureError, setTemperatureError] = useState(false);
-  const [shadowOpacity, setShadowOpacity] = useState(0.35);   // 日照陰影透明度（圖層列可調）
+  const [shadowOpacity, setShadowOpacity] = useState(0.35);
+  const [recenterNonce, setRecenterNonce] = useState(0);   // 撳「回到我的位置」就加一   // 日照陰影透明度（圖層列可調）
   // 「即時」日照陰影：每 5 分鐘更新一次太陽位置（走讀會行兩三個鐘，唔可以定死喺開頁嗰一刻）
   const [shadeDate, setShadeDate] = useState(() => new Date());
   useEffect(() => {
@@ -580,8 +581,24 @@ export default function HkTourClient() {
           temperatureUrl={temperatureUrl}
           shadeDate={shadeDate}
           shadowOpacity={shadowOpacity}
+          recenterNonce={recenterNonce}
           onSelectStop={(id) => { if (doneSet.has(id)) { setOpenId(id); setPanel('card'); } }}
         />
+
+        {/* 回到我的位置 */}
+        <button
+          onClick={() => {
+            if (userPos && geoState === 'on') setRecenterNonce((n) => n + 1);
+            else { setGpsHelp(true); setPanel('card'); }
+          }}
+          title={T('recenter')}
+          aria-label={T('recenter')}
+          className={`absolute right-3 top-3 z-[1000] w-11 h-11 rounded-2xl bg-white/95 border shadow-md flex items-center justify-center text-xl active:scale-95 ${
+            userPos && geoState === 'on' ? 'border-sky-200' : 'border-slate-200 opacity-60'
+          }`}
+        >
+          📍
+        </button>
 
         {/* 下一站提示 */}
         {nextStop && !pendingRating && (

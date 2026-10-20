@@ -83,6 +83,16 @@ function FlyToStop({ stop }) {
   return null;
 }
 
+// 「回到我的位置」：每次 nonce 改變就把地圖移到使用者位置（用 setView，flyTo 動畫可能被取消）
+function RecenterOnUser({ userPos, nonce }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!nonce || !userPos) return;
+    map.setView(userPos, Math.max(map.getZoom(), 17), { animate: false });
+  }, [map, nonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
+
 function PoiMarkers({ items, icon }) {
   return items.map((p, i) => (
     <Marker key={`${p.name}-${i}`} position={[p.lat, p.lng]} icon={icon}>
@@ -103,6 +113,7 @@ export default function HkTourMap({
   temperatureUrl,
   shadeDate,
   shadowOpacity = 0.35,
+  recenterNonce = 0,
   onSelectStop,
 }) {
   const center = useMemo(() => {
@@ -140,6 +151,7 @@ export default function HkTourMap({
       <TileLayer attribution={CARTO_ATTRIBUTION} url={CARTO_LIGHT_URL} />
       <FitRoute lines={lines} />
       <FlyToStop stop={focusStop} />
+      <RecenterOnUser userPos={userPos} nonce={recenterNonce} />
 
       {/* 歷史底圖、衛星影像（一次一張，由解鎖後的圖層列控制） */}
       <HistoricalLayer activeId={layers.historical} opacity={layers.historical === 'liugong1939' ? 0.55 : 0.7} />
