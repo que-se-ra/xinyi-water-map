@@ -11,8 +11,10 @@ export default function ComingSoonPage({ card }) {
   const lp = useLocalePath();
 
   return (
+    // 全站 html/body 是 overflow: hidden（給地圖頁用），這頁要自己當捲動容器，否則手機上超出畫面的卡片滑不到
+    <div className="h-dvh overflow-y-auto bg-[#eff9ff]">
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative"
+      className="min-h-full flex flex-col items-center justify-center px-4 py-16 relative"
       style={{ background: 'linear-gradient(180deg, #dbeafe 0%, #c7e9fc 40%, #eff9ff 100%)' }}
     >
       <div className="absolute top-4 right-4 md:top-6 md:right-8">
@@ -35,5 +37,6 @@ export default function ComingSoonPage({ card }) {
         </Link>
       </div>
     </main>
+    </div>
   );
 }

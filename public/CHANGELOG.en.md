@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.21.2] - 2026-10-20 - 📱 - UI - Fix the Project List Not Scrolling on Phones
+1. **The project list scrolls again**: the whole site turns off page scrolling for the map pages, and the project list (`/`, `/en`) inherited that, so on phones — where the cards stack in one column — the third card onward and the privacy link at the bottom could not be reached. The page now has its own scroll area.
+2. **The "coming soon" project page** gets the same fix. The desktop layout is unchanged.
+
 ## [v1.21.1] - 2026-10-20 - 🎨 - UPDATE - Feedback Spreadsheet Formatting (Apps Script `formatSheets`)
 1. **Master tabs**: header row in the site's light blue, frozen; each English column name gets a Chinese note (shown on hover); cream row banding; long text columns such as descriptions and open answers are wider and wrap.
 2. **Colour coding**: the four scores shade from light red (1) to light green (5); review status is yellow for pending, green for approved, grey for rejected.
