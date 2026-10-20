@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.20.2] - 2026-10-20 - 🎁 - UI - Walk Page Help No Longer Previews What Unlocks
+1. **Keeping the surprise**: the "how to use this page" section of /hkvisitors no longer lists which layers each stop unlocks; it now just says you will find out when you get there.
+
 ## [v1.20.1] - 2026-10-20 - ☀️ - UPDATE - Sun Shadows Use Prepared Building Data; Landing Page Adds a Guided Walk Button
 1. **Sun shadows no longer depend on Overpass**: the public Overpass servers have been overloaded across the board (even the one mirror still answering took over 60 seconds on a real query), so building shadows kept failing. Building outlines for the area around the four Xinyi routes (including Songshan Cultural Park) and the NTU campus are now prepared and served with the site — about 20,000 buildings split into 0.01° files, of which only the few covering the screen are loaded. All three projects read this data first and fall back to Overpass only when the view lies entirely outside it. Data from OpenStreetMap (2026-10-20). The default shadow opacity drops from 60 to 35 percent so the historical maps underneath stay readable (adjustable in the layer panel).
 2. **Guided walk button on the landing page**: on the Chinese landing page of Waters of Xinyi, the thermal comfort survey button is now half width and the other half is a "guided walk" button to /hkvisitors. The English landing page is unchanged, as the walk page is in Chinese and Cantonese only.
