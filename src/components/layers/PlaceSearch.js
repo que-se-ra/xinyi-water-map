@@ -25,7 +25,7 @@ const pinIcon = typeof window !== 'undefined'
     })
   : null;
 
-function matchStations(routes, q) {
+export function matchStations(routes, q) {
   const needle = q.toLowerCase();
   const seen = new Set();
   const hits = [];
@@ -40,7 +40,7 @@ function matchStations(routes, q) {
   return hits;
 }
 
-async function searchNominatim(q, map, lang) {
+export async function searchNominatim(q, map, lang) {
   const b = map.getBounds();
   const viewbox = [b.getWest(), b.getNorth(), b.getEast(), b.getSouth()].map((n) => n.toFixed(5)).join(',');
   const url =
