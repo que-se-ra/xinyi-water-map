@@ -120,6 +120,9 @@ const city = {
   'sky.hint.hot': { zh: '☀️ 體感很熱，要看哪裡有陰影嗎？', en: '☀️ It feels hot. Show where the shade is?' },
   'sky.hint.apply': { zh: '打開', en: 'Show' },
   'sky.hint.dismiss': { zh: '不用了', en: 'No thanks' },
+  // 左側搜尋面板
+  'map.control.locateMe': { zh: '我的位置', en: 'My location' },
+
   // 涼徑規劃
   'route.open': { zh: '涼徑規劃', en: 'Comfort route' },
   'route.title': { zh: '涼徑規劃', en: 'Plan a comfortable walk' },

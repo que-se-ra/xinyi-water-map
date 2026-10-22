@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useT } from '@/i18n/LocaleProvider';
 
-export default function DataSourceControl() {
+// corner：按鈕放在地圖左下（預設）或右下（左側有搜尋面板時用右下）
+export default function DataSourceControl({ corner = 'left' }) {
   const t = useT();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div 
-      className="absolute bottom-[68px] left-4 z-[1000] flex flex-col items-start"
+      className={`absolute z-[1000] flex flex-col ${corner === 'right' ? 'bottom-7 right-3 items-end' : 'bottom-[68px] left-4 items-start'}`}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
       onClick={() => setIsExpanded(!isExpanded)}
@@ -16,7 +17,7 @@ export default function DataSourceControl() {
       <div 
         className={`
           bg-white/95 backdrop-blur-md border border-slate-200/60 shadow-xl rounded-xl overflow-hidden
-          transition-all duration-300 ease-out origin-bottom-left
+          transition-all duration-300 ease-out ${corner === 'right' ? 'origin-bottom-right' : 'origin-bottom-left'}
           ${isExpanded ? 'max-h-[70vh] overflow-y-auto opacity-100 scale-100 mb-2' : 'max-h-0 opacity-0 scale-95 mb-0'}
         `}
       >

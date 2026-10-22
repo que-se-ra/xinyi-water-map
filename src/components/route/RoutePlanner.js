@@ -50,7 +50,8 @@ const fmtTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getM
 
 /** 規劃狀態（放在 MapView，讓面板與地圖圖層共用） */
 export function useRoutePlanner(sky) {
-  const [open, setOpen] = useState(false);
+  // 桌機（寬 768 以上）預設展開左側規劃欄；手機預設收起，只留搜尋框。地圖元件只在瀏覽器端渲染，可直接讀視窗寬度
+  const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [pick, setPick] = useState(null); // 'start' | 'end' | null：正在地圖上點選
@@ -239,7 +240,7 @@ function Chips({ value, onChange, options, label }) {
 }
 
 /** 規劃面板（地圖外層的浮動卡片） */
-export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute }) {
+export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, embedded = false }) {
   const t = useT();
   const boxRef = useRef(null);
   const {
@@ -305,7 +306,8 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute }
     return out;
   }, [result, routes]);
 
-  if (!open) {
+  // embedded：放在左側「找地點與路線」面板裡，永遠展開、不需要自己的開關
+  if (!open && !embedded) {
     return (
       <button
         type="button"
@@ -325,16 +327,24 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute }
   return (
     <div
       ref={boxRef}
-      className="w-[330px] max-w-[calc(100vw-24px)] max-h-[calc(100dvh-170px)] overflow-y-auto bg-white/97 backdrop-blur-md border border-teal-100 rounded-2xl shadow-xl p-4 space-y-3 text-slate-700"
+      id="route-planner"
+      className={
+        embedded
+          ? 'space-y-3 text-slate-700'
+          : 'w-[330px] max-w-[calc(100vw-24px)] max-h-[calc(100dvh-170px)] overflow-y-auto bg-white/97 backdrop-blur-md border border-teal-100 rounded-2xl shadow-xl p-4 space-y-3 text-slate-700'
+      }
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-sm font-bold">🧭 {t('route.title')}</p>
+          {/* 嵌在左欄時，上方已有「🧭 涼徑規劃」按鈕，不重複標題 */}
+          {!embedded && <p className="text-sm font-bold">🧭 {t('route.title')}</p>}
           <p className="text-[10px] text-slate-400 leading-snug">{t('route.subtitle')}</p>
         </div>
-        <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 px-1" aria-label={t('route.close')}>
-          ✕
-        </button>
+        {!embedded && (
+          <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 px-1" aria-label={t('route.close')}>
+            ✕
+          </button>
+        )}
       </div>
 
       <PlaceField

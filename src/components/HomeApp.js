@@ -8,6 +8,7 @@ import 'driver.js/dist/driver.css';
 import { useProjectPath, useProject } from '@/projects/ProjectProvider';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 import LanguageSwitcher from '@/i18n/LanguageSwitcher';
+import HeaderMenu from './HeaderMenu';
 import { isNearTaipei } from '@/lib/geo';
 
 // 語言切換要在「瀏覽器畫出來之前」就把 landing 關掉，否則會閃一下首頁動畫。
@@ -102,10 +103,6 @@ export default function HomeApp() {
   const [activeTab, setActiveTab] = useState('map'); // 'map', 'layers', 'form', 'history', 'changelog'
   const [fontSize, setFontSize] = useState('medium'); // 'small', 'medium', 'large'
   const [showLanding, setShowLanding] = useState(true);
-
-  // 左側選單收合狀態（預設開啟，使用者可點擊 ☰ 按鈕進行收合）
-  // 手機版側欄預設收起，地圖用全寬；電腦版的側欄寬度由 md: 樣式固定，不受這個狀態影響
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 動態更新日誌狀態
   const [changelog, setChangelog] = useState([]);
@@ -263,7 +260,6 @@ export default function HomeApp() {
 
   const startTour = () => {
     setActiveTab('map');
-    setIsSidebarOpen(true); // 導覽有一步介紹側欄，手機版要先展開
     
     setTimeout(() => {
       const driverObj = driver({
@@ -284,7 +280,7 @@ export default function HomeApp() {
             }
           },
           {
-            element: '#sidebar-navigation',
+            element: '#search-panel',
             popover: {
               title: t('tour.sidebar.title'),
               description: t('tour.sidebar.body'),
@@ -353,11 +349,11 @@ export default function HomeApp() {
             }
           },
           {
-            element: '#tour-usage-button',
+            element: '#header-menu-button',
             popover: {
               title: t('tour.reopen.title'),
               description: t('tour.reopen.body'),
-              side: 'right',
+              side: 'bottom',
               align: 'start'
             }
           }
@@ -377,14 +373,6 @@ export default function HomeApp() {
         style={{ background: 'linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%)' }}
       >
         <div className="flex items-center gap-3">
-          {/* 手機版側欄收合切換按鈕 */}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden p-2 text-slate-500 hover:text-sky-700 bg-sky-50 border border-sky-200 rounded-xl active:scale-95 transition-all cursor-pointer"
-            title={t('header.toggleMenu')}
-          >
-            ☰
-          </button>
           <div className="flex items-center">
             <h1
               className="text-slate-700 text-sm md:text-xl tracking-widest leading-none flex-shrink-0"
@@ -413,13 +401,6 @@ export default function HomeApp() {
             <span className="md:hidden">{t('header.surveyShort')}</span>
           </Link>
           )}
-          <Link
-            href={lp('/privacy')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-slate-500 bg-sky-50/80 border border-sky-200/70 hover:bg-sky-100 hover:text-sky-700 transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
-          >
-            <span>🛡️</span>
-            <span className="hidden xs:inline">{t('header.privacy')}</span>
-          </Link>
           <button
             onClick={() => setShowLanding(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-slate-500 bg-sky-50/80 border border-sky-200/70 hover:bg-sky-100 hover:text-sky-700 transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
@@ -427,137 +408,25 @@ export default function HomeApp() {
             <span>🏠</span>
             <span className="hidden xs:inline">{t('header.home')}</span>
           </button>
+          <HeaderMenu
+            tabsOn={tabsOn}
+            activeTab={activeTab}
+            onTab={setActiveTab}
+            onStartTour={startTour}
+            fontSize={fontSize}
+            onFontSize={setFontSize}
+            privacyHref={lp('/privacy')}
+          />
         </div>
       </header>
 
-      {/* ── Main Body (Sidebar + Map Content) ── */}
+      {/* ── Main Body（地圖與各頁面疊層；原本的左側導覽欄已移到頁首選單） ── */}
       <main className="flex-1 w-full flex overflow-hidden relative">
-        {/* ── Left Sidebar ── */}
-        <nav
-          id="sidebar-navigation"
-          className={`
-            z-[2000] backdrop-blur-md border-r border-sky-200/50
-            flex flex-col items-center shadow-md transition-all duration-300 ease-in-out
-            ${isSidebarOpen ? 'w-20 py-4 px-2 gap-3' : 'w-0 p-0 border-r-0 overflow-hidden gap-0'}
-            md:w-24 md:py-6 md:px-2 md:gap-3 md:flex md:border-r md:overflow-visible
-          `}
-          style={{ background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 60%, #f0f9ff 100%)' }}
-        >
-
-        <button
-          onClick={() => setActiveTab('map')}
-          className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 mt-2 md:mt-0 ${activeTab === 'map' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
-          title={t('nav.mapTitle')}
-        >
-          <span className="text-base md:text-lg">🗺️</span>
-          <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.map')}</span>
-          <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">Map</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('layers')}
-          className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 ${activeTab === 'layers' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
-          title={t('nav.layersTitle')}
-        >
-          <span className="text-base md:text-lg">📊</span>
-          <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.layers')}</span>
-          <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">Layers</span>
-        </button>
-
-        {tabsOn.includes('form') && (
-        <button
-          onClick={() => setActiveTab('form')}
-          className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 ${activeTab === 'form' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
-          title={t('nav.formTitle')}
-        >
-          <span className="text-base md:text-lg">📝</span>
-          <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.form')}</span>
-          <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">Feedback</span>
-        </button>
-        )}
-
-        {tabsOn.includes('history') && (
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`w-full group relative py-2.5 rounded-xl transition-all duration-300 text-xs md:text-sm flex flex-col items-center justify-center gap-1 ${activeTab === 'history' ? 'bg-sky-600 text-white shadow-md shadow-sky-400/30' : 'text-slate-500 hover:bg-sky-100'}`}
-          title={t('nav.historyTitle')}
-        >
-          <span className="text-base md:text-lg">📚</span>
-          <span className="text-xs md:text-sm font-sans tracking-wide block">{t('nav.history')}</span>
-          <span className="absolute left-full ml-4 px-2 py-1 bg-white text-slate-700 text-[10px] rounded border border-sky-100 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">History</span>
-        </button>
-        )}
-
-        <div className="mt-auto opacity-30 text-[10px] font-mono -rotate-90 whitespace-nowrap tracking-[0.3em] text-slate-400 hidden md:block">{project.slug.toUpperCase()}_MAP</div>
-
-        {/* Changelog Button */}
-        <div className="w-full px-1 pt-3 flex-shrink-0">
-          <button
-            onClick={() => setActiveTab('changelog')}
-            className={`w-full py-1.5 px-0.5 rounded-lg text-[10px] md:text-xs transition-all duration-200 border flex flex-col items-center justify-center gap-0.5 ${
-              activeTab === 'changelog'
-                ? 'bg-violet-500/90 text-white border-violet-300/60 shadow-md'
-                : 'bg-sky-50/80 text-slate-400 border-sky-200/60 hover:bg-sky-100 hover:text-slate-600'
-            }`}
-            title={t('nav.changelogTitle')}
-          >
-            <span>📜</span>
-            <span className="text-[10px] md:text-xs font-sans block">{t('nav.changelog')}</span>
-          </button>
-        </div>
-
-        {/* Font Size Selector (僅桌機版顯示) */}
-        <div className="pt-3 border-t border-sky-100 flex-col gap-2 w-full px-2 flex-shrink-0 hidden md:flex">
-          <p className="text-[10px] text-slate-400 text-center">{t('nav.fontSize')}</p>
-          <div className="flex gap-1 justify-center">
-            <button
-              onClick={() => setFontSize('small')}
-              className={`px-2 py-1 rounded text-xs font-semibold transition-all ${
-                fontSize === 'small'
-                  ? 'bg-sky-500 text-white shadow-sm'
-                  : 'bg-sky-50 text-slate-500 border border-sky-200 hover:bg-sky-100'
-              }`}
-              title={t('nav.fontSmall')}
-            >A</button>
-            <button
-              onClick={() => setFontSize('medium')}
-              className={`px-2 py-1 rounded text-sm font-semibold transition-all ${
-                fontSize === 'medium'
-                  ? 'bg-sky-500 text-white shadow-sm'
-                  : 'bg-sky-50 text-slate-500 border border-sky-200 hover:bg-sky-100'
-              }`}
-              title={t('nav.fontMedium')}
-            >A</button>
-            <button
-              onClick={() => setFontSize('large')}
-              className={`px-2 py-1 rounded text-base font-semibold transition-all ${
-                fontSize === 'large'
-                  ? 'bg-sky-500 text-white shadow-sm'
-                  : 'bg-sky-50 text-slate-500 border border-sky-200 hover:bg-sky-100'
-              }`}
-              title={t('nav.fontLarge')}
-            >A</button>
-          </div>
-        </div>
-      </nav>
-
       {/* ── Main Content Area (Map Background) ── */}
       <div className="relative flex-1 h-full overflow-hidden">
-        {/* 手機版側欄收合把手：貼在側欄右緣（收起時在畫面左緣），比頁首的 ☰ 好找 */}
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-[1100] w-6 h-14 flex items-center justify-center rounded-r-xl bg-white/95 border border-l-0 border-sky-200 shadow-md text-sky-700 text-lg active:scale-95 transition-all"
-          aria-label={isSidebarOpen ? t('nav.collapseSidebar') : t('nav.expandSidebar')}
-          aria-expanded={isSidebarOpen}
-          aria-controls="sidebar-navigation"
-          title={isSidebarOpen ? t('nav.collapseSidebar') : t('nav.expandSidebar')}
-        >
-          {isSidebarOpen ? '‹' : '›'}
-        </button>
         {/* The Map stays here at the bottom layer */}
         <div className="absolute inset-0 z-0">
-          <MapView onStartTour={startTour} />
+          <MapView />
         </div>
 
         {tabsOn.includes('form') && (

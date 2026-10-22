@@ -62,7 +62,7 @@ export async function searchNominatim(q, map, lang) {
   });
 }
 
-export default function PlaceSearch({ map, routes }) {
+export default function PlaceSearch({ map, routes, embedded = false }) {
   const t = useT();
   const { isEn } = useLocale();
   const [query, setQuery] = useState('');
@@ -126,7 +126,8 @@ export default function PlaceSearch({ map, routes }) {
     <div
       ref={boxRef}
       id="place-search"
-      className="absolute top-3 left-3 right-[72px] md:right-auto md:w-80 z-[1000]"
+      // embedded：放在左側「找地點與路線」面板裡，不再自己浮在地圖左上角
+      className={embedded ? 'relative w-full' : 'absolute top-3 left-3 right-[72px] md:right-auto md:w-80 z-[1000]'}
     >
       <form
         onSubmit={handleSearch}

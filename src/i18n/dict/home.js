@@ -7,8 +7,8 @@ const home = {
   'tour.done': { zh: '完成 🎉', en: 'Done 🎉' },
   'tour.welcome.title': { zh: '歡迎使用「信水義河」互動地圖！', en: 'Welcome to the "信水義河" (Waters of Xinyi) interactive map!' },
   'tour.welcome.body': { zh: '這是一個專為信義社大水文導覽設計的互動地圖。您可以在此處探索信義區的水道軌跡與環境變遷。', en: 'This interactive map was created for hydrology-themed guided walks run by Xinyi Community College. Explore the traces of historic watercourses and environmental change across Xinyi District here.' },
-  'tour.sidebar.title': { zh: '左側選單導覽', en: 'Sidebar navigation' },
-  'tour.sidebar.body': { zh: '使用左側的面板可以在地圖、圖層說明、水文回饋表單與歷史故事之間自由切換，而地圖將會持續在背景為您保留狀態！', en: 'Use the panel on the left to switch between the Map, Layer guide, Feedback and History tabs. The map keeps running in the background and retains its state throughout.' },
+  'tour.sidebar.title': { zh: '🔍 找地點與路線', en: '🔍 Places and routes' },
+  'tour.sidebar.body': { zh: '左側面板可以搜尋地點與站點、定位到您的位置、查看今天的日出日落與天氣，並用「涼徑規劃」找一條遮蔭、遮雨或照明比較好的步行路線。', en: 'The panel on the left lets you search for places and stops, find your location, check today\'s sunrise, sunset and weather, and use Comfort route to find a walk with more shade, shelter or light.' },
   'tour.layerPanel.title': { zh: '📍 圖層控制面板', en: '📍 Layer control panel' },
   'tour.layerPanel.body': { zh: '地圖右上角有一個圖層控制面板（☰ 按鈕），點擊展開後可以看到所有可用的圖層。引導將自動為您展開面板！', en: 'The layer control panel is in the top-right corner of the map (the ☰ button). Tap it to see all available layers — the tour will open the panel for you automatically.' },
   'tour.routes.title': { zh: '🚶 水文導覽路線', en: '🚶 Guided hydrology routes' },
@@ -20,9 +20,9 @@ const home = {
   'tour.satellite.title': { zh: '🛰️ 衛星影像與環境指數', en: '🛰️ Satellite imagery and environmental indices' },
   'tour.satellite.body': { zh: '提供 Esri 高解析衛星影像，以及 Sentinel-2 的真彩色、植被健康指數（NDVI）與濕度指數，讓您以現代遙測視角觀察生態環境。', en: 'Includes high-resolution Esri satellite imagery, along with Sentinel-2 true colour, vegetation index (NDVI) and moisture index layers, letting you observe the local ecology from a modern remote-sensing perspective.' },
   'tour.locate.title': { zh: '📍 實地定位功能', en: '📍 Field positioning' },
-  'tour.locate.body': { zh: '在戶外踏查時，點擊此按鈕可即時標記您的位置，方便對照當前位置的歷史水道與樹木分布。', en: 'During a field survey, tap this button to mark your current position, making it easy to compare your location with historical watercourses and tree cover.' },
+  'tour.locate.body': { zh: '在戶外踏查時，點擊左側面板的「我的位置」可即時標記您的位置，方便對照當前位置的歷史水道與樹木分布。', en: 'During a field walk, tap My location in the left panel to mark where you are, so you can compare it with the historical waterways and trees around you.' },
   'tour.reopen.title': { zh: '💡 再次開啟說明', en: '💡 Reopening this guide' },
-  'tour.reopen.body': { zh: '如果您日後需要再次閱讀此導覽，隨時可以點擊地圖左下角的「使用方法」按鈕重新啟動！', en: 'If you want to go through this guide again later, tap the "How to use" button in the bottom-left corner of the map to restart it.' },
+  'tour.reopen.body': { zh: '圖層說明、回饋表單、歷史故事、更新日誌與字體大小都收在右上角的「☰ 選單」，日後也可以從這裡的「使用方法」重新開啟導覽。', en: 'The layer guide, feedback form, history, changelog and text size are all in the ☰ Menu at the top right, where How to use also restarts this tour.' },
 
   // ── 回饋表單分頁 ──
   'formTab.title': { zh: '水文調查表單', en: 'Hydrological survey form' },
