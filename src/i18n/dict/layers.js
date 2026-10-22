@@ -283,10 +283,6 @@ const layers = {
     zh: 'OpenStreetMap 貢獻者',
     en: 'OpenStreetMap contributors',
   },
-  'layers.dataSource.carto': {
-    zh: 'CARTO (底圖樣式)',
-    en: 'CARTO (base map style)',
-  },
   'layers.dataSource.historicalHeading': {
     zh: '🏛️ 歷史地圖與航照圖',
     en: '🏛️ Historical maps and aerial photography',

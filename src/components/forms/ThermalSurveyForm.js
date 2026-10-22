@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { CARTO_LIGHT_URL } from '@/lib/basemap';
+import { basemapProps } from '@/lib/basemap';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 
 // ── Google Form 對接設定 ──
@@ -225,10 +225,10 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           style={{ height: '100%', width: '100%' }}
         >
           <FlyTo target={flyTarget} />
-          {/* 與主地圖一致：CARTO light 底圖＋水文色調 filter（原生 OSM 太雜） */}
+          {/* 與主地圖一致：國土測繪中心灰階底圖＋水文色調 filter */}
           <TileLayer
-            url={CARTO_LIGHT_URL}
-            className="map-tiles-tinted"
+            {...basemapProps(locale)}
+            className={`map-tiles-tinted${locale === 'en' ? ' basemap-en' : ''}`}
           />
           <ClickCapture onPick={handlePick} />
           {coord && <Marker position={[coord.lat, coord.lng]} icon={makePinIcon(color)} />}

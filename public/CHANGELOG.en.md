@@ -1,5 +1,13 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.23.0] - 2026-10-22 - 🌦️ - FEATURE - City-wide Climate Resilience Layers, a Sky and Weather Strip, and a New Basemap
+1. **Basemap switched to the Taiwan e-Map**: since August CARTO has required an API key, and the whole basemap was stamped "API KEY REQUIRED". The site now uses the National Land Surveying and Mapping Center's Taiwan e-Map, which needs no key or application: the grey edition (EMAP01) in Chinese and the English-labelled edition (EMAP8), toned to match, in English. The main map, survey mini-maps, walk page and admin all switch together.
+2. **Levelled arcades**: a new "🌦️ Climate resilience" group in the layer panel starts with Taipei's arcades levelled between 2002 and 2016 (2,886 stretches, Construction Management Office open data). Tap one for the road, stretch, length, completion date and step-free access. It covers only levelled stretches, not every arcade, and the panel says so.
+3. **Street lights**: Taipei's street light locations (about 146,000, Parks and Street Lights Office open data). Lights load for the area in view only once you zoom in to street level (level 16), so the map never draws a sheet of yellow dots.
+4. **Cloudburst water-logging simulation**: the Hydraulic Engineering Office's 2023 edition, with three scenarios to choose from — 78.8 (the drainage design standard), 100 and 130 mm of rain an hour — coloured in five depth classes with a legend. As required, a note says it is for disaster preparedness only and not for land-use decisions.
+5. **Sky and weather strip**: under the search box, today's sunrise and sunset (calculated astronomically) plus the current temperature, feels-like temperature and hourly rainfall (Open-Meteo model estimates, updated about every 15 minutes, not station readings).
+6. **Data sources updated**: the data sources note now lists the national basemap, arcades, street lights, the water-logging simulation and Open-Meteo, and drops CARTO. The conversion script is `src/scripts/process_city_layers.py`, to re-run when the data is updated.
+
 ## [v1.22.4] - 2026-10-22 - 🚶 - UPDATE - Songshan Walking Routes Reordered
 1. **Route 1 now starts at the Baroque Garden**: Baroque Garden → Sweetgum Avenue → Songshan Hub Visitor Centre → Creative Street → Xinren Village Farm.
 2. **Route 2 now starts at the Songshan Hub Visitor Centre**: Songshan Hub Visitor Centre → Sweetgum Avenue → Baroque Garden → Creative Street → Xinren Village Farm.

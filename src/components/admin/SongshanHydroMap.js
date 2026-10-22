@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, Polyline, CircleMarker, Rectangle, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { CARTO_LIGHT_URL, CARTO_ATTRIBUTION } from '@/lib/basemap';
+import { basemapProps } from '@/lib/basemap';
 import { HISTORICAL_MAPS } from '@/components/layers/HistoricalLayer';
 
 // 松菸水文踏查專用的小地圖。
@@ -55,7 +55,7 @@ export default function SongshanHydroMap({ historyId, opacity, showTraces, showR
       scrollWheelZoom
       style={{ height: '100%', width: '100%' }}
     >
-      <TileLayer url={CARTO_LIGHT_URL} attribution={CARTO_ATTRIBUTION} maxZoom={19} />
+      <TileLayer {...basemapProps('zh')} />
       {hist && (
         <TileLayer
           key={hist.id}
