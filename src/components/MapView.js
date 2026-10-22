@@ -150,7 +150,6 @@ const comfortRateIcon = typeof window !== 'undefined'
 
 // ── Main map component ─────────────────────────────────────
 export default function MapView({
-  onStartTour,
   // 以下只有後台會傳：帶入問卷點位就會多出一層「問卷地點」，公開頁不傳、不渲染。
   surveyPoints = null,
   surveyRadius = 50,
@@ -1069,92 +1068,97 @@ export default function MapView({
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
 
-      {/* ── 地點搜尋（左上角） ── */}
-      <PlaceSearch map={mapInstance} routes={routes} />
-
       {/* ── 雨天：地圖上的雨幕（不擋點擊） ── */}
       {sky.isRainy && <div className="rain-veil" aria-hidden />}
 
-      {/* ── 天光水氣：日出日落、氣溫體感、雨量，點開可切換日夜／天氣（搜尋框下方） ── */}
-      <div className={`absolute top-[64px] left-3 ${planner.open ? 'z-[1001]' : 'z-[999]'} flex flex-col items-start gap-2 max-w-[calc(100%-88px)]`}>
-        <SkyBar sky={sky} />
-        <SkyHint
-          sky={sky}
-          layers={{ arcades: showArcades, waterlog: showWaterlog, lamps: showLamps, shade: showShadeMap }}
-          enable={(l) => {
-            if (l.arcades) setShowArcades(true);
-            if (l.waterlog) setShowWaterlog(true);
-            if (l.lamps) setShowLamps(true);
-            if (l.shade) setShowShadeMap(true);
-          }}
-        />
-        <RoutePlannerPanel
-          planner={planner}
-          map={mapInstance}
-          routes={routes}
-          userPos={userPos}
-          onRateRoute={() => {
-            setIsAddMarkerMode(false);
-            setIsComfortRateMode(true);
-          }}
-        />
-      </div>
-
-      {/* ── Locate Button (Below panel toggle or bottom right) ── */}
-      <button
-        id="locate-button"
-        onClick={handleLocate}
-        disabled={locating}
+      {/* ── 左側「找地點與路線」面板：搜尋、定位、天光水氣、涼徑規劃 ──
+          右側是圖層面板；左邊專放「找東西、找路」相關的功能。
+          桌機預設展開成整欄；手機預設收起，只留搜尋框與按鈕，避免蓋住地圖。 */}
+      <aside
+        id="search-panel"
         className={`
-          absolute top-[72px] right-3 z-[1000]
-          w-12 h-12 rounded-2xl
-          bg-white/95 backdrop-blur-md
-          border border-sky-200/60 shadow-md
-          flex items-center justify-center
-          text-2xl transition-all duration-200
-          hover:bg-sky-50 active:scale-95
-          ${locating ? 'animate-pulse text-sky-400' : 'text-sky-700'}
+          absolute top-3 left-3 z-[1001] flex flex-col
+          w-[calc(100%-84px)] md:w-[350px]
+          bg-white/95 backdrop-blur-md border border-sky-200/60 rounded-2xl shadow-md
+          ${planner.open ? 'bottom-3' : ''}
         `}
-        title={t('map.control.locateButtonTitle')}
       >
-        {locating ? '⏳' : '📍'}
-      </button>
+        <div className="p-3 space-y-2 flex-shrink-0">
+          <PlaceSearch map={mapInstance} routes={routes} embedded />
 
-      {/* ── Locate error toast ── */}
-      {locateError && (
-        <div className="absolute top-[132px] right-3 z-[1000] max-w-[240px] bg-white/97 backdrop-blur-md border border-amber-200 rounded-2xl shadow-lg px-4 py-3 text-xs text-slate-700 leading-relaxed">
-          <button
-            onClick={() => setLocateError(null)}
-            className="float-right ml-2 text-slate-400 hover:text-slate-600 text-sm leading-none"
-          >✕</button>
-          {locateErrorMessages[locateError]}
+          <div className="flex items-center gap-2">
+            <button
+              id="locate-button"
+              type="button"
+              onClick={handleLocate}
+              disabled={locating}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors
+                ${locating ? 'animate-pulse text-sky-400 border-sky-100' : 'text-sky-700 border-sky-200 hover:bg-sky-50'}`}
+              title={t('map.control.locateButtonTitle')}
+            >
+              <span aria-hidden>{locating ? '⏳' : '📍'}</span>
+              {t('map.control.locateMe')}
+            </button>
+            <button
+              type="button"
+              onClick={() => planner.setOpen(!planner.open)}
+              aria-expanded={planner.open}
+              aria-controls="route-planner"
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors
+                ${planner.open ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-teal-700 text-white hover:bg-teal-800'}`}
+            >
+              🧭 {t('route.open')}
+              <span aria-hidden className="text-[10px]">{planner.open ? '▴' : '▾'}</span>
+            </button>
+          </div>
+
+          {locateError && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs text-slate-700 leading-relaxed">
+              <button
+                type="button"
+                onClick={() => setLocateError(null)}
+                className="float-right ml-2 text-slate-400 hover:text-slate-600 text-sm leading-none"
+                aria-label={t('route.close')}
+              >✕</button>
+              {locateErrorMessages[locateError]}
+            </div>
+          )}
+
+          {/* 天光水氣：日出日落、氣溫體感、雨量，點開可切換日夜／天氣 */}
+          <div className="flex flex-col items-start gap-2">
+            <SkyBar sky={sky} />
+            <SkyHint
+              sky={sky}
+              layers={{ arcades: showArcades, waterlog: showWaterlog, lamps: showLamps, shade: showShadeMap }}
+              enable={(l) => {
+                if (l.arcades) setShowArcades(true);
+                if (l.waterlog) setShowWaterlog(true);
+                if (l.lamps) setShowLamps(true);
+                if (l.shade) setShowShadeMap(true);
+              }}
+            />
+          </div>
         </div>
-      )}
 
-      {/* ── Usage Guide Button overlay (bottom-left) ── */}
-      <div
-        className="
-          absolute bottom-4 left-4 z-[1000]
-        "
-      >
-        <button
-          id="tour-usage-button"
-          onClick={onStartTour}
-          className="
-            flex items-center justify-center gap-2
-            px-4 py-3 rounded-2xl text-xs font-bold
-            bg-blue-600 hover:bg-blue-700 text-white
-            shadow-xl shadow-blue-500/25 border border-blue-500/20
-            transition-all duration-300 active:scale-95 cursor-pointer
-          "
-          title={t('map.control.usageGuideTitle')}
-        >
-          <span>{t('map.control.usageGuideLabel')}</span>
-        </button>
-      </div>
+        {planner.open && (
+          <div className="flex-1 min-h-0 overflow-y-auto border-t border-sky-100 p-3">
+            <RoutePlannerPanel
+              planner={planner}
+              map={mapInstance}
+              routes={routes}
+              userPos={userPos}
+              embedded
+              onRateRoute={() => {
+                setIsAddMarkerMode(false);
+                setIsComfortRateMode(true);
+              }}
+            />
+          </div>
+        )}
+      </aside>
 
       {/* ── Data Source Control (bottom-right) ── */}
-      <DataSourceControl />
+      <DataSourceControl corner="right" />
     </div>
   );
 }

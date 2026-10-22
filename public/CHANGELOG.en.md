@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.25.0] - 2026-10-23 - 🧭 - UI - New Layout: Finding on the Left, Layers on the Right
+1. **The far-left navigation bar is gone**: Map, Layer guide, Feedback, History, Changelog and Text size have moved into a ☰ Menu at the top right, together with the How to use tour and the privacy notice, giving the map more room.
+2. **A "places and routes" panel on the left**: place search, 📍 My location, the 🧭 Comfort route switch and the sunrise, sunset and weather strip (tap it to change the day/night and weather modes), in that order; opening Comfort route extends the panel to full height. It starts open on computers and collapsed on phones, showing just the search box and buttons.
+3. **Layers stay on the right**: every switchable layer is in the top-right panel. The locate button has moved from the top right into the left panel, and the Data sources button to the bottom right.
+4. **Guided tour updated**: the step that introduced the sidebar now introduces the left panel, and the last step points to the ☰ Menu.
+
 ## [v1.24.0] - 2026-10-22 - 🧭 - FEATURE - Comfort Route Planning, Day and Night Modes, and a Rain Preview
 1. **Comfort route planning**: a new "🧭 Comfort route" button at the top left. Choose a start and end (search, tap the map or use your location), what you want — shade, shelter from rain or light — and how much of a detour you will accept, and the map finds a more comfortable walking route. The shortest route is drawn alongside as a dashed line, with distance, walking time, the share of the route that is shaded (or sheltered, or lit) and how much longer the suggested route is. Each segment is coloured by how comfortable it is. Everything is calculated in the browser; no server is needed.
 2. **A walking network for all of Taipei**: 146,000 walkable segments built from OpenStreetMap, each with three pre-computed measures — shade (90,000 street trees, woodland and building shadows, hour by hour from 07:00 to 17:00 for summer and for spring/autumn), shelter (levelled arcades and paths mapped as covered) and light (within 20 m of a street light). The network is split into 0.01° cells and only the cells around the start and end are downloaded. It is built by `src/scripts/build_route_graph.py`.

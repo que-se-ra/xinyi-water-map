@@ -59,7 +59,7 @@ export default function SkyBar({ sky }) {
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="sky-bar flex items-center gap-2.5 bg-white/90 backdrop-blur-md border border-sky-100 shadow-md rounded-2xl px-3 py-1.5 text-[11px] text-slate-600 font-medium tabular-nums hover:bg-white transition-colors"
+        className="sky-bar max-w-full overflow-x-auto whitespace-nowrap flex items-center gap-2.5 bg-white/90 backdrop-blur-md border border-sky-100 shadow-md rounded-2xl px-3 py-1.5 text-[11px] text-slate-600 font-medium tabular-nums hover:bg-white transition-colors"
         title={t('city.sky.title')}
       >
         <span className="flex items-center gap-1">

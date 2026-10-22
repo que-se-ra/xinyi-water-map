@@ -20,6 +20,8 @@ const common = {
   },
 
   'header.toggleMenu': { zh: '切換選單', en: 'Toggle menu' },
+  'header.menu': { zh: '選單', en: 'Menu' },
+  'header.backToMap': { zh: '回到地圖', en: 'Back to the map' },
   'header.surveyTitle': { zh: '信義區熱舒適經驗調查', en: 'Thermal comfort survey, Xinyi District' },
   'header.survey': { zh: '熱舒適問卷', en: 'Comfort survey' },
   'header.surveyShort': { zh: '問卷', en: 'Survey' },
