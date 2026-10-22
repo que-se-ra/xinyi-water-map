@@ -5,16 +5,12 @@
 export const routesEn = {
   "songshan-route-01": {
     "name": "Route 1",
-    "subtitle": "Creative Street → Xinren Village Farm → Sweetgum Avenue → Songshan Hub Visitor Centre → Baroque Garden",
-    "startStation": "Creative Street",
+    "subtitle": "Baroque Garden → Sweetgum Avenue → Songshan Hub Visitor Centre → Creative Street → Xinren Village Farm",
+    "startStation": "Baroque Garden",
     "stations": {
-      "A": {
-        "name": "Creative Street",
-        "badge": "Stop A"
-      },
-      "B": {
-        "name": "Xinren Village Farm",
-        "badge": "Stop B"
+      "C": {
+        "name": "Baroque Garden",
+        "badge": "Stop C"
       },
       "D": {
         "name": "Sweetgum Avenue",
@@ -24,21 +20,21 @@ export const routesEn = {
         "name": "Songshan Hub Visitor Centre",
         "badge": "Stop E"
       },
-      "C": {
-        "name": "Baroque Garden",
-        "badge": "Stop C"
+      "A": {
+        "name": "Creative Street",
+        "badge": "Stop A"
+      },
+      "B": {
+        "name": "Xinren Village Farm",
+        "badge": "Stop B"
       }
     }
   },
   "songshan-route-02": {
     "name": "Route 2",
-    "subtitle": "Creative Street → Songshan Hub Visitor Centre → Sweetgum Avenue → Xinren Village Farm → Baroque Garden",
-    "startStation": "Creative Street",
+    "subtitle": "Songshan Hub Visitor Centre → Sweetgum Avenue → Baroque Garden → Creative Street → Xinren Village Farm",
+    "startStation": "Songshan Hub Visitor Centre",
     "stations": {
-      "A": {
-        "name": "Creative Street",
-        "badge": "Stop A"
-      },
       "E": {
         "name": "Songshan Hub Visitor Centre",
         "badge": "Stop E"
@@ -47,13 +43,17 @@ export const routesEn = {
         "name": "Sweetgum Avenue",
         "badge": "Stop D"
       },
-      "B": {
-        "name": "Xinren Village Farm",
-        "badge": "Stop B"
-      },
       "C": {
         "name": "Baroque Garden",
         "badge": "Stop C"
+      },
+      "A": {
+        "name": "Creative Street",
+        "badge": "Stop A"
+      },
+      "B": {
+        "name": "Xinren Village Farm",
+        "badge": "Stop B"
       }
     }
   }

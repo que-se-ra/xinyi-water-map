@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.22.4] - 2026-10-22 - 🚶 - UPDATE - Songshan Walking Routes Reordered
+1. **Route 1 now starts at the Baroque Garden**: Baroque Garden → Sweetgum Avenue → Songshan Hub Visitor Centre → Creative Street → Xinren Village Farm.
+2. **Route 2 now starts at the Songshan Hub Visitor Centre**: Songshan Hub Visitor Centre → Sweetgum Avenue → Baroque Garden → Creative Street → Xinren Village Farm.
+3. **Route 2 follows the hand-drawn blue line**: from the Baroque Garden it heads straight north onto Creative Street and then east to Xinren Village Farm, so route 2's Creative Street stop now sits on Creative Street directly north of the Baroque Garden.
+4. **The two routes no longer overlap**: both routes use most of the same paths and used to sit on top of each other on the map; route 2 is now shifted about 7–8 metres to the south-east so the two lines run side by side. Stops keep the positions confirmed on the 15 October site walk (route 2's stops move only by that shift).
+
 ## [v1.22.3] - 2026-10-21 - 🏪 - DATA - Walk Page Shops Re-checked
 1. **Official store lists**: convenience stores now come from the 7-ELEVEN, FamilyMart, Hi-Life and OK Mart store finders (61 stores); drink shops are listed only when the brand's own site still shows them (9 shops), so nobody is sent to a shop that has closed.
 2. **MRT stations and exits unchanged**.
