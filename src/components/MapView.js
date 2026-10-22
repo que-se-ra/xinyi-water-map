@@ -42,6 +42,9 @@ import { basemapProps } from '@/lib/basemap';
 import CityLayers from './layers/CityLayers';
 import CityLayersControl from './layers/CityLayersControl';
 import SkyBar from './layers/SkyBar';
+import SkyHint from './layers/SkyHint';
+import { useSky } from '@/lib/useSky';
+import { useRoutePlanner, RoutePlanLayer, RoutePlannerPanel } from './route/RoutePlanner';
 import { useT, useLocale } from '@/i18n/LocaleProvider';
 
 
@@ -185,6 +188,10 @@ export default function MapView({
   const [showWaterlog, setShowWaterlog] = useState(dl.waterlog ?? false);
   const [waterlogScenario, setWaterlogScenario] = useState('788');
   const [waterlogLoading, setWaterlogLoading] = useState(false);
+  // 天光水氣：即時天氣、日出日落，以及日夜／天氣顯示模式（地圖色調與路線規劃共用）
+  const sky = useSky();
+  // 涼徑規劃（起終點、情境、偏好與結果）
+  const planner = useRoutePlanner(sky);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
   const [showZoning, setShowZoning] = useState(dl.zoning);
@@ -390,7 +397,7 @@ export default function MapView({
   };
 
   return (
-    <div id="map-container-wrapper" className="relative w-full h-full">
+    <div id="map-container-wrapper" className={`relative w-full h-full${sky.isNight ? ' map-night' : ''}`}>
       {/* ── Map ─────────────────────────────────────────── */}
       <MapContainer
         center={[25.033, 121.565]}
@@ -428,6 +435,7 @@ export default function MapView({
           showLamps={showLamps}
           showWaterlog={showWaterlog}
           waterlogScenario={waterlogScenario}
+          night={sky.isNight}
           onLampStatus={setLampStatus}
           onWaterlogLoading={setWaterlogLoading}
         />
@@ -452,6 +460,7 @@ export default function MapView({
         )}
 
         <UserLocationLayer position={userPos} accuracy={accuracy} />
+        <RoutePlanLayer planner={planner} />
 
         {/* Free Marker Form */}
         {newMarkerPos && (
@@ -1056,16 +1065,39 @@ export default function MapView({
       </div>
 
       {/* Global overlay cursor hint for add mode */}
-      {(isAddMarkerMode || isComfortRateMode) && (
+      {(isAddMarkerMode || isComfortRateMode || planner.pick) && (
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
 
       {/* ── 地點搜尋（左上角） ── */}
       <PlaceSearch map={mapInstance} routes={routes} />
 
-      {/* ── 天光水氣：日出日落、氣溫體感、雨量（搜尋框下方） ── */}
-      <div className="absolute top-[64px] left-3 z-[999] pointer-events-auto max-w-[calc(100%-88px)] overflow-x-auto">
-        <SkyBar />
+      {/* ── 雨天：地圖上的雨幕（不擋點擊） ── */}
+      {sky.isRainy && <div className="rain-veil" aria-hidden />}
+
+      {/* ── 天光水氣：日出日落、氣溫體感、雨量，點開可切換日夜／天氣（搜尋框下方） ── */}
+      <div className={`absolute top-[64px] left-3 ${planner.open ? 'z-[1001]' : 'z-[999]'} flex flex-col items-start gap-2 max-w-[calc(100%-88px)]`}>
+        <SkyBar sky={sky} />
+        <SkyHint
+          sky={sky}
+          layers={{ arcades: showArcades, waterlog: showWaterlog, lamps: showLamps, shade: showShadeMap }}
+          enable={(l) => {
+            if (l.arcades) setShowArcades(true);
+            if (l.waterlog) setShowWaterlog(true);
+            if (l.lamps) setShowLamps(true);
+            if (l.shade) setShowShadeMap(true);
+          }}
+        />
+        <RoutePlannerPanel
+          planner={planner}
+          map={mapInstance}
+          routes={routes}
+          userPos={userPos}
+          onRateRoute={() => {
+            setIsAddMarkerMode(false);
+            setIsComfortRateMode(true);
+          }}
+        />
       </div>
 
       {/* ── Locate Button (Below panel toggle or bottom right) ── */}
