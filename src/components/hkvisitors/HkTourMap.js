@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { MapContainer, TileLayer, Polyline, Marker, Tooltip, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { CARTO_LIGHT_URL, CARTO_ATTRIBUTION } from '@/lib/basemap';
+import { basemapProps } from '@/lib/basemap';
 import HistoricalLayer from '@/components/layers/HistoricalLayer';
 import SatelliteLayer from '@/components/layers/SatelliteLayer';
 import ComfortLayer from '@/components/layers/ComfortLayer';
@@ -148,7 +148,7 @@ export default function HkTourMap({
 
   return (
     <MapContainer center={center} zoom={16} className="w-full h-full z-0" zoomControl={false} preferCanvas={true}>
-      <TileLayer attribution={CARTO_ATTRIBUTION} url={CARTO_LIGHT_URL} />
+      <TileLayer {...basemapProps('zh')} />
       <FitRoute lines={lines} />
       <FlyToStop stop={focusStop} />
       <RecenterOnUser userPos={userPos} nonce={recenterNonce} />

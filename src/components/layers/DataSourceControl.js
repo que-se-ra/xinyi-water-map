@@ -17,7 +17,7 @@ export default function DataSourceControl() {
         className={`
           bg-white/95 backdrop-blur-md border border-slate-200/60 shadow-xl rounded-xl overflow-hidden
           transition-all duration-300 ease-out origin-bottom-left
-          ${isExpanded ? 'max-h-96 opacity-100 scale-100 mb-2' : 'max-h-0 opacity-0 scale-95 mb-0'}
+          ${isExpanded ? 'max-h-[70vh] overflow-y-auto opacity-100 scale-100 mb-2' : 'max-h-0 opacity-0 scale-95 mb-0'}
         `}
       >
         <div className="p-4 text-xs text-slate-600 space-y-3 font-medium min-w-[260px] max-w-[320px]">
@@ -33,8 +33,8 @@ export default function DataSourceControl() {
           <div>
             <p className="font-bold text-slate-700 mb-1">{t('layers.dataSource.mapHeading')}</p>
             <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
+              <li>{t('city.source.basemap')}</li>
               <li>{t('layers.dataSource.osmContributors')}</li>
-              <li>{t('layers.dataSource.carto')}</li>
             </ul>
           </div>
 
@@ -48,6 +48,16 @@ export default function DataSourceControl() {
             <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
               <li>{t('layers.dataSource.openDataGov')}</li>
               <li>{t('layers.dataSource.temperatureData')}</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-bold text-slate-700 mb-1">{t('city.source.heading')}</p>
+            <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
+              <li>{t('city.source.arcades')}</li>
+              <li>{t('city.source.lamps')}</li>
+              <li>{t('city.source.waterlog')}</li>
+              <li>{t('city.source.weather')}</li>
             </ul>
           </div>
         </div>

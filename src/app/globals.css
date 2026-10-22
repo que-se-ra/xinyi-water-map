@@ -81,6 +81,14 @@ body {
     contrast(1.02);
 }
 
+/* 英文底圖（國土測繪中心 EMAP8）是彩色的，降成和中文灰階底圖（EMAP01）接近的淡色調 */
+.map-tiles-tinted.basemap-en {
+  filter:
+    grayscale(0.85)
+    brightness(1.06)
+    contrast(0.95);
+}
+
 /* Water features background */
 .leaflet-container {
   background: #eef5f9 !important;

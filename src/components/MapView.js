@@ -38,8 +38,11 @@ L.Icon.Default.mergeOptions({
 
 import SatelliteLayer, { SatelliteControl, SATELLITE_MAPS } from './layers/SatelliteLayer';
 import SurveyPointsLayer, { SURVEY_KIND_STYLE } from './layers/SurveyPointsLayer';
-import { CARTO_LIGHT_URL, CARTO_ATTRIBUTION } from '@/lib/basemap';
-import { useT } from '@/i18n/LocaleProvider';
+import { basemapProps } from '@/lib/basemap';
+import CityLayers from './layers/CityLayers';
+import CityLayersControl from './layers/CityLayersControl';
+import SkyBar from './layers/SkyBar';
+import { useT, useLocale } from '@/i18n/LocaleProvider';
 
 
 // ── helpers ────────────────────────────────────────────────
@@ -151,6 +154,7 @@ export default function MapView({
   showSurveyRadius = true
 }) {
   const t = useT();
+  const { locale } = useLocale();
   const routes = useRoutes(); // 依語言回中文或英文版站點內容（座標相同）
   const project = useProject();
   const { defaultLayers: dl, feedbackProjectId } = project;
@@ -174,6 +178,13 @@ export default function MapView({
   const [showTrees, setShowTrees] = useState(dl.trees);
   const [showSidewalks, setShowSidewalks] = useState(dl.sidewalks);
   const [showGreen, setShowGreen] = useState(dl.green);
+  // 全市氣候韌性圖層（騎樓、路燈、積水模擬）
+  const [showArcades, setShowArcades] = useState(dl.arcades ?? false);
+  const [showLamps, setShowLamps] = useState(dl.lamps ?? false);
+  const [lampStatus, setLampStatus] = useState(null);
+  const [showWaterlog, setShowWaterlog] = useState(dl.waterlog ?? false);
+  const [waterlogScenario, setWaterlogScenario] = useState('788');
+  const [waterlogLoading, setWaterlogLoading] = useState(false);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
   const [showZoning, setShowZoning] = useState(dl.zoning);
@@ -390,9 +401,8 @@ export default function MapView({
         ref={setMapInstance}
       >
         <TileLayer
-          attribution={CARTO_ATTRIBUTION}
-          url={CARTO_LIGHT_URL}
-          className="map-tiles-tinted"
+          {...basemapProps(locale)}
+          className={`map-tiles-tinted${locale === 'en' ? ' basemap-en' : ''}`}
         />
         <FitBoundsOnLoad />
         <MapFlyTo center={userPos} />
@@ -413,6 +423,14 @@ export default function MapView({
         {/* ── Modular Layers ── */}
         <ZoningLayer showZoning={showZoning} opacity={zoningOpacity} />
         <ComfortLayer showTrees={showTrees} showSidewalks={showSidewalks} showGreen={showGreen} />
+        <CityLayers
+          showArcades={showArcades}
+          showLamps={showLamps}
+          showWaterlog={showWaterlog}
+          waterlogScenario={waterlogScenario}
+          onLampStatus={setLampStatus}
+          onWaterlogLoading={setWaterlogLoading}
+        />
         <ShadeMapLayer
           show={showShadeMap}
           date={shadeMapDate}
@@ -995,6 +1013,20 @@ export default function MapView({
               </div>
             </div>
 
+            {/* 全市氣候韌性圖層 */}
+            <CityLayersControl
+              showArcades={showArcades}
+              setShowArcades={setShowArcades}
+              showLamps={showLamps}
+              setShowLamps={setShowLamps}
+              lampStatus={lampStatus}
+              showWaterlog={showWaterlog}
+              setShowWaterlog={setShowWaterlog}
+              waterlogScenario={waterlogScenario}
+              setWaterlogScenario={setWaterlogScenario}
+              waterlogLoading={waterlogLoading}
+            />
+
             {/* Historical maps selector */}
             <HistoricalControl
               activeHistory={activeHistory}
@@ -1030,6 +1062,11 @@ export default function MapView({
 
       {/* ── 地點搜尋（左上角） ── */}
       <PlaceSearch map={mapInstance} routes={routes} />
+
+      {/* ── 天光水氣：日出日落、氣溫體感、雨量（搜尋框下方） ── */}
+      <div className="absolute top-[64px] left-3 z-[999] pointer-events-auto max-w-[calc(100%-88px)] overflow-x-auto">
+        <SkyBar />
+      </div>
 
       {/* ── Locate Button (Below panel toggle or bottom right) ── */}
       <button
