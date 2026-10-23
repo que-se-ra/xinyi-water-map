@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.25.2] - 2026-10-23 - ↔️ - UI - The Left Panel Can Be Hidden Completely
+1. **Hide the whole left panel**: the places-and-routes panel now has a handle (‹) on its right edge. Tap it and the whole panel slides off screen, leaving only a small handle (› 🔍) at the left edge so the map shows in full; tap again to bring it back. The 🧭 Shade route button still folds away just the route form, as before.
+
 ## [v1.25.1] - 2026-10-23 - 🧹 - UPDATE - "Shade Route" Rename; Street Lights, Map Rain and Night Mode Removed; Larger Left-Panel Text
 1. **Comfort route is now "Shade route"**: the button, panel text and guided tour are updated.
 2. **Street lights removed**: the street light layer, the route planner's light scenario and the "show street lights" suggestion after dark are gone, and the street light data (about 3.4 MB) is deleted. Route planning now offers two scenarios, shade and shelter from rain.
