@@ -189,6 +189,8 @@ export default function MapView({
   const sky = useSky();
   // 遮蔭路線規劃（起終點、情境、偏好與結果）
   const planner = useRoutePlanner(sky);
+  // 整個左側面板收到地圖左邊緣（只留把手），讓地圖完整露出
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
   const [showZoning, setShowZoning] = useState(dl.zoning);
@@ -1063,15 +1065,22 @@ export default function MapView({
       {/* ── 左側「找地點與路線」面板：搜尋、定位、天光水氣、遮蔭路線規劃 ──
           右側是圖層面板；左邊專放「找東西、找路」相關的功能。
           桌機預設展開成整欄；手機預設收起，只留搜尋框與按鈕，避免蓋住地圖。 */}
-      <aside
-        id="search-panel"
+      {/* 外層負責「整個面板收到左邊緣」的滑動與把手；內層負責捲動（把手放外層才不會被捲動區裁掉） */}
+      <div
         className={`
           absolute top-3 left-3 z-[1001]
           w-[calc(100%-84px)] md:w-[390px]
-          max-h-[calc(100%-24px)] overflow-y-auto overscroll-contain
-          bg-white/95 backdrop-blur-md border border-sky-200/60 rounded-2xl shadow-md
+          max-h-[calc(100%-24px)] flex
+          transition-transform duration-300 ease-in-out
           ${planner.open ? 'bottom-3' : ''}
+          ${leftCollapsed ? '-translate-x-[calc(100%+12px)]' : 'translate-x-0'}
         `}
+      >
+      <aside
+        id="search-panel"
+        aria-hidden={leftCollapsed}
+        inert={leftCollapsed ? true : undefined}
+        className="w-full overflow-y-auto overscroll-contain bg-white/95 backdrop-blur-md border border-sky-200/60 rounded-2xl shadow-md"
       >
         {/* 整個面板一起往下捲（不再只有規劃區塊自己捲），字也放大一級，方便閱讀 */}
         <div className="p-3 space-y-2.5">
@@ -1146,6 +1155,21 @@ export default function MapView({
           </div>
         )}
       </aside>
+
+        {/* 把手：貼在面板右緣；收起時面板滑出畫面，把手剛好留在地圖左邊緣 */}
+        <button
+          type="button"
+          onClick={() => setLeftCollapsed(!leftCollapsed)}
+          aria-expanded={!leftCollapsed}
+          aria-controls="search-panel"
+          aria-label={leftCollapsed ? t('map.panel.expand') : t('map.panel.collapse')}
+          title={leftCollapsed ? t('map.panel.expand') : t('map.panel.collapse')}
+          className="absolute top-16 -right-9 w-8 h-14 flex flex-col items-center justify-center gap-0.5 rounded-r-xl bg-white/95 border border-l-0 border-sky-200/60 shadow-md text-sky-700 hover:bg-sky-50 active:scale-95 transition-colors"
+        >
+          <span aria-hidden className="text-lg leading-none">{leftCollapsed ? '›' : '‹'}</span>
+          {leftCollapsed && <span aria-hidden className="text-xs leading-none">🔍</span>}
+        </button>
+      </div>
 
       {/* ── Data Source Control (bottom-right) ── */}
       <DataSourceControl corner="right" />
