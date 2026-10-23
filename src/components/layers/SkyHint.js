@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useT } from '@/i18n/LocaleProvider';
 
-// 依目前天色給一個「情境建議」：下雨提醒開騎樓與積水圖層、天黑提醒開路燈、
-// 大熱天提醒開日照陰影。按一下就把對應圖層打開；已經開了或按過「不用了」就不再出現。
-// 判斷優先序：雨 > 夜 > 熱（雨夜時騎樓比路燈更要緊）。
+// 依目前天氣給一個「情境建議」：下雨提醒開騎樓與積水圖層、大熱天提醒開日照陰影。
+// 按一下就把對應圖層打開；已經開了或按過「不用了」就不再出現。判斷優先序：雨 > 熱。
 
 export const HOT_FEELS_LIKE = 30; // 體感溫度達到這個值才提醒找陰影
 
@@ -14,8 +13,6 @@ export default function SkyHint({ sky, layers, enable }) {
   let hint = null;
   if (sky.isRainy && !(layers.arcades && layers.waterlog)) {
     hint = { key: 'rain', text: t('sky.hint.rain'), action: () => enable({ arcades: true, waterlog: true }) };
-  } else if (sky.isNight && !layers.lamps) {
-    hint = { key: 'night', text: t('sky.hint.night'), action: () => enable({ lamps: true }) };
   } else if (
     !sky.isNight &&
     !sky.isRainy &&
@@ -27,7 +24,7 @@ export default function SkyHint({ sky, layers, enable }) {
   if (!hint || dismissed[hint.key]) return null;
 
   return (
-    <div className="flex items-center gap-2 bg-sky-900/90 text-white backdrop-blur-md rounded-2xl shadow-lg pl-3 pr-1.5 py-1.5 text-[11px]">
+    <div className="flex items-center gap-2 bg-sky-900/90 text-white backdrop-blur-md rounded-2xl shadow-lg pl-3 pr-1.5 py-1.5 text-sm">
       <span className="leading-snug">{hint.text}</span>
       <button
         type="button"

@@ -56,7 +56,6 @@ export default function DataSourceControl({ corner = 'left' }) {
             <p className="font-bold text-slate-700 mb-1">{t('city.source.heading')}</p>
             <ul className="pl-4 text-slate-500 list-disc list-inside leading-relaxed">
               <li>{t('city.source.arcades')}</li>
-              <li>{t('city.source.lamps')}</li>
               <li>{t('city.source.waterlog')}</li>
               <li>{t('city.source.weather')}</li>
             </ul>

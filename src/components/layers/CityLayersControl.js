@@ -1,7 +1,7 @@
 import { useT } from '@/i18n/LocaleProvider';
 import { WATERLOG_DEPTHS, WATERLOG_SCENARIOS } from './CityLayers';
 
-// 圖層面板裡「城市氣候韌性」這一組開關（騎樓、路燈、積水模擬）
+// 圖層面板裡「城市氣候韌性」這一組開關（騎樓、積水模擬）
 
 function Toggle({ checked, onChange, accent, label, desc, children }) {
   return (
@@ -27,9 +27,6 @@ function Toggle({ checked, onChange, accent, label, desc, children }) {
 export default function CityLayersControl({
   showArcades,
   setShowArcades,
-  showLamps,
-  setShowLamps,
-  lampStatus,
   showWaterlog,
   setShowWaterlog,
   waterlogScenario,
@@ -49,22 +46,6 @@ export default function CityLayersControl({
         label={`☂️ ${t('city.arcades.label')}`}
         desc={t('city.arcades.desc')}
       />
-
-      <Toggle
-        checked={showLamps}
-        onChange={() => setShowLamps(!showLamps)}
-        accent="#ca8a04"
-        label={`💡 ${t('city.lamps.label')}`}
-        desc={t('city.lamps.desc')}
-      >
-        <p className="mx-10 -mt-0.5 mb-1 text-[10px] text-amber-700">
-          {lampStatus?.zoomedOut
-            ? t('city.lamps.zoomHint')
-            : lampStatus?.count != null
-              ? t('city.lamps.count', { n: lampStatus.count.toLocaleString() })
-              : ''}
-        </p>
-      </Toggle>
 
       <Toggle
         checked={showWaterlog}

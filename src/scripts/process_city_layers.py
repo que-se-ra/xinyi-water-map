@@ -1,4 +1,6 @@
 """
+（路燈圖層 2026-10-23 依使用者決定移除，本檔不再輸出路燈。）
+
 把臺北市開放資料轉成網站用的精簡 JSON（放在 public/data/city/）。網站本身不跑這支，
 資料更新時在本機重跑一次即可。
 
@@ -9,13 +11,10 @@
 
 原始資料資料夾裡要有（檔名照下面）：
   arcade/Finishgfl97.shp（+.dbf .shx）  臺北市騎樓整平工程完成路段表（data.taipei，都發局建管處）
-  lamps.csv                              臺北市路燈位置分布圖（data.gov.tw/dataset/128270，工務局公園處）
   wl_788.kml、wl_100.kml、wl_130.kml      臺北市降雨積水模擬圖 112 年更新版（data.taipei，工務局水利處）
 
 輸出：
   public/data/city/arcades.json          騎樓整平路段（GeoJSON 面）
-  public/data/city/lamps/<格>.json        路燈點位，依 0.01° 方格切檔，地圖只載入畫面內的格子
-  public/data/city/lamps/index.json      有資料的方格清單
   public/data/city/waterlog_<情境>.json   積水模擬（GeoJSON 面，依深度分級）
 """
 import csv
@@ -34,7 +33,7 @@ from shapely.validation import make_valid
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else '.'
 OUT = os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'data', 'city')
-os.makedirs(os.path.join(OUT, 'lamps'), exist_ok=True)
+os.makedirs(OUT, exist_ok=True)
 
 # TWD97 二度分帶（EPSG:3826）→ WGS84
 to_wgs = Transformer.from_crs('EPSG:3826', 'EPSG:4326', always_xy=True)
@@ -91,28 +90,6 @@ def arcades():
     write('arcades.json', {'type': 'FeatureCollection', 'features': feats})
 
 
-# ── 路燈 ────────────────────────────────────────────────────
-def lamps():
-    cells = defaultdict(list)
-    with open(os.path.join(SRC, 'lamps.csv'), encoding='utf-8-sig') as f:
-        for row in csv.DictReader(f, skipinitialspace=True):
-            try:
-                x, y = float(row['TWD97X']), float(row['TWD97Y'])
-            except (TypeError, ValueError):
-                continue
-            lng, lat = to_wgs.transform(x, y)
-            # 只收臺北市一帶（資料裡有少數座標落在新北市）
-            if not (24.95 <= lat <= 25.22 and 121.45 <= lng <= 121.67):
-                continue
-            key = f'{math.floor(lat * 100)}_{math.floor(lng * 100)}'
-            cells[key].append([round(lat, 5), round(lng, 5)])
-    for key, pts in cells.items():
-        with open(os.path.join(OUT, 'lamps', f'{key}.json'), 'w') as f:
-            json.dump(pts, f, separators=(',', ':'))
-    write('lamps/index.json', sorted(cells))
-    print('lamps:', sum(len(v) for v in cells.values()), 'in', len(cells), 'cells')
-
-
 # ── 積水模擬 ────────────────────────────────────────────────
 KML = '{http://www.opengis.net/kml/2.2}'
 
@@ -157,7 +134,6 @@ def waterlog(scenario, fname):
 
 if __name__ == '__main__':
     arcades()
-    lamps()
     waterlog('788', 'wl_788.kml')
     waterlog('100', 'wl_100.kml')
     waterlog('130', 'wl_130.kml')

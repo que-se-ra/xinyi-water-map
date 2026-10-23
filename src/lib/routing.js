@@ -1,19 +1,18 @@
-// 涼徑規劃的路線計算（全部在瀏覽器裡算，不需要伺服器）。
+// 遮蔭路線規劃的路線計算（全部在瀏覽器裡算，不需要伺服器）。
 //
 // 路網資料由 src/scripts/build_route_graph.py 從 OpenStreetMap 建出，依 0.01° 方格切檔，
 // 每條路段帶三個舒適指標（0–100）：
-//   shade[季][時] 遮蔭比例、cover 可遮雨比例、lit 照明比例
+//   shade[季][時] 遮蔭比例、cover 可遮雨比例、lit 照明比例（路燈；2026-10-23 起前端不再使用）
 // 規劃時只下載起終點附近的方格，用 Dijkstra 找「加權成本」最低的路：
 //   成本 = 長度 ×（1 + 權重 ×（1 − 指標））× 路型係數
 // 權重由「偏好」決定，0 就是最短路線。
 
 const DATA = '/data/route';
 
-// 三種情境：各用哪個指標
+// 兩種情境：各用哪個指標（「走亮路」隨路燈圖層於 2026-10-23 移除）
 export const SCENARIOS = {
   shade: { metric: 'shade', icon: '🌳' },
   rain: { metric: 'cover', icon: '☂️' },
-  night: { metric: 'lit', icon: '💡' },
 };
 
 // 三種偏好：願意為了舒適多繞多少

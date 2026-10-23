@@ -15,6 +15,5 @@ export const BASE_DEFAULT_LAYERS = {
   comfort: false,
   communityMarkers: false, // 社群審核通過的地景標記
   arcades: false, // 騎樓整平路段（全市）
-  lamps: false, // 路燈（全市，放大才顯示）
   waterlog: false, // 短延時強降雨積水模擬（全市）
 };

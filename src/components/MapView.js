@@ -180,16 +180,14 @@ export default function MapView({
   const [showTrees, setShowTrees] = useState(dl.trees);
   const [showSidewalks, setShowSidewalks] = useState(dl.sidewalks);
   const [showGreen, setShowGreen] = useState(dl.green);
-  // 全市氣候韌性圖層（騎樓、路燈、積水模擬）
+  // 全市氣候韌性圖層（騎樓、積水模擬）
   const [showArcades, setShowArcades] = useState(dl.arcades ?? false);
-  const [showLamps, setShowLamps] = useState(dl.lamps ?? false);
-  const [lampStatus, setLampStatus] = useState(null);
   const [showWaterlog, setShowWaterlog] = useState(dl.waterlog ?? false);
   const [waterlogScenario, setWaterlogScenario] = useState('788');
   const [waterlogLoading, setWaterlogLoading] = useState(false);
-  // 天光水氣：即時天氣、日出日落，以及日夜／天氣顯示模式（地圖色調與路線規劃共用）
+  // 天光水氣：即時天氣與日出日落（資訊列、圖層建議與路線規劃共用）
   const sky = useSky();
-  // 涼徑規劃（起終點、情境、偏好與結果）
+  // 遮蔭路線規劃（起終點、情境、偏好與結果）
   const planner = useRoutePlanner(sky);
   // 問卷地點圖層（後台專用）：各類型可個別開關
   const [surveyVisible, setSurveyVisible] = useState({ hot: true, cool: true, improve: true });
@@ -396,7 +394,7 @@ export default function MapView({
   };
 
   return (
-    <div id="map-container-wrapper" className={`relative w-full h-full${sky.isNight ? ' map-night' : ''}`}>
+    <div id="map-container-wrapper" className="relative w-full h-full">
       {/* ── Map ─────────────────────────────────────────── */}
       <MapContainer
         center={[25.033, 121.565]}
@@ -431,11 +429,8 @@ export default function MapView({
         <ComfortLayer showTrees={showTrees} showSidewalks={showSidewalks} showGreen={showGreen} />
         <CityLayers
           showArcades={showArcades}
-          showLamps={showLamps}
           showWaterlog={showWaterlog}
           waterlogScenario={waterlogScenario}
-          night={sky.isNight}
-          onLampStatus={setLampStatus}
           onWaterlogLoading={setWaterlogLoading}
         />
         <ShadeMapLayer
@@ -1025,9 +1020,6 @@ export default function MapView({
             <CityLayersControl
               showArcades={showArcades}
               setShowArcades={setShowArcades}
-              showLamps={showLamps}
-              setShowLamps={setShowLamps}
-              lampStatus={lampStatus}
               showWaterlog={showWaterlog}
               setShowWaterlog={setShowWaterlog}
               waterlogScenario={waterlogScenario}
@@ -1068,22 +1060,21 @@ export default function MapView({
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
 
-      {/* ── 雨天：地圖上的雨幕（不擋點擊） ── */}
-      {sky.isRainy && <div className="rain-veil" aria-hidden />}
-
-      {/* ── 左側「找地點與路線」面板：搜尋、定位、天光水氣、涼徑規劃 ──
+      {/* ── 左側「找地點與路線」面板：搜尋、定位、天光水氣、遮蔭路線規劃 ──
           右側是圖層面板；左邊專放「找東西、找路」相關的功能。
           桌機預設展開成整欄；手機預設收起，只留搜尋框與按鈕，避免蓋住地圖。 */}
       <aside
         id="search-panel"
         className={`
-          absolute top-3 left-3 z-[1001] flex flex-col
-          w-[calc(100%-84px)] md:w-[350px]
+          absolute top-3 left-3 z-[1001]
+          w-[calc(100%-84px)] md:w-[390px]
+          max-h-[calc(100%-24px)] overflow-y-auto overscroll-contain
           bg-white/95 backdrop-blur-md border border-sky-200/60 rounded-2xl shadow-md
           ${planner.open ? 'bottom-3' : ''}
         `}
       >
-        <div className="p-3 space-y-2 flex-shrink-0">
+        {/* 整個面板一起往下捲（不再只有規劃區塊自己捲），字也放大一級，方便閱讀 */}
+        <div className="p-3 space-y-2.5">
           <PlaceSearch map={mapInstance} routes={routes} embedded />
 
           <div className="flex items-center gap-2">
@@ -1092,7 +1083,7 @@ export default function MapView({
               type="button"
               onClick={handleLocate}
               disabled={locating}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold border transition-colors
                 ${locating ? 'animate-pulse text-sky-400 border-sky-100' : 'text-sky-700 border-sky-200 hover:bg-sky-50'}`}
               title={t('map.control.locateButtonTitle')}
             >
@@ -1104,7 +1095,7 @@ export default function MapView({
               onClick={() => planner.setOpen(!planner.open)}
               aria-expanded={planner.open}
               aria-controls="route-planner"
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-colors
                 ${planner.open ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-teal-700 text-white hover:bg-teal-800'}`}
             >
               🧭 {t('route.open')}
@@ -1113,7 +1104,7 @@ export default function MapView({
           </div>
 
           {locateError && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs text-slate-700 leading-relaxed">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm text-slate-700 leading-relaxed">
               <button
                 type="button"
                 onClick={() => setLocateError(null)}
@@ -1129,11 +1120,10 @@ export default function MapView({
             <SkyBar sky={sky} />
             <SkyHint
               sky={sky}
-              layers={{ arcades: showArcades, waterlog: showWaterlog, lamps: showLamps, shade: showShadeMap }}
+              layers={{ arcades: showArcades, waterlog: showWaterlog, shade: showShadeMap }}
               enable={(l) => {
                 if (l.arcades) setShowArcades(true);
                 if (l.waterlog) setShowWaterlog(true);
-                if (l.lamps) setShowLamps(true);
                 if (l.shade) setShowShadeMap(true);
               }}
             />
@@ -1141,7 +1131,7 @@ export default function MapView({
         </div>
 
         {planner.open && (
-          <div className="flex-1 min-h-0 overflow-y-auto border-t border-sky-100 p-3">
+          <div className="border-t border-sky-100 p-3">
             <RoutePlannerPanel
               planner={planner}
               map={mapInstance}

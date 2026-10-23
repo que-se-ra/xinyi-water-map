@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { GeoJSON, CircleMarker, LayerGroup, useMap, useMapEvents } from 'react-leaflet';
+import { useEffect, useRef, useState } from 'react';
+import { GeoJSON } from 'react-leaflet';
 import { useT, useLocale } from '@/i18n/LocaleProvider';
 
-// 全市氣候韌性圖層：騎樓整平路段、路燈、短延時強降雨積水模擬。
+// 全市氣候韌性圖層：騎樓整平路段、短延時強降雨積水模擬。
+// （路燈圖層 2026-10-23 依使用者決定移除。）
 // 資料由 src/scripts/process_city_layers.py 從臺北市開放資料轉出，放在 public/data/city/。
-// 三層都是打開開關才下載，不影響地圖首次載入速度。
+// 兩層都是打開開關才下載，不影響地圖首次載入速度。
 
 const DATA = '/data/city';
 
@@ -20,9 +21,6 @@ export const WATERLOG_DEPTHS = [
 const DEPTH_COLOR = Object.fromEntries(WATERLOG_DEPTHS.map((d) => [d.key, d.color]));
 
 export const WATERLOG_SCENARIOS = ['788', '100', '130'];
-
-// 路燈只在這個級數以上載入，城市全區有 14 萬盞，縮小時畫出來只是一片黃點
-export const LAMP_MIN_ZOOM = 16;
 
 const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,80 +82,6 @@ function ArcadesLayer() {
   );
 }
 
-// 路燈：依畫面範圍載入 0.01° 方格檔，只畫畫面內的點
-function LampsLayer({ night, onStatus }) {
-  const map = useMap();
-  const [index, setIndex] = useState(null);
-  const [view, setView] = useState(() => ({ zoom: map.getZoom(), bounds: map.getBounds() }));
-  const [cells, setCells] = useState({});
-  const loading = useRef(new Set());
-
-  useMapEvents({
-    moveend: () => setView({ zoom: map.getZoom(), bounds: map.getBounds() }),
-  });
-
-  useEffect(() => {
-    fetch(`${DATA}/lamps/index.json`)
-      .then((r) => r.json())
-      .then((list) => setIndex(new Set(list)))
-      .catch((e) => console.error('路燈索引載入失敗', e));
-  }, []);
-
-  const wanted = useMemo(() => {
-    if (!index || view.zoom < LAMP_MIN_ZOOM) return [];
-    const b = view.bounds;
-    const keys = [];
-    for (let la = Math.floor(b.getSouth() * 100); la <= Math.floor(b.getNorth() * 100); la++) {
-      for (let lo = Math.floor(b.getWest() * 100); lo <= Math.floor(b.getEast() * 100); lo++) {
-        const k = `${la}_${lo}`;
-        if (index.has(k)) keys.push(k);
-      }
-    }
-    return keys;
-  }, [index, view]);
-
-  useEffect(() => {
-    wanted.forEach((k) => {
-      if (cells[k] || loading.current.has(k)) return;
-      loading.current.add(k);
-      fetch(`${DATA}/lamps/${k}.json`)
-        .then((r) => r.json())
-        .then((pts) => setCells((c) => ({ ...c, [k]: pts })))
-        .catch((e) => console.error('路燈資料載入失敗', k, e))
-        .finally(() => loading.current.delete(k));
-    });
-  }, [wanted, cells]);
-
-  const visible = useMemo(() => {
-    if (view.zoom < LAMP_MIN_ZOOM) return [];
-    const b = view.bounds.pad(0.1);
-    const out = [];
-    wanted.forEach((k) => (cells[k] || []).forEach((p) => b.contains(p) && out.push(p)));
-    return out;
-  }, [wanted, cells, view]);
-
-  useEffect(() => {
-    onStatus?.(view.zoom < LAMP_MIN_ZOOM ? { zoomedOut: true } : { count: visible.length });
-  }, [visible.length, view.zoom, onStatus]);
-
-  return (
-    <LayerGroup>
-      {visible.map((p) => (
-        <CircleMarker
-          key={`${p[0]},${p[1]}`}
-          center={p}
-          radius={night ? 4 : 2.5}
-          pathOptions={
-            night
-              ? { stroke: false, fillColor: '#fde68a', fillOpacity: 0.9, interactive: false }
-              : { color: '#a16207', weight: 0.8, fillColor: '#facc15', fillOpacity: 0.85, interactive: false }
-          }
-        />
-      ))}
-    </LayerGroup>
-  );
-}
-
 function WaterlogLayer({ scenario, onLoading }) {
   const data = useJson(`${DATA}/waterlog_${scenario}.json`, true);
   useEffect(() => {
@@ -178,12 +102,11 @@ function WaterlogLayer({ scenario, onLoading }) {
   );
 }
 
-export default function CityLayers({ showArcades, showLamps, showWaterlog, waterlogScenario, night, onLampStatus, onWaterlogLoading }) {
+export default function CityLayers({ showArcades, showWaterlog, waterlogScenario, onWaterlogLoading }) {
   return (
     <>
       {showWaterlog && <WaterlogLayer scenario={waterlogScenario} onLoading={onWaterlogLoading} />}
       {showArcades && <ArcadesLayer />}
-      {showLamps && <LampsLayer night={night} onStatus={onLampStatus} />}
     </>
   );
 }

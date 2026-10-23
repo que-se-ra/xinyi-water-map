@@ -89,63 +89,6 @@ body {
     contrast(0.95);
 }
 
-/* ── 夜間模式：同一組底圖反相成「夜色水岸」深藍，不另外下載夜間圖磚 ── */
-.map-night .leaflet-container {
-  background: #0b1626 !important;
-}
-.map-night .map-tiles-tinted,
-.map-night .map-tiles-tinted.basemap-en {
-  filter:
-    grayscale(1)
-    invert(1)
-    brightness(0.78)
-    contrast(1.05)
-    sepia(0.35)
-    hue-rotate(175deg)
-    saturate(1.6);
-}
-/* 古地圖、衛星影像等疊圖在夜間調暗，不要比底圖還亮 */
-.map-night .leaflet-tile-pane .leaflet-layer:not(:first-child) {
-  filter: brightness(0.7) saturate(0.85);
-}
-.map-night .leaflet-control-attribution {
-  background: rgba(11, 22, 38, 0.75) !important;
-  color: #94a3b8;
-}
-.map-night .leaflet-control-attribution a {
-  color: #bae6fd;
-}
-
-/* ── 雨天：在地圖上蒙一層斜斜落下的雨幕（不擋點擊，減少動態偏好時靜止） ── */
-.rain-veil {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 450; /* 圖層之上、Leaflet 控制項與面板之下 */
-  background-image:
-    repeating-linear-gradient(105deg, rgba(186, 214, 236, 0) 0 22px, rgba(186, 214, 236, 0.09) 22px 23px),
-    repeating-linear-gradient(105deg, rgba(148, 184, 214, 0) 0 47px, rgba(148, 184, 214, 0.07) 47px 48px);
-  background-size: 120px 120px, 240px 240px;
-  animation: rain-fall 0.9s linear infinite;
-  mix-blend-mode: multiply;
-}
-.rain-veil::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(100, 130, 160, 0.08);
-}
-.map-night .rain-veil {
-  mix-blend-mode: screen;
-}
-@keyframes rain-fall {
-  from { background-position: 0 0, 0 0; }
-  to { background-position: -30px 120px, -60px 240px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rain-veil { animation: none; }
-}
-
 /* Water features background */
 .leaflet-container {
   background: #eef5f9 !important;

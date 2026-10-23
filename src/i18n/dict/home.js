@@ -8,7 +8,7 @@ const home = {
   'tour.welcome.title': { zh: '歡迎使用「信水義河」互動地圖！', en: 'Welcome to the "信水義河" (Waters of Xinyi) interactive map!' },
   'tour.welcome.body': { zh: '這是一個專為信義社大水文導覽設計的互動地圖。您可以在此處探索信義區的水道軌跡與環境變遷。', en: 'This interactive map was created for hydrology-themed guided walks run by Xinyi Community College. Explore the traces of historic watercourses and environmental change across Xinyi District here.' },
   'tour.sidebar.title': { zh: '🔍 找地點與路線', en: '🔍 Places and routes' },
-  'tour.sidebar.body': { zh: '左側面板可以搜尋地點與站點、定位到您的位置、查看今天的日出日落與天氣，並用「涼徑規劃」找一條遮蔭、遮雨或照明比較好的步行路線。', en: 'The panel on the left lets you search for places and stops, find your location, check today\'s sunrise, sunset and weather, and use Comfort route to find a walk with more shade, shelter or light.' },
+  'tour.sidebar.body': { zh: '左側面板可以搜尋地點與站點、定位到您的位置、查看今天的日出日落與天氣，並用「遮蔭路線規劃」找一條遮蔭或可以躲雨的步行路線。', en: 'The panel on the left lets you search for places and stops, find your location, check today\'s sunrise, sunset and weather, and use Shade route to find a walk with more shade or shelter from rain.' },
   'tour.layerPanel.title': { zh: '📍 圖層控制面板', en: '📍 Layer control panel' },
   'tour.layerPanel.body': { zh: '地圖右上角有一個圖層控制面板（☰ 按鈕），點擊展開後可以看到所有可用的圖層。引導將自動為您展開面板！', en: 'The layer control panel is in the top-right corner of the map (the ☰ button). Tap it to see all available layers — the tour will open the panel for you automatically.' },
   'tour.routes.title': { zh: '🚶 水文導覽路線', en: '🚶 Guided hydrology routes' },
