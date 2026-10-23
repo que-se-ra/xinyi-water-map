@@ -6,8 +6,6 @@
 //   - 中文版用 EMAP01（灰階），英文版用 EMAP8（英文標註）。EMAP8 是彩色的，
 //     由 CSS（.basemap-en）轉成和中文版接近的淡灰色調。
 //   - 圖磚伺服器有開 CORS，最大到第 19 級以上（實測 20 級仍有圖）。
-//   - 夜間模式不另外載入一組底圖，而是在同一組圖磚上用 CSS 濾鏡反相成深色
-//     （見 globals.css 的 .basemap-night），切換時不必重新下載圖磚。
 //
 // 服務說明：https://maps.nlsc.gov.tw/S09SOA/homePage.action
 // 舊的 CARTO 設定在 git 歷史（v1.22.4 之前的本檔）。

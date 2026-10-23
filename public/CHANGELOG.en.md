@@ -1,5 +1,12 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.25.1] - 2026-10-23 - 🧹 - UPDATE - "Shade Route" Rename; Street Lights, Map Rain and Night Mode Removed; Larger Left-Panel Text
+1. **Comfort route is now "Shade route"**: the button, panel text and guided tour are updated.
+2. **Street lights removed**: the street light layer, the route planner's light scenario and the "show street lights" suggestion after dark are gone, and the street light data (about 3.4 MB) is deleted. Route planning now offers two scenarios, shade and shelter from rain.
+3. **The whole left panel scrolls, with larger text**: search, location, the weather strip and the route form now scroll together in one column rather than the form scrolling on its own. The panel is wider and the form, notes and results use larger text.
+4. **No more rain on the map, and no weather preview**: live rain no longer lays a veil over the map, so historical maps stay easy to read, and the manual dry/rain preview is gone. Live rainfall still appears in the strip and still sets the planner's default scenario (shelter when it rains) and the layer suggestions.
+5. **Night mode removed**: the map no longer turns dark after sunset and historical maps are no longer dimmed. The strip now simply shows sunrise, sunset, temperature, feels-like temperature and rainfall, with no settings to open.
+
 ## [v1.25.0] - 2026-10-23 - 🧭 - UI - New Layout: Finding on the Left, Layers on the Right
 1. **The far-left navigation bar is gone**: Map, Layer guide, Feedback, History, Changelog and Text size have moved into a ☰ Menu at the top right, together with the How to use tour and the privacy notice, giving the map more room.
 2. **A "places and routes" panel on the left**: place search, 📍 My location, the 🧭 Comfort route switch and the sunrise, sunset and weather strip (tap it to change the day/night and weather modes), in that order; opening Comfort route extends the panel to full height. It starts open on computers and collapsed on phones, showing just the search box and buttons.

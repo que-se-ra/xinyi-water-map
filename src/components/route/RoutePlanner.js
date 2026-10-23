@@ -1,6 +1,6 @@
 'use client';
 
-// 涼徑規劃：輸入起點、終點，依情境（找樹蔭／躲雨／走亮路）與偏好（近一點／剛剛好／舒服一點）
+// 遮蔭路線規劃：輸入起點、終點，依情境（找樹蔭／躲雨）與偏好（近一點／剛剛好／舒服一點）
 // 找一條比較舒服的步行路線，並和最短路線並排比較。
 // 和本站其他資料整合：結果會列出沿途 80 公尺內的導覽站點，並可以直接替這條路打熱舒適分數。
 
@@ -17,7 +17,6 @@ const NEAR_STATION_M = 80;
 const RAMP = {
   shade: ['#f97316', '#facc15', '#84cc16', '#15803d'],
   cover: ['#f97316', '#facc15', '#38bdf8', '#1d4ed8'],
-  lit: ['#64748b', '#a8a29e', '#fcd34d', '#f59e0b'],
 };
 const colorFor = (metric, pct) => RAMP[metric][Math.min(3, Math.floor(pct / 25))];
 
@@ -41,9 +40,7 @@ function haversine(a, b) {
 }
 
 function defaultScenario(sky) {
-  if (sky.isRainy) return 'rain';
-  if (sky.isNight) return 'night';
-  return 'shade';
+  return sky.isRainy ? 'rain' : 'shade';
 }
 
 const fmtTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -64,7 +61,7 @@ export function useRoutePlanner(sky) {
   const [status, setStatus] = useState('idle'); // idle | loading | done | error
   const [error, setError] = useState(null);
 
-  // 使用者還沒自己選情境時，跟著天色走（下雨→躲雨、天黑→走亮路）
+  // 使用者還沒自己選情境時，跟著天氣走（下雨→躲雨）
   const autoScenario = defaultScenario(sky);
   const effectiveScenario = scenarioTouched ? scenario : autoScenario;
 
@@ -157,9 +154,9 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
 
   return (
     <div className="space-y-1">
-      <p className="text-[11px] font-semibold text-slate-500">{label}</p>
+      <p className="text-sm font-semibold text-slate-500">{label}</p>
       {value ? (
-        <div className="flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-xl px-3 py-2 text-xs text-slate-700">
+        <div className="flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-xl px-3 py-2 text-sm text-slate-700">
           <span className="flex-1 truncate">{value.name}</span>
           <button type="button" onClick={() => onChange(null)} className="text-slate-400 hover:text-slate-600" aria-label={t('route.clear')}>
             ✕
@@ -172,9 +169,9 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t('route.searchPlaceholder')}
-              className="flex-1 min-w-0 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-sky-400"
+              className="flex-1 min-w-0 text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-sky-400"
             />
-            <button type="submit" className="px-2.5 rounded-xl bg-slate-100 text-xs text-slate-600 hover:bg-slate-200">
+            <button type="submit" className="px-2.5 rounded-xl bg-slate-100 text-sm text-slate-600 hover:bg-slate-200">
               {loading ? '…' : t('route.search')}
             </button>
           </form>
@@ -182,7 +179,7 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
             <button
               type="button"
               onClick={onPick}
-              className={`text-[11px] px-2 py-1 rounded-lg border ${picking ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              className={`text-sm px-2 py-1 rounded-lg border ${picking ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
             >
               🗺️ {picking ? t('route.picking') : t('route.pickOnMap')}
             </button>
@@ -190,7 +187,7 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
           </div>
           {results && (
             <ul className="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-40 overflow-y-auto">
-              {results.length === 0 && <li className="px-3 py-2 text-[11px] text-slate-400">{t('route.noResult')}</li>}
+              {results.length === 0 && <li className="px-3 py-2 text-sm text-slate-400">{t('route.noResult')}</li>}
               {results.map((r, i) => (
                 <li key={i}>
                   <button
@@ -202,11 +199,11 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
                     }}
                     className="w-full text-left px-3 py-1.5 hover:bg-sky-50"
                   >
-                    <span className="block text-xs text-slate-700">
-                      {r.kind === 'station' && <span className="mr-1 text-[10px] text-sky-700">{t('route.stationTag')}</span>}
+                    <span className="block text-sm text-slate-700">
+                      {r.kind === 'station' && <span className="mr-1 text-xs text-sky-700">{t('route.stationTag')}</span>}
                       {r.name}
                     </span>
-                    {r.detail && <span className="block text-[10px] text-slate-400 truncate">{r.detail}</span>}
+                    {r.detail && <span className="block text-xs text-slate-400 truncate">{r.detail}</span>}
                   </button>
                 </li>
               ))}
@@ -220,7 +217,7 @@ function PlaceField({ label, value, onChange, onPick, picking, map, routes, extr
 
 function Chips({ value, onChange, options, label }) {
   return (
-    <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-1">
+    <div role="radiogroup" aria-label={label} className="grid gap-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -228,7 +225,7 @@ function Chips({ value, onChange, options, label }) {
           role="radio"
           aria-checked={value === v}
           onClick={() => onChange(v)}
-          className={`text-[11px] py-1.5 rounded-xl border transition-colors ${
+          className={`text-sm py-1.5 rounded-xl border transition-colors ${
             value === v ? 'bg-teal-700 text-white border-teal-700 font-bold' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -277,7 +274,7 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
         const wide = map.getContainer().clientWidth >= 640;
         map.fitBounds(L.latLngBounds([...r.best.coords, ...r.shortest.coords]), {
           maxZoom: 17,
-          paddingTopLeft: wide ? [360, 60] : [20, 60],
+          paddingTopLeft: wide ? [410, 60] : [20, 60],
           paddingBottomRight: [40, 40],
         });
       }
@@ -312,7 +309,7 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 bg-teal-700 text-white shadow-lg rounded-2xl px-3.5 py-2.5 text-xs font-bold hover:bg-teal-800"
+        className="flex items-center gap-1.5 bg-teal-700 text-white shadow-lg rounded-2xl px-3.5 py-2.5 text-sm font-bold hover:bg-teal-800"
       >
         🧭 {t('route.open')}
       </button>
@@ -336,9 +333,9 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          {/* 嵌在左欄時，上方已有「🧭 涼徑規劃」按鈕，不重複標題 */}
+          {/* 嵌在左欄時，上方已有「🧭 遮蔭路線規劃」按鈕，不重複標題 */}
           {!embedded && <p className="text-sm font-bold">🧭 {t('route.title')}</p>}
-          <p className="text-[10px] text-slate-400 leading-snug">{t('route.subtitle')}</p>
+          <p className="text-xs text-slate-400 leading-snug">{t('route.subtitle')}</p>
         </div>
         {!embedded && (
           <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 px-1" aria-label={t('route.close')}>
@@ -360,7 +357,7 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
             <button
               type="button"
               onClick={() => setStart({ lat: userPos[0], lng: userPos[1], name: t('route.myLocation') })}
-              className="text-[11px] px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+              className="text-sm px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
             >
               📍 {t('route.myLocation')}
             </button>
@@ -383,14 +380,14 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
             setStart(end);
             setEnd(start);
           }}
-          className="text-[11px] text-sky-700 hover:underline"
+          className="text-sm text-sky-700 hover:underline"
         >
           ⇅ {t('route.swap')}
         </button>
       )}
 
       <div className="space-y-1">
-        <p className="text-[11px] font-semibold text-slate-500">{t('route.scenario')}</p>
+        <p className="text-sm font-semibold text-slate-500">{t('route.scenario')}</p>
         <Chips
           label={t('route.scenario')}
           value={scenario}
@@ -400,7 +397,7 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
       </div>
 
       <div className="space-y-1">
-        <p className="text-[11px] font-semibold text-slate-500">{t('route.preference')}</p>
+        <p className="text-sm font-semibold text-slate-500">{t('route.preference')}</p>
         <Chips
           label={t('route.preference')}
           value={preference}
@@ -411,17 +408,17 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
 
       <div className="flex items-center gap-3 flex-wrap">
         {scenario === 'shade' && (
-          <label className="flex items-center gap-1.5 text-[11px] text-slate-500">
+          <label className="flex items-center gap-1.5 text-sm text-slate-500">
             🕒 {t('route.time')}
             <input
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="text-xs px-2 py-1 rounded-lg border border-slate-200"
+              className="text-sm px-2 py-1 rounded-lg border border-slate-200"
             />
           </label>
         )}
-        <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+        <label className="flex items-center gap-1.5 text-sm text-slate-500 cursor-pointer">
           <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="accent-teal-700" />
           {t('route.compare')}
         </label>
@@ -437,30 +434,30 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
       </button>
 
       {status === 'error' && (
-        <p className="text-[11px] text-rose-600 bg-rose-50 rounded-xl px-3 py-2">{t(`route.error.${error}`) || t('route.error.unknown')}</p>
+        <p className="text-sm text-rose-600 bg-rose-50 rounded-xl px-3 py-2">{t(`route.error.${error}`) || t('route.error.unknown')}</p>
       )}
 
       {b && (
         <div className="space-y-2">
           <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3">
-            <p className="text-[11px] font-bold text-teal-800">{t('route.recommended')}</p>
+            <p className="text-sm font-bold text-teal-800">{t('route.recommended')}</p>
             <div className="grid grid-cols-3 gap-2 mt-1 tabular-nums">
               <div>
                 <p className="text-lg font-black text-slate-800">{(b.lengthM / 1000).toFixed(2)}</p>
-                <p className="text-[10px] text-slate-500">{t('route.km')}</p>
+                <p className="text-xs text-slate-500">{t('route.km')}</p>
               </div>
               <div>
                 <p className="text-lg font-black text-slate-800">{Math.round(b.minutes)}</p>
-                <p className="text-[10px] text-slate-500">{t('route.minutes')}</p>
+                <p className="text-xs text-slate-500">{t('route.minutes')}</p>
               </div>
               <div>
                 <p className="text-lg font-black text-teal-700">{Math.round(b.metricPct)}%</p>
-                <p className="text-[10px] text-slate-500">{metricLabel}</p>
+                <p className="text-xs text-slate-500">{metricLabel}</p>
               </div>
             </div>
           </div>
           {compare && (
-            <div className="rounded-xl border border-dashed border-slate-300 p-3 text-[11px] text-slate-600 tabular-nums">
+            <div className="rounded-xl border border-dashed border-slate-300 p-3 text-sm text-slate-600 tabular-nums">
               <p className="font-bold text-slate-500">{t('route.shortest')}</p>
               <p>
                 {(s.lengthM / 1000).toFixed(2)} {t('route.km')} · {Math.round(s.minutes)} {t('route.minutes')} · {metricLabel}{' '}
@@ -478,7 +475,7 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
               </p>
             </div>
           )}
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>{t('route.legendLow')}</span>
             {RAMP[result.metric].map((c) => (
               <span key={c} className="inline-block w-5 h-1.5 rounded" style={{ background: c }} />
@@ -487,8 +484,8 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
           </div>
           {nearby.length > 0 && (
             <div className="rounded-xl bg-sky-50 p-3">
-              <p className="text-[11px] font-bold text-sky-800">{t('route.nearbyStations')}</p>
-              <ul className="mt-1 space-y-0.5 text-[11px] text-slate-600">
+              <p className="text-sm font-bold text-sky-800">{t('route.nearbyStations')}</p>
+              <ul className="mt-1 space-y-0.5 text-sm text-slate-600">
                 {nearby.map((n) => (
                   <li key={n.name}>
                     · {n.name}
@@ -502,12 +499,12 @@ export function RoutePlannerPanel({ planner, map, routes, userPos, onRateRoute, 
             <button
               type="button"
               onClick={onRateRoute}
-              className="w-full py-2 rounded-xl border border-orange-200 text-orange-700 text-xs font-bold hover:bg-orange-50"
+              className="w-full py-2 rounded-xl border border-orange-200 text-orange-700 text-sm font-bold hover:bg-orange-50"
             >
               🌡️ {t('route.rateAfterWalk')}
             </button>
           )}
-          <p className="text-[9px] text-slate-400 leading-relaxed">{t(`route.note.${result.metric}`, { built: result.builtAt })}</p>
+          <p className="text-[11px] text-slate-400 leading-relaxed">{t(`route.note.${result.metric}`, { built: result.builtAt })}</p>
         </div>
       )}
     </div>
