@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.26.1] - 2026-10-24 - 🎨 - AESTHETICS - Songshan Rating Markers Use Each Route's Own Colour
+1. **No more blanket orange**: the wide edging on rated stretches, the rings on rated stops and the ①–⑤ badges now use each route's own colour — blue for Route 1 and orange for Route 2 — to match the route itself.
+
 ## [v1.26.0] - 2026-10-24 - 🌡️ - FEATURE - Songshan Routes Now Have Five Thermal Comfort Rating Spots, and Corner Nodes
 1. **Five rating units**: thermal comfort ratings on both Songshan routes are no longer split stop by stop. Both routes now share five units: ① Xinren Village Farm (a spot), ② Baroque Garden (a spot), ③ Sweetgum Avenue (a stretch), ④ Creative Street (a stretch) and ⑤ Songshan Hub Visitor Centre (a spot). Spots are rated in the stop's window; stretches are rated by tapping the thicker, orange-outlined part of the route. Orange ①–⑤ badges mark them on the map, and the rating form names what is being rated.
 2. **Corner nodes**: every corner of the routes now has a small white node, so it is clear where the route turns.
