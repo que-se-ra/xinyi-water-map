@@ -22,7 +22,8 @@ export const FACTORS = [
   { id: 'comfort', label: '整體舒適度', labelKey: 'forms.route.factor.comfort' }
 ];
 
-export default function RouteFeedbackForm({ routeId, routeName, routeNameZh, segmentId }) {
+// unitLabel：評分對象的名稱（例如松菸的「楓香大道」「新仁里農園」），有給就顯示在標題下方
+export default function RouteFeedbackForm({ routeId, routeName, routeNameZh, segmentId, unitLabel }) {
   const t = useT();
   const { feedbackProjectId } = useProject();
   const map = useMap();
@@ -90,6 +91,9 @@ export default function RouteFeedbackForm({ routeId, routeName, routeNameZh, seg
     <div className="p-2 min-w-[280px]">
       <h3 className="font-bold text-lg text-blue-900 border-b pb-2 mb-3">
         {routeName} <span className="text-sm text-slate-500 font-normal ml-1">{t('forms.route.title.suffix')}</span>
+        {unitLabel && (
+          <span className="block mt-1 text-sm font-semibold text-orange-700">🌡️ {t('forms.route.unitPrefix')}{unitLabel}</span>
+        )}
       </h3>
 
       <div className="space-y-4 mb-4">

@@ -1,5 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.26.0] - 2026-10-24 - 🌡️ - FEATURE - Songshan Routes Now Have Five Thermal Comfort Rating Spots, and Corner Nodes
+1. **Five rating units**: thermal comfort ratings on both Songshan routes are no longer split stop by stop. Both routes now share five units: ① Xinren Village Farm (a spot), ② Baroque Garden (a spot), ③ Sweetgum Avenue (a stretch), ④ Creative Street (a stretch) and ⑤ Songshan Hub Visitor Centre (a spot). Spots are rated in the stop's window; stretches are rated by tapping the thicker, orange-outlined part of the route. Orange ①–⑤ badges mark them on the map, and the rating form names what is being rated.
+2. **Corner nodes**: every corner of the routes now has a small white node, so it is clear where the route turns.
+3. **Comfort view supported**: with the walking comfort view on, stretches ③ and ④ are coloured by their average score and the rings around spots ①, ② and ⑤ likewise, with the statistics one tap away. Ratings still go to the existing route comfort sheet, with segment IDs u1–u5. Rating by segment on other projects such as Waters of Xinyi is unchanged.
+
 ## [v1.25.2] - 2026-10-23 - ↔️ - UI - The Left Panel Can Be Hidden Completely
 1. **Hide the whole left panel**: the places-and-routes panel now has a handle (‹) on its right edge. Tap it and the whole panel slides off screen, leaving only a small handle (› 🔍) at the left edge so the map shows in full; tap again to bring it back. The 🧭 Shade route button still folds away just the route form, as before.
 
