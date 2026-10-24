@@ -90,8 +90,8 @@ function ZoomAwareMarker({ station, route, ratingUnit = null, unitNo = null, com
       center={[station.lat, station.lng]}
       radius={ratingUnit ? radius + 2 : radius}
       pathOptions={{
-        // 評分點用橘色外圈標出來；舒適度檢視時依平均分上色
-        color: ratingUnit ? (comfortMode && unitStats?.overall != null ? comfortColor(unitStats.overall) : '#f97316') : 'rgba(255,255,255,0.55)',
+        // 評分點用路線的深色外圈標出來（路線一藍、路線二橘）；舒適度檢視時依平均分上色
+        color: ratingUnit ? (comfortMode && unitStats?.overall != null ? comfortColor(unitStats.overall) : route.colorDark || route.color) : 'rgba(255,255,255,0.55)',
         weight: ratingUnit ? 3 : 1.5,
         fillColor: route.color,
         fillOpacity: 1,
@@ -99,7 +99,7 @@ function ZoomAwareMarker({ station, route, ratingUnit = null, unitNo = null, com
     >
       {ratingUnit && (
         <Tooltip permanent direction="right" offset={[radius + 4, 0]} className="rating-unit-label">
-          {CIRCLED[unitNo - 1] || unitNo}
+          <span className="rating-unit-badge" style={{ background: route.colorDark || route.color }}>{CIRCLED[unitNo - 1] || unitNo}</span>
         </Tooltip>
       )}
       <Popup maxWidth={420} minWidth={340} className="custom-popup">
@@ -144,9 +144,9 @@ function RouteSegment({ route, positions, segmentId, comfortData, unitLabel = nu
 
   return (
     <FeatureGroup>
-      {/* 評分路段：底下多一條橘色外框，和一般路段區分 */}
+      {/* 評分路段：底下多一條同路線顏色的淡色寬邊，和一般路段區分 */}
       {unitLabel && !comfortMode && (
-        <Polyline positions={positions} pathOptions={{ color: '#f97316', weight: 12, opacity: 0.55, interactive: false }} />
+        <Polyline positions={positions} pathOptions={{ color: route.color, weight: 14, opacity: 0.3, interactive: false }} />
       )}
       <Polyline
         positions={positions}
@@ -155,7 +155,7 @@ function RouteSegment({ route, positions, segmentId, comfortData, unitLabel = nu
       {unitLabel && (
         <CircleMarker center={midPt} radius={0} pathOptions={{ opacity: 0, fillOpacity: 0, interactive: false }}>
           <Tooltip permanent direction="top" offset={[0, -6]} className="rating-unit-label">
-            {CIRCLED[unitNo - 1] || unitNo}
+            <span className="rating-unit-badge" style={{ background: route.colorDark || route.color }}>{CIRCLED[unitNo - 1] || unitNo}</span>
           </Tooltip>
         </CircleMarker>
       )}

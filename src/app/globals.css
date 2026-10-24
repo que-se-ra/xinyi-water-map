@@ -377,9 +377,18 @@ body {
   color: rgba(2, 132, 199, 0.7) !important;
 }
 
-/* 路線上的熱舒適評分單位編號（①②③…，松菸專案） */
+/* 路線上的熱舒適評分單位編號（①②③…，松菸專案）。底色用各路線自己的深色，由元件以 inline style 帶入 */
 .leaflet-tooltip.rating-unit-label {
-  background: #f97316;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.leaflet-tooltip.rating-unit-label::before {
+  display: none;
+}
+.rating-unit-badge {
+  display: inline-block;
   color: #fff;
   border: 2px solid #fff;
   border-radius: 999px;
@@ -388,7 +397,4 @@ body {
   font-weight: 700;
   line-height: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-.leaflet-tooltip.rating-unit-label::before {
-  display: none;
 }
