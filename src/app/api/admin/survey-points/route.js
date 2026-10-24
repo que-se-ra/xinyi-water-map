@@ -1,3 +1,4 @@
+import { surveyTagFor } from '@/lib/survey-tags';
 import { NextResponse } from 'next/server';
 import SunCalc from 'suncalc';
 import {
@@ -77,7 +78,9 @@ export async function GET(request) {
       return NextResponse.json({ error: '試算表內容不是預期的 CSV 格式' }, { status: 502 });
     }
 
-    const points = extractPoints(parseCSV(csv));
+    // ?project=songshan 只分析松菸的回覆；沒帶參數＝信水義河（沒有專案標註的回覆，含舊資料）
+    const projectParam = url.searchParams.get('project');
+    const points = extractPoints(parseCSV(csv), { tag: surveyTagFor(projectParam) });
 
     // 2. 疊圖分析
     const { trees, greenIndex, zoneIndex } = await loadLayers(url.origin);

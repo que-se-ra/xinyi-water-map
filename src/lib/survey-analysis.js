@@ -16,6 +16,8 @@
  *      50 公尺尺度差距最大，因此預設同時輸出多個尺度供比對。
  */
 
+import { splitSurveyTag } from './survey-tags';
+
 export const M_PER_DEG_LAT = 111000;
 export const M_PER_DEG_LNG = 100500;
 
@@ -252,14 +254,20 @@ export const REASON_LABEL = Object.fromEntries(
 
 // ── 由試算表列組出點位 ─────────────────────────────────────────
 
-export function extractPoints(rows) {
+/**
+ * tag：只取這個專案標註的回覆（例如 '松菸'）；null（預設）＝只取沒有標註的回覆，也就是信水義河。
+ * 專案標註寫在地點答案的最前面（見 lib/survey-tags.js），三題地點任一題有標註就算那個專案。
+ */
+export function extractPoints(rows, { tag = null } = {}) {
   const body = rows.slice(1).filter((r) => r.length >= 8 && (r[0] || '').trim());
   const points = [];
   body.forEach((r, ri) => {
+    const rowTag = QUESTIONS.map((q) => splitSurveyTag((r[q.idx] || '').trim()).tag).find(Boolean) || null;
+    if (rowTag !== tag) return;
     const score = parseInt(r[2], 10) || null;
     const relation = (r[1] || '').trim();
     QUESTIONS.forEach((q) => {
-      const raw = (r[q.idx] || '').trim();
+      const raw = splitSurveyTag((r[q.idx] || '').trim()).text;
       if (!raw) return;
       const m = COORD_RE.exec(raw);
       const reasonText = q.kind === 'hot' ? (r[4] || '').trim() : q.kind === 'cool' ? (r[6] || '').trim() : '';

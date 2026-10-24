@@ -24,6 +24,13 @@ const survey = {
   'survey.landmark.houshanpi': { zh: '後山埤站', en: 'Houshanpi Stn' },
   'survey.landmark.liuzhangli': { zh: '六張犁站', en: 'Liuzhangli Stn' },
   'survey.landmark.wuxingSt': { zh: '吳興街', en: 'Wuxing Street' },
+  // 松山文創園區（松菸專案）的地標快跳；英文站名為暫譯，與 projects/songshan/routeData.en.js 一致
+  'survey.landmark.ssBaroque': { zh: '巴洛克花園', en: 'Baroque Garden' },
+  'survey.landmark.ssHub': { zh: '松山匯 遊客中心', en: 'Songshan Hub Visitor Centre' },
+  'survey.landmark.ssCreative': { zh: '文創大街', en: 'Creative Street' },
+  'survey.landmark.ssSweetgum': { zh: '楓香大道', en: 'Sweetgum Avenue' },
+  'survey.landmark.ssFarm': { zh: '新仁里農園', en: 'Xinren Village Farm' },
+  'survey.q1.visit': { zh: '參加活動或參觀', en: 'Attending an event or visiting' },
 
   // ── LocationQuestion 共用文字（Q3／Q5／Q7 共用同一顆元件）──
   'survey.location.step1': { zh: '① 先移動地圖到大概位置', en: '① First, move the map to roughly the right place' },
