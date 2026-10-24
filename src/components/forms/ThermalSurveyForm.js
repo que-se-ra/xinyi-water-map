@@ -7,6 +7,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { basemapProps } from '@/lib/basemap';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
+import { useProject } from '@/projects/ProjectProvider';
+import { surveyTagFor, withSurveyTag } from '@/lib/survey-tags';
 
 // ── Google Form 對接設定 ──
 // 表單：信義區「體感溫度」地圖：熱舒適經驗調查
@@ -30,6 +32,10 @@ const ENTRY = {
 // 送出值：一律維持中文，需與 Google 表單選項一字不差，不可翻譯（顯示標籤見 relationLabels）
 const RELATION_VALUES = ['居住', '工作', '就學', '經常經過', '研究場域'];
 
+// ── 問卷地圖設定 ──────────────────────────────────────────
+// 預設是信水義河（信義區）；其他專案可在專案設定的 survey 欄位覆寫
+// （中心、縮放、地標快跳、搜尋範圍、加在答案前的專案標註）。見 projects/songshan/index.js。
+
 // 信義區中心
 const XINYI_CENTER = [25.033, 121.565];
 
@@ -47,11 +53,19 @@ const LANDMARKS = [
 // 信義區大致範圍（viewbox：minLon,maxLat,maxLon,minLat），供搜尋優先命中區內結果
 const XINYI_VIEWBOX = '121.539,25.050,121.601,25.015';
 
-// Nominatim 地點搜尋：先限定信義區範圍，找不到再放寬至全台北重試
+const DEFAULT_SURVEY_MAP = { center: XINYI_CENTER, zoom: 15, landmarks: LANDMARKS, viewbox: XINYI_VIEWBOX };
+
+/** 目前專案的問卷地圖設定（沒有設定的欄位沿用信義預設） */
+function useSurveyMap() {
+  const project = useProject();
+  return { ...DEFAULT_SURVEY_MAP, ...(project.survey || {}) };
+}
+
+// Nominatim 地點搜尋：先限定專案範圍（預設信義區），找不到再放寬至全台北重試
 // （教訓：過度限縮的篩選會令正確結果全消失，必須有 fallback）
-async function searchXinyiPlace(q, lang = 'zh-TW') {
+async function searchXinyiPlace(q, lang = 'zh-TW', viewbox = XINYI_VIEWBOX) {
   const base = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=${lang}`;
-  let res = await fetch(`${base}&viewbox=${XINYI_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`);
+  let res = await fetch(`${base}&viewbox=${viewbox}&bounded=1&q=${encodeURIComponent(q)}`);
   let arr = res.ok ? await res.json() : [];
   if (!arr.length) {
     // 放寬重試時補上行政區。英文介面用英文地名，否則 OSM 對不上使用者輸入的英文查詢。
@@ -118,6 +132,7 @@ async function reverseGeocode(lat, lng, lang = 'zh-TW') {
  */
 function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordChange }) {
   const t = useT();
+  const surveyMap = useSurveyMap();
   const { locale } = useLocale();
   // Nominatim 的 accept-language：英文介面回英文地名，使用者才對得上自己看到的地圖
   const geoLang = locale === 'en' ? 'en' : 'zh-TW';
@@ -133,7 +148,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
     setSearching(true);
     setSearchMiss(false);
     try {
-      const hit = await searchXinyiPlace(q, geoLang);
+      const hit = await searchXinyiPlace(q, geoLang, surveyMap.viewbox);
       if (hit) {
         setFlyTarget({ lat: +hit.lat, lng: +hit.lon, zoom: 16, nonce: Date.now() });
       } else {
@@ -145,7 +160,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
     } finally {
       setSearching(false);
     }
-  }, [searchText, searching]);
+  }, [searchText, searching, geoLang, surveyMap.viewbox]);
 
   const handlePick = useCallback(
     async (latlng) => {
@@ -178,7 +193,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           {t('survey.location.step1')}<span className="text-slate-400 font-normal">{t('survey.location.step1Note')}</span>
         </p>
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-          {LANDMARKS.map((lm) => (
+          {surveyMap.landmarks.map((lm) => (
             <button
               key={lm.id}
               type="button"
@@ -218,8 +233,8 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
       </p>
       <div className="rounded-xl overflow-hidden border border-sky-100 relative" style={{ height: '230px' }}>
         <MapContainer
-          center={XINYI_CENTER}
-          zoom={15}
+          center={surveyMap.center}
+          zoom={surveyMap.zoom}
           scrollWheelZoom={false}
           attributionControl={false}
           style={{ height: '100%', width: '100%' }}
@@ -271,6 +286,11 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
 export default function ThermalSurveyForm() {
   const t = useT();
   const lp = useLocalePath();
+  const project = useProject();
+  // 非信義專案的回覆在地點答案前加上【標註】，後台才分得出是哪個專案（見 lib/survey-tags.js）
+  const surveyTag = surveyTagFor(project.id);
+  // 專案額外的「與這裡的關係」選項（表單上沒有，送出時以「其他」＋文字提交）
+  const extraRelations = project.survey?.extraRelations || [];
   const [relation, setRelation] = useState('');
   const [relationOther, setRelationOther] = useState('');
   const [comfort, setComfort] = useState('');
@@ -287,7 +307,7 @@ export default function ThermalSurveyForm() {
   const [errors, setErrors] = useState([]);
 
   const withCoord = (text, coord) =>
-    coord ? `${text.trim()}（${coord.lat}, ${coord.lng}）` : text.trim();
+    withSurveyTag(coord ? `${text.trim()}（${coord.lat}, ${coord.lng}）` : text.trim(), surveyTag);
 
   const validate = () => {
     const errs = [];
@@ -321,6 +341,10 @@ export default function ThermalSurveyForm() {
     if (relation === '__other__') {
       answers[ENTRY.relation] = '__other_option__';
       answers[ENTRY.relationOther] = relationOther.trim();
+    } else if (relation.startsWith('extra:')) {
+      // 專案額外選項：表單上沒有這個選項，以「其他」＋選項文字送出
+      answers[ENTRY.relation] = '__other_option__';
+      answers[ENTRY.relationOther] = relation.slice('extra:'.length);
     } else {
       answers[ENTRY.relation] = relation;
     }
@@ -398,7 +422,10 @@ export default function ThermalSurveyForm() {
           {t('survey.q1.label')}<span className="text-rose-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2">
-          {RELATION_VALUES.map((opt, i) => (
+          {[
+            ...RELATION_VALUES.map((opt, i) => [opt, relationLabels[i]]),
+            ...extraRelations.map((ex) => [`extra:${ex.value}`, t(ex.labelKey)]),
+          ].map(([opt, label]) => (
             <button
               key={opt}
               type="button"
@@ -409,7 +436,7 @@ export default function ThermalSurveyForm() {
                   : 'bg-sky-50/60 text-slate-600 border-sky-200 hover:bg-sky-100'
               }`}
             >
-              {relationLabels[i]}
+              {label}
             </button>
           ))}
           <button
