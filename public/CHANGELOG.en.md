@@ -1,5 +1,10 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.27.0] - 2026-10-24 - 📊 - FEATURE - Score Distribution Charts in the Walking Comfort View
+1. **Score distribution bar chart**: with the walking comfort view on, tapping any rated spot or stretch (including ordinary segments on Waters of Xinyi) now shows a "Score distribution" bar chart under the statistics — how many people gave each score from 1 to 5, coloured from red (1) to green (5). Buttons above it switch between shade, surface, sense of safety and overall comfort, with overall comfort shown first.
+2. **Statistics first for rated spots**: in the comfort view, the windows for rated spots and stretches put the name, statistics and chart at the top so they are visible straight away, with the rating form below.
+3. **The statistics API now returns distributions**: `/api/route-comfort-stats` adds a `dist` field to each segment (the number of 1–5 scores for each aspect), with the existing averages unchanged; the aggregation now lives in `src/lib/route-comfort.js`. Tested with 15 simulated participants × two routes × five rating units (150 ratings): distributions and averages match a manual count, and other projects' data and invalid scores are correctly left out.
+
 ## [v1.26.1] - 2026-10-24 - 🎨 - AESTHETICS - Songshan Rating Markers Use Each Route's Own Colour
 1. **No more blanket orange**: the wide edging on rated stretches, the rings on rated stops and the ①–⑤ badges now use each route's own colour — blue for Route 1 and orange for Route 2 — to match the route itself.
 

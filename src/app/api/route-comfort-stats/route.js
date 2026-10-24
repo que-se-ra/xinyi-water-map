@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { parseProjectParam, recordProjectId } from '@/lib/project-scope';
-
-const SCORE_KEYS = ['shade', 'surface', 'safety', 'comfort'];
+import { parseProjectParam } from '@/lib/project-scope';
+import { aggregateRouteComfort } from '@/lib/route-comfort';
 
 /**
  * GET - 路線舒適度統計
@@ -10,7 +9,7 @@ const SCORE_KEYS = ['shade', 'surface', 'safety', 'comfort'];
  * {
  *   stats: {
  *     "1": {
- *       "seg_1": { count, avg: { shade, surface, safety, comfort }, overall }
+ *       "seg_1": { count, avg: { shade, surface, safety, comfort }, overall, dist: { shade: [n1..n5], … } }
  *     }
  *   },
  *   total: 57
@@ -59,60 +58,8 @@ export async function GET(request) {
       return NextResponse.json({ stats: {}, total: 0 });
     }
 
-    // 聚合：route_id → segment_id → 累計各項分數
-    const acc = {};
-    let total = 0;
-
-    for (const row of records) {
-      if (project && recordProjectId(row) !== project) continue;
-      const routeId = String(row.route_id ?? '').trim();
-      const segmentId = String(row.segment_id ?? '').trim();
-      if (!routeId || !segmentId) continue;
-
-      const scores = {};
-      let valid = false;
-      for (const key of SCORE_KEYS) {
-        const n = parseFloat(row[`score_${key}`]);
-        if (!Number.isNaN(n) && n >= 1 && n <= 5) {
-          scores[key] = n;
-          valid = true;
-        }
-      }
-      if (!valid) continue;
-
-      acc[routeId] ??= {};
-      acc[routeId][segmentId] ??= { count: 0, sums: Object.fromEntries(SCORE_KEYS.map(k => [k, 0])), counts: Object.fromEntries(SCORE_KEYS.map(k => [k, 0])) };
-
-      const seg = acc[routeId][segmentId];
-      seg.count += 1;
-      total += 1;
-      for (const key of SCORE_KEYS) {
-        if (scores[key] !== undefined) {
-          seg.sums[key] += scores[key];
-          seg.counts[key] += 1;
-        }
-      }
-    }
-
-    // 轉為平均分輸出
-    const stats = {};
-    for (const [routeId, segments] of Object.entries(acc)) {
-      stats[routeId] = {};
-      for (const [segmentId, seg] of Object.entries(segments)) {
-        const avg = {};
-        const presentAvgs = [];
-        for (const key of SCORE_KEYS) {
-          if (seg.counts[key] > 0) {
-            avg[key] = Math.round((seg.sums[key] / seg.counts[key]) * 10) / 10;
-            presentAvgs.push(avg[key]);
-          }
-        }
-        const overall = presentAvgs.length
-          ? Math.round((presentAvgs.reduce((a, b) => a + b, 0) / presentAvgs.length) * 10) / 10
-          : null;
-        stats[routeId][segmentId] = { count: seg.count, avg, overall };
-      }
-    }
+    // 聚合：route_id → segment_id → 平均分與 1～5 分的人數分布（見 src/lib/route-comfort.js）
+    const { stats, total } = aggregateRouteComfort(records, project);
 
     return NextResponse.json({ stats, total });
   } catch (error) {

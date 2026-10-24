@@ -148,6 +148,7 @@ const layers = {
     zh: '整體平均',
     en: 'Overall average',
   },
+  'layers.route.distTitle': { zh: '評分分布', en: 'Score distribution' },
 
   // SatelliteLayer.js — SATELLITE_MAPS.label 只在本檔使用（已確認無其他 import 者讀取 .label），
   // 改為依 sm.id 查字典；description 欄位目前全庫無人讀取顯示，保留不動。
