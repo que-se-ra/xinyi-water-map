@@ -104,6 +104,9 @@ function ComfortStatsBlock({ stats }) {
         <span className="text-xs font-bold text-slate-700">{t('layers.route.statsTitle')}</span>
         <span className="text-[10px] text-slate-400">{t('layers.route.statsCount', { n: stats.count })}</span>
       </div>
+      {stats.routes > 1 && (
+        <p className="-mt-1 mb-1.5 text-[10px] text-sky-700">{t('layers.route.combinedNote', { n: stats.routes })}</p>
+      )}
       <div className="space-y-1">
         {FACTORS.map(f => {
           const v = stats.avg[f.id];

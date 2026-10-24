@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.27.1] - 2026-10-24 - ➕ - UPDATE - Songshan Ratings for the Same Spot Are Combined Across Both Routes
+1. **Both routes viewed together**: both Songshan routes rate the same five spots, so in the walking comfort view each spot (for example ① Xinren Village Farm) now shows Route 1 and Route 2 ratings added together — the averages, number of ratings and distribution are all combined, and each numbered spot is coloured the same on both routes. The window notes that two routes rating the same spot have been combined.
+2. **How it is calculated**: the number of people giving each score is added up and the averages are recalculated from the combined distribution. Tested with 15 simulated participants per route: ① Farm's overall comfort of 1, 2, 11, 1, 0 plus 2, 6, 6, 1, 0 gives 3, 8, 17, 2, 0 — 30 people with an average of 2.6, matching a manual count. The raw data in the sheet is unchanged and still recorded per route; projects whose routes are rated separately, such as Waters of Xinyi, are unaffected.
+
 ## [v1.27.0] - 2026-10-24 - 📊 - FEATURE - Score Distribution Charts in the Walking Comfort View
 1. **Score distribution bar chart**: with the walking comfort view on, tapping any rated spot or stretch (including ordinary segments on Waters of Xinyi) now shows a "Score distribution" bar chart under the statistics — how many people gave each score from 1 to 5, coloured from red (1) to green (5). Buttons above it switch between shade, surface, sense of safety and overall comfort, with overall comfort shown first.
 2. **Statistics first for rated spots**: in the comfort view, the windows for rated spots and stretches put the name, statistics and chart at the top so they are visible straight away, with the rating form below.

@@ -44,6 +44,7 @@ import CityLayersControl from './layers/CityLayersControl';
 import SkyBar from './layers/SkyBar';
 import SkyHint from './layers/SkyHint';
 import { useSky } from '@/lib/useSky';
+import { combineRatingUnits } from '@/lib/route-comfort';
 import { useRoutePlanner, RoutePlanLayer, RoutePlannerPanel } from './route/RoutePlanner';
 import { useT, useLocale } from '@/i18n/LocaleProvider';
 
@@ -293,6 +294,11 @@ export default function MapView({
   // 路線舒適度檢視模式
   const [showComfort, setShowComfort] = useState(dl.comfort);
   const [comfortStats, setComfortStats] = useState(null); // null=未載入, {}=載入失敗或無資料
+  // 各路線評同一組對象（ratingUnits）時，同一個對象的評分跨路線加總後再顯示
+  const combinedComfortStats = useMemo(
+    () => (comfortStats ? combineRatingUnits(comfortStats, routes) : comfortStats),
+    [comfortStats, routes]
+  );
   const [comfortLoading, setComfortLoading] = useState(false);
 
   const toggleComfortMode = () => {
@@ -450,7 +456,7 @@ export default function MapView({
               key={route.id}
               route={route}
               polylines={polylines[ri]}
-              comfortData={showComfort ? (comfortStats?.[String(route.id)] ?? {}) : null}
+              comfortData={showComfort ? (combinedComfortStats?.[String(route.id)] ?? {}) : null}
             />
           ) : null
         )}
