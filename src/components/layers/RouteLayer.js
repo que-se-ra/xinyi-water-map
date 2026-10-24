@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Polyline, CircleMarker, Popup, LayerGroup, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
+import { Polyline, CircleMarker, Popup, Tooltip, LayerGroup, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
 import PopupLightbox from './PopupLightbox';
 import RouteFeedbackForm, { FACTORS } from '../forms/RouteFeedbackForm';
 import StationPopupContent from './StationPopupContent';
@@ -70,7 +70,11 @@ function ComfortStatsBlock({ stats }) {
   );
 }
 
-function ZoomAwareMarker({ station, route }) {
+// 評分單位的編號：①②③…（照 ratingUnits 的順序）
+const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
+
+// ratingUnit：這個站本身是一個「點」評分單位時傳入，popup 裡會多一份評分表
+function ZoomAwareMarker({ station, route, ratingUnit = null, unitNo = null, comfortData = null }) {
   const map = useMap();
   const [radius, setRadius] = useState(() => markerRadius(map.getZoom()));
 
@@ -78,20 +82,41 @@ function ZoomAwareMarker({ station, route }) {
     zoomend: () => setRadius(markerRadius(map.getZoom())),
   });
 
+  const comfortMode = ratingUnit && comfortData != null;
+  const unitStats = comfortMode ? comfortData[ratingUnit.id] : undefined;
+
   return (
     <CircleMarker
       center={[station.lat, station.lng]}
-      radius={radius}
+      radius={ratingUnit ? radius + 2 : radius}
       pathOptions={{
-        color: 'rgba(255,255,255,0.55)',
-        weight: 1.5,
+        // 評分點用橘色外圈標出來；舒適度檢視時依平均分上色
+        color: ratingUnit ? (comfortMode && unitStats?.overall != null ? comfortColor(unitStats.overall) : '#f97316') : 'rgba(255,255,255,0.55)',
+        weight: ratingUnit ? 3 : 1.5,
         fillColor: route.color,
         fillOpacity: 1,
       }}
     >
+      {ratingUnit && (
+        <Tooltip permanent direction="right" offset={[radius + 4, 0]} className="rating-unit-label">
+          {CIRCLED[unitNo - 1] || unitNo}
+        </Tooltip>
+      )}
       <Popup maxWidth={420} minWidth={340} className="custom-popup">
         <PopupLightbox />
         <StationPopupContent station={station} routeColor={route.color} />
+        {ratingUnit && (
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            {comfortMode && <ComfortStatsBlock stats={unitStats} />}
+            <RouteFeedbackForm
+              routeId={route.id}
+              routeName={route.name}
+              routeNameZh={route.nameZh}
+              segmentId={ratingUnit.id}
+              unitLabel={`${CIRCLED[unitNo - 1] || unitNo} ${station.name}`}
+            />
+          </div>
+        )}
       </Popup>
     </CircleMarker>
   );
@@ -99,7 +124,8 @@ function ZoomAwareMarker({ station, route }) {
 
 // 單一路段：可見線 + 隱形點擊區 + 回饋 popup
 // comfortData 為 null 時是一般模式；為物件時進入舒適度檢視（依平均分上色，無資料顯示灰虛線）
-function RouteSegment({ route, positions, segmentId, comfortData }) {
+// unitLabel / unitNo：這段是「線」評分單位時傳入（加粗、常駐編號、表單標題顯示名稱）
+function RouteSegment({ route, positions, segmentId, comfortData, unitLabel = null, unitNo = null }) {
   const comfortMode = comfortData != null;
   const segStats = comfortMode ? comfortData[segmentId] : undefined;
 
@@ -109,14 +135,30 @@ function RouteSegment({ route, positions, segmentId, comfortData }) {
     ? (segStats?.overall != null
         ? { color: comfortColor(segStats.overall), weight: 5, opacity: 0.9, dashArray: null }
         : { color: '#94a3b8', weight: 4, opacity: 0.65, dashArray: '6 8' })
-    : { color: route.color, weight: 4, opacity: 0.75, dashArray: null };
+    : { color: route.color, weight: unitLabel ? 7 : 4, opacity: unitLabel ? 0.95 : 0.75, dashArray: null };
+
+  // 編號標在路段中間：兩點的線取中點，多點的線取中間那個點
+  const midPt = positions.length === 2
+    ? [(positions[0][0] + positions[1][0]) / 2, (positions[0][1] + positions[1][1]) / 2]
+    : positions[Math.floor(positions.length / 2)];
 
   return (
     <FeatureGroup>
+      {/* 評分路段：底下多一條橘色外框，和一般路段區分 */}
+      {unitLabel && !comfortMode && (
+        <Polyline positions={positions} pathOptions={{ color: '#f97316', weight: 12, opacity: 0.55, interactive: false }} />
+      )}
       <Polyline
         positions={positions}
         pathOptions={{ ...visibleOptions, interactive: false }}
       />
+      {unitLabel && (
+        <CircleMarker center={midPt} radius={0} pathOptions={{ opacity: 0, fillOpacity: 0, interactive: false }}>
+          <Tooltip permanent direction="top" offset={[0, -6]} className="rating-unit-label">
+            {CIRCLED[unitNo - 1] || unitNo}
+          </Tooltip>
+        </CircleMarker>
+      )}
       <Polyline
         positions={positions}
         pathOptions={{
@@ -133,6 +175,7 @@ function RouteSegment({ route, positions, segmentId, comfortData }) {
             routeName={route.name || `路線 ${route.id}`}
             routeNameZh={route.nameZh || `路線 ${route.id}`}
             segmentId={segmentId}
+            unitLabel={unitLabel}
           />
         </Popup>
       </Polyline>
@@ -144,6 +187,60 @@ export default function RouteLayer({ route, polylines, comfortData = null }) {
   const project = useProject();
   // 已畫出的折線清單（單一折線與多段兩種格式都統一成「折線陣列」）
   const lines = Array.isArray(polylines[0]) && Array.isArray(polylines[0][0]) ? polylines : [polylines];
+
+  // 有 ratingUnits 的路線（例如松菸）：評分改以指定的點與路段為單位，一般路段只畫線、不給評分
+  const units = route.ratingUnits || null;
+  if (units) {
+    const pointUnits = Object.fromEntries(
+      units.map((u, i) => [u, i + 1]).filter(([u]) => u.kind === 'point').map(([u, no]) => [u.station, { unit: u, no }])
+    );
+    const stationName = (sid) => route.stations.find((st) => st.id === sid)?.name || sid;
+    // 轉角節點：各路段 waypoints 的位置
+    const corners = (route.segments || []).flatMap((sg) => (sg.waypoints || []).map((w) => [w.lat, w.lng]));
+    return (
+      <LayerGroup>
+        {lines.map((pts, si) => (
+          <Polyline
+            key={`${route.id}-line-${si}`}
+            positions={pts}
+            pathOptions={{ color: route.color, weight: 4, opacity: comfortData != null ? 0.35 : 0.75, interactive: false }}
+          />
+        ))}
+        {units.map((u, i) =>
+          u.kind === 'line' ? (
+            <RouteSegment
+              key={`${route.id}-${u.id}`}
+              route={route}
+              positions={u.path}
+              segmentId={u.id}
+              comfortData={comfortData}
+              unitLabel={`${CIRCLED[i] || i + 1} ${stationName(u.station)}`}
+              unitNo={i + 1}
+            />
+          ) : null
+        )}
+        {project.ui?.routeArrows && <RouteArrows route={route} lines={lines} />}
+        {corners.map((c, i) => (
+          <CircleMarker
+            key={`${route.id}-corner-${i}`}
+            center={c}
+            radius={3.5}
+            pathOptions={{ color: route.color, weight: 2, fillColor: '#ffffff', fillOpacity: 1, interactive: false }}
+          />
+        ))}
+        {route.stations.map((station) => (
+          <ZoomAwareMarker
+            key={`${route.id}-${station.id}`}
+            station={station}
+            route={route}
+            ratingUnit={pointUnits[station.id]?.unit || null}
+            unitNo={pointUnits[station.id]?.no || null}
+            comfortData={comfortData}
+          />
+        ))}
+      </LayerGroup>
+    );
+  }
 
   return (
     <LayerGroup>

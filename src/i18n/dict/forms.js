@@ -342,6 +342,7 @@ const forms = {
     zh: '路線評分',
     en: '— rate this route',
   },
+  'forms.route.unitPrefix': { zh: '評分對象：', en: 'Rating: ' },
   'forms.route.alert.incomplete': {
     zh: '請為所有項目進行評分',
     en: 'Please rate every item',
