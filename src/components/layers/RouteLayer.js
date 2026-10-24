@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Polyline, CircleMarker, Popup, Tooltip, LayerGroup, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
 import PopupLightbox from './PopupLightbox';
-import RouteFeedbackForm, { FACTORS } from '../forms/RouteFeedbackForm';
+import RouteFeedbackForm, { FACTORS, SCORES } from '../forms/RouteFeedbackForm';
 import StationPopupContent from './StationPopupContent';
 import RouteArrows from './RouteArrows';
 import { useProject } from '@/projects/ProjectProvider';
@@ -29,6 +29,63 @@ export const COMFORT_SCALE = [
 
 function comfortColor(overall) {
   return COMFORT_SCALE.find(band => overall >= band.min).color;
+}
+
+// 評分分布圖：選一個面向，畫 1～5 分各有幾人的直條圖（顏色和舒適度色階一致：1 紅 → 5 綠）
+function ScoreDistribution({ dist, count }) {
+  const t = useT();
+  const [factor, setFactor] = useState('comfort');
+  const counts = dist?.[factor] || [0, 0, 0, 0, 0];
+  const n = counts.reduce((a, b) => a + b, 0);
+  const max = Math.max(1, ...counts);
+  return (
+    <div className="mt-2 pt-2 border-t border-slate-200">
+      <div className="flex items-baseline justify-between mb-1.5">
+        <span className="text-xs font-bold text-slate-700">{t('layers.route.distTitle')}</span>
+        <span className="text-[10px] text-slate-400">{t('layers.route.statsCount', { n: n || count })}</span>
+      </div>
+      <div className="flex flex-wrap gap-1 mb-2" role="tablist">
+        {FACTORS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={factor === f.id}
+            onClick={(e) => {
+              // 不要讓點擊冒泡到地圖，否則 Leaflet 會當成點地圖而關掉 popup
+              e.stopPropagation();
+              setFactor(f.id);
+            }}
+            className={`px-2 py-0.5 rounded-full text-[11px] border transition-colors ${
+              factor === f.id ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            {t(f.labelKey)}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-end gap-1.5 h-24" aria-label={t('layers.route.distTitle')}>
+        {counts.map((c, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+            <span className="text-[10px] font-mono text-slate-600 mb-0.5">{c}</span>
+            <div
+              className="w-full rounded-t"
+              style={{ height: `${(c / max) * 70}%`, minHeight: c ? 3 : 0, background: comfortColor(i + 1) }}
+              title={`${SCORES[i].emoji} ${i + 1}：${c}（${n ? Math.round((c / n) * 100) : 0}%）`}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-1.5 mt-1">
+        {SCORES.map((sc) => (
+          <span key={sc.value} className="flex-1 text-center text-[11px] leading-tight" title={t(sc.labelKey)}>
+            {sc.emoji}
+            <span className="block text-[9px] text-slate-400">{sc.value}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // popup 內的路段評分統計區塊（舒適度模式時顯示在表單上方）
@@ -66,6 +123,7 @@ function ComfortStatsBlock({ stats }) {
         <span className="text-slate-500">{t('layers.route.overallAverage')}</span>
         <span className="font-bold font-mono" style={{ color: comfortColor(stats.overall) }}>{stats.overall.toFixed(1)} / 5.0</span>
       </div>
+      {stats.dist && <ScoreDistribution dist={stats.dist} count={stats.count} />}
     </div>
   );
 }
@@ -104,10 +162,18 @@ function ZoomAwareMarker({ station, route, ratingUnit = null, unitNo = null, com
       )}
       <Popup maxWidth={420} minWidth={340} className="custom-popup">
         <PopupLightbox />
+        {/* 舒適度檢視時，評分統計與分布圖放在最上面，一打開就看得到 */}
+        {comfortMode && (
+          <div className="mb-3">
+            <p className="text-sm font-bold text-slate-800 mb-1.5">
+              {CIRCLED[unitNo - 1] || unitNo} {station.name}
+            </p>
+            <ComfortStatsBlock stats={unitStats} />
+          </div>
+        )}
         <StationPopupContent station={station} routeColor={route.color} />
         {ratingUnit && (
           <div className="mt-3 pt-3 border-t border-slate-200">
-            {comfortMode && <ComfortStatsBlock stats={unitStats} />}
             <RouteFeedbackForm
               routeId={route.id}
               routeName={route.name}
@@ -169,6 +235,8 @@ function RouteSegment({ route, positions, segmentId, comfortData, unitLabel = nu
         }}
       >
         <Popup className="feedback-popup" minWidth={300} maxWidth={400}>
+          {/* 評分路段在舒適度檢視時，名稱放最上面，和評分點的視窗一致 */}
+          {comfortMode && unitLabel && <p className="text-sm font-bold text-slate-800 mb-1.5">{unitLabel}</p>}
           {comfortMode && <ComfortStatsBlock stats={segStats} />}
           <RouteFeedbackForm
             routeId={route.id}
