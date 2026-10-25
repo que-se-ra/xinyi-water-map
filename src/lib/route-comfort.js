@@ -12,7 +12,7 @@
 
 import { recordProjectId } from './project-scope';
 
-export const SCORE_KEYS = ['shade', 'surface', 'safety', 'comfort'];
+export const SCORE_KEYS = ['shade', 'ventilation', 'surface', 'cooling', 'comfort'];
 
 export function aggregateRouteComfort(records, project = null) {
   const acc = {};

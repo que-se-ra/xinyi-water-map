@@ -113,7 +113,7 @@ function ComfortStatsBlock({ stats }) {
           if (v == null) return null;
           return (
             <div key={f.id} className="flex items-center gap-2 text-[11px] text-slate-600">
-              <span className="w-16 flex-shrink-0">{t(f.labelKey)}</span>
+              <span className="w-28 flex-shrink-0">{t(f.labelKey)}</span>
               <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${(v / 5) * 100}%`, background: comfortColor(v) }} />
               </div>

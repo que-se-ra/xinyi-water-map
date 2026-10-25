@@ -76,12 +76,12 @@ var COLUMNS = {
   ],
   route: [
     "timestamp", "route_id", "route_name", "segment_id",
-    "score_shade", "score_surface", "score_safety", "score_comfort",
+    "score_shade", "score_ventilation", "score_surface", "score_cooling", "score_comfort",
     "project_id"
   ],
   point: [
     "id", "timestamp", "lat", "lng",
-    "score_shade", "score_surface", "score_safety", "score_comfort",
+    "score_shade", "score_ventilation", "score_surface", "score_cooling", "score_comfort",
     "reason", "project_id"
   ]
 };
@@ -128,10 +128,11 @@ var COLUMN_LABELS = {
   route_id: "路線代號",
   route_name: "路線名稱",
   segment_id: "路段",
-  score_shade: "遮蔭（1–5）",
-  score_surface: "路面（1–5）",
-  score_safety: "安全感（1–5）",
-  score_comfort: "整體舒適（1–5）",
+  score_shade: "遮蔭程度（1–5）",
+  score_ventilation: "通風程度（1–5）",
+  score_surface: "鋪面涼爽度（1–5）",
+  score_cooling: "周遭環境降溫效果（1–5）",
+  score_comfort: "整體熱舒適（1–5）",
   reason: "舒適／不舒適的原因"
 };
 
@@ -149,7 +150,7 @@ var COLUMN_WIDTHS = {
 };
 var DEFAULT_WIDTH = 100;
 var WRAP_COLUMNS = ["description", "reason", "ai_summary", "tags"];
-var SCORE_COLUMNS = ["score_shade", "score_surface", "score_safety", "score_comfort"];
+var SCORE_COLUMNS = ["score_shade", "score_ventilation", "score_surface", "score_cooling", "score_comfort"];
 
 // 配色：沿用網站的淺藍、暖棕、米色
 var COLORS = {

@@ -376,11 +376,13 @@ const forms = {
     en: 'Submit feedback',
   },
 
-  // 路線評分四個面向（FACTORS，RouteLayer 與評分表單共用）
+  // 路線評分面向（FACTORS，RouteLayer 與評分表單共用）
   'forms.route.factor.shade': { zh: '遮蔭程度', en: 'Shade' },
-  'forms.route.factor.surface': { zh: '路面狀況', en: 'Surface' },
+  'forms.route.factor.ventilation': { zh: '通風程度', en: 'Ventilation' },
+  'forms.route.factor.surface': { zh: '鋪面涼爽度', en: 'Surface coolness' },
+  'forms.route.factor.cooling': { zh: '周遭環境降溫效果', en: 'Surrounding cooling effect' },
+  'forms.route.factor.comfort': { zh: '整體熱舒適', en: 'Overall thermal comfort' },
   'forms.route.factor.safety': { zh: '安全感', en: 'Safety' },
-  'forms.route.factor.comfort': { zh: '整體舒適度', en: 'Overall comfort' },
 
   // ── point: 地點熱舒適評分（PointComfortForm；量尺與面向沿用 forms.route.*） ──
   'forms.point.title': { zh: '🌡️ 這裡的熱舒適度', en: '🌡️ Thermal comfort here' },

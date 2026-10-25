@@ -37,7 +37,7 @@ export async function POST(request) {
     const lng = num(body.lng);
     const scores = body.scores || {};
     const validScore = (v) => Number.isInteger(v) && v >= 1 && v <= 5;
-    if (lat === null || lng === null || !['shade', 'surface', 'safety', 'comfort'].every((k) => validScore(scores[k]))) {
+    if (lat === null || lng === null || !['shade', 'ventilation', 'surface', 'cooling', 'comfort'].every((k) => validScore(scores[k]))) {
       return NextResponse.json({ error: 'Invalid rating payload' }, { status: 400 });
     }
 
@@ -53,7 +53,13 @@ export async function POST(request) {
       timestamp: new Date().toISOString(),
       lat,
       lng,
-      scores: { shade: scores.shade, surface: scores.surface, safety: scores.safety, comfort: scores.comfort },
+      scores: {
+        shade: scores.shade,
+        ventilation: scores.ventilation,
+        surface: scores.surface,
+        cooling: scores.cooling,
+        comfort: scores.comfort
+      },
       reason: typeof body.reason === 'string' ? body.reason.slice(0, 1000) : '',
     };
 

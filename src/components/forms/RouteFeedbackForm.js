@@ -12,14 +12,14 @@ export const SCORES = [
   { value: 5, labelKey: 'forms.route.score.veryGood', emoji: '😊' }
 ];
 
-// FACTORS 有 export，被 src/components/layers/RouteLayer.js 的 ComfortStatsBlock
-// FACTORS 同時被 RouteLayer.js 引用顯示。label 保留中文原值（若日後要落資料用得著），
-// 顯示一律走 labelKey，兩個檔案都改成 t(f.labelKey)，不會有兩種叫法。
+// FACTORS 同時被 RouteLayer.js 與 PointComfortForm.js 引用顯示。label 保留中文原值，
+// 顯示一律走 labelKey，各元件都走 t(f.labelKey)。
 export const FACTORS = [
   { id: 'shade', label: '遮蔭程度', labelKey: 'forms.route.factor.shade' },
-  { id: 'surface', label: '路面狀況', labelKey: 'forms.route.factor.surface' },
-  { id: 'safety', label: '安全感', labelKey: 'forms.route.factor.safety' },
-  { id: 'comfort', label: '整體舒適度', labelKey: 'forms.route.factor.comfort' }
+  { id: 'ventilation', label: '通風程度', labelKey: 'forms.route.factor.ventilation' },
+  { id: 'surface', label: '鋪面涼爽度', labelKey: 'forms.route.factor.surface' },
+  { id: 'cooling', label: '周遭環境降溫效果', labelKey: 'forms.route.factor.cooling' },
+  { id: 'comfort', label: '整體熱舒適', labelKey: 'forms.route.factor.comfort' }
 ];
 
 // unitLabel：評分對象的名稱（例如松菸的「楓香大道」「新仁里農園」），有給就顯示在標題下方

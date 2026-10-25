@@ -289,7 +289,8 @@ export default function ThermalSurveyForm() {
   const project = useProject();
   // 非信義專案的回覆在地點答案前加上【標註】，後台才分得出是哪個專案（見 lib/survey-tags.js）
   const surveyTag = surveyTagFor(project.id);
-  // 專案額外的「與這裡的關係」選項（表單上沒有，送出時以「其他」＋文字提交）
+  // 專案自訂的「與這裡的關係」選項；若專案有設定 relations 則完全取代預設選項，否則沿用預設＋extraRelations
+  const customRelations = project.survey?.relations;
   const extraRelations = project.survey?.extraRelations || [];
   const [relation, setRelation] = useState('');
   const [relationOther, setRelationOther] = useState('');
@@ -345,8 +346,12 @@ export default function ThermalSurveyForm() {
       // 專案額外選項：表單上沒有這個選項，以「其他」＋選項文字送出
       answers[ENTRY.relation] = '__other_option__';
       answers[ENTRY.relationOther] = relation.slice('extra:'.length);
-    } else {
+    } else if (RELATION_VALUES.includes(relation)) {
       answers[ENTRY.relation] = relation;
+    } else {
+      // 專案自訂選項（非 Google 表單原始 5 個選項時，以「其他」＋選項文字送出）
+      answers[ENTRY.relation] = '__other_option__';
+      answers[ENTRY.relationOther] = relation;
     }
 
     setSubmitting(true);
@@ -401,6 +406,12 @@ export default function ThermalSurveyForm() {
     t('survey.q1.passBy'),
     t('survey.q1.research'),
   ];
+  const relationOptions = customRelations
+    ? customRelations.map((r) => [r.value, t(r.labelKey) || r.label || r.value])
+    : [
+        ...RELATION_VALUES.map((opt, i) => [opt, relationLabels[i]]),
+        ...extraRelations.map((ex) => [`extra:${ex.value}`, t(ex.labelKey)]),
+      ];
   const scaleLabels = { 1: t('survey.scale.hot'), 5: t('survey.scale.cool') };
 
   return (
@@ -422,10 +433,7 @@ export default function ThermalSurveyForm() {
           {t('survey.q1.label')}<span className="text-rose-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2">
-          {[
-            ...RELATION_VALUES.map((opt, i) => [opt, relationLabels[i]]),
-            ...extraRelations.map((ex) => [`extra:${ex.value}`, t(ex.labelKey)]),
-          ].map(([opt, label]) => (
+          {relationOptions.map(([opt, label]) => (
             <button
               key={opt}
               type="button"
