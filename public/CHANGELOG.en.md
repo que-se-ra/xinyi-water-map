@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.29.1] - 2026-10-27 - 🧭 - UI - The Shade Route Planner Starts Folded Away
+1. **The route form starts closed**: when the map opens, the left panel shows only the search box, My location, the 🧭 Shade route button and the weather strip, leaving more of the map visible; tap the button to open the planner. Computers used to open it by default; they now match phones.
+
 ## [v1.29.0] - 2026-10-27 - 📸 - DATA - Songshan Stop Descriptions and Photos, and a Park Introduction
 1. **Descriptions and photos for four stops**: Creative Street, Baroque Garden, Sweetgum Avenue and the Songshan Hub Visitor Centre (which carries the Office Building and roundabout text and photo) now have text and photos — tap a stop to read them. The text and photos are provided by Songshan Cultural and Creative Park, credited in each stop window and photo caption. Xinren Village Farm is still to come.
 2. **Park introduction on the landing page**: the Songshan landing page (before the map) now introduces Songshan Cultural and Creative Park — the tobacco factory's history, its "industrial village" plan and its architecture — with a credit.
