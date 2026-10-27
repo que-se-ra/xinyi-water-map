@@ -6,6 +6,10 @@ const layers = {
     zh: '關閉',
     en: 'Close',
   },
+  'layers.station.credit': {
+    zh: '文字及圖片：{who}提供',
+    en: 'Text and photos courtesy of {who}',
+  },
   'layers.station.leaveMemoryPrompt': {
     zh: '在這裡留下回憶與照片',
     en: 'Leave a memory or a photo here',

@@ -933,6 +933,24 @@ export default function HomeApp() {
               ) : null}
             </div>
 
+            {/* 專案首頁介紹（例如松菸的園區總介；有設定 landingIntro 的專案才顯示） */}
+            {project.landingIntro && (
+              <section className="w-full max-w-2xl bg-white/80 backdrop-blur-sm border border-sky-100 rounded-2xl shadow-sm px-6 py-6 md:px-8 md:py-7 mt-2 text-left">
+                <h3
+                  className="text-xl md:text-2xl text-slate-700 tracking-[0.12em] mb-4"
+                  style={{ fontFamily: 'var(--font-serif)', fontWeight: 700 }}
+                >
+                  {project.landingIntro[locale === 'en' ? 'en' : 'zh'].title}
+                </h3>
+                <div className="space-y-3 text-slate-600 text-sm md:text-base leading-relaxed md:leading-loose">
+                  {project.landingIntro[locale === 'en' ? 'en' : 'zh'].paragraphs.map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-slate-400">{project.landingIntro[locale === 'en' ? 'en' : 'zh'].credit}</p>
+              </section>
+            )}
+
             {project.ui.landingCards && (
 <>
             {/* Section title */}

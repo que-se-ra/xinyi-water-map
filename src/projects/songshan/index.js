@@ -54,6 +54,31 @@ export const songshan = {
     ],
   },
   ui: { tabs: ['map', 'layers', 'changelog'], landingCards: false, routeArrows: true },
+  // 首頁（進入地圖前）的園區介紹：文字由松山文創園區提供，需標註出處（2026-10-27）
+  landingIntro: {
+    zh: {
+      title: '松山文創園區',
+      paragraphs: [
+        '從1937年(民國26年)日據時期的「臺灣總督府專賣局松山菸草工廠」，光復後由公賣局接手更名的「臺灣菸酒公賣局松山菸廠」，專門製造捲菸、雪茄等菸草製品。',
+        '松山菸廠在1998年停止生產、併入臺北菸廠後正式走入歷史，再到2001年由臺北市政府指定為第99處市定古蹟後所定名的「松山文創園區」，這塊曾經是臺灣第一座現代化的捲菸工廠，替臺灣創造了相當高的經濟產值的地方，在2011年11月15日正式對外開放後，搖身一變，成為了臺灣原創發展基地。',
+        '松山菸廠早期在規劃時，就用「工業村」的概念去規劃，不只考量生產動線，也加入了員工福祉與需求，還保留了大片的開放空間修築庭園，可以說是當時工業廠房建築的創舉。',
+        '在建築風格方面屬於「日本初現代主義」作品，強調水平視線，形式簡潔典雅、做工精細，堪稱當時工業廠房之楷模。',
+        '鍋爐房、機械修理場、製菸工廠、工作作業場於1939年完工，並於10月間開始開工生產捲菸，初期員工約1200人。1940年完成辦公廳及檢查室，全廠區共費時3年3個月全面完工。',
+      ],
+      credit: '文字：松山文創園區提供',
+    },
+    en: {
+      title: 'Songshan Cultural and Creative Park',
+      paragraphs: [
+        'The park began in 1937, under Japanese rule, as the Songshan Tobacco Factory of the Taiwan Governor-General Monopoly Bureau. After 1945 the Monopoly Bureau took it over and renamed it the Songshan Tobacco Factory of the Taiwan Provincial Monopoly Bureau, making cigarettes, cigars and other tobacco products.',
+        "Production stopped in 1998, when the factory was merged into the Taipei Cigarette Factory. In 2001 the Taipei City Government designated the site its 99th municipal historic site, and it was named Songshan Cultural and Creative Park. Once Taiwan's first modern cigarette factory, and a major contributor to the economy, it opened to the public on 15 November 2011 and became a base for original creative work in Taiwan.",
+        'From the beginning the factory was planned as an "industrial village": beyond the flow of production, it catered for the welfare and needs of its staff and kept large open spaces for gardens, a pioneering approach for factory buildings of its time.',
+        'Its architecture belongs to early Japanese Modernism, with an emphasis on horizontal lines, simple and elegant forms and fine workmanship, a model for the industrial buildings of the period.',
+        'The boiler room, machine repair shop, cigarette factory and workshops were completed in 1939, and cigarette production began that October with about 1,200 staff. The office building and inspection rooms followed in 1940; the whole site took three years and three months to complete.',
+      ],
+      credit: 'Text courtesy of Songshan Cultural and Creative Park',
+    },
+  },
   reportSummary: {
     org: '「城市裡的微氣候觀察｜互動地圖工作坊」（松山文創園區）',
     area: '園區周邊環境',

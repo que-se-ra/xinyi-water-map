@@ -35,6 +35,7 @@ export function localizeRoutes(routes, overrides) {
           badge: pick(so && so.badge, st.badge),
           hook: pick(so && so.hook, st.hook),
           body: pick(so && so.body, st.body),
+          credit: pick(so && so.credit, st.credit),
           imgs: (st.imgs || []).map((img, i) => ({
             ...img,
             cap: pick(so && so.imgCaps && so.imgCaps[i], img.cap),
