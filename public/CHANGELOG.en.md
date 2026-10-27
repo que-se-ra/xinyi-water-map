@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.29.0] - 2026-10-27 - 📸 - DATA - Songshan Stop Descriptions and Photos, and a Park Introduction
+1. **Descriptions and photos for four stops**: Creative Street, Baroque Garden, Sweetgum Avenue and the Songshan Hub Visitor Centre (which carries the Office Building and roundabout text and photo) now have text and photos — tap a stop to read them. The text and photos are provided by Songshan Cultural and Creative Park, credited in each stop window and photo caption. Xinren Village Farm is still to come.
+2. **Park introduction on the landing page**: the Songshan landing page (before the map) now introduces Songshan Cultural and Creative Park — the tobacco factory's history, its "industrial village" plan and its architecture — with a credit.
+3. **Translated into English**: the stop descriptions, captions and introduction all have English versions. Building and organisation names follow the park's own English page (e.g. Taipei New Horizon Building, Taipei Dome, Office Building); people's names are kept in Chinese.
+4. **Smaller photos**: the originals are 7–31 MB; the site uses copies resized to 1,600 pixels wide, about 300–550 KB each, so they load quickly on phones.
+
 ## [v1.28.0] - 2026-10-24 - 🌡️ - FEATURE - The Songshan Project Gets the Thermal Comfort Survey
 1. **A thermal comfort survey for Songshan**: copied from Waters of Xinyi to `/songshan/survey` (English at `/en/songshan/survey`), with a "🌡️ Thermal comfort survey" button added to the map header. The questions, options and 1–5 scale are the same as Waters of Xinyi, with "Xinyi District" replaced by "Songshan Cultural and Creative Park"; the location maps centre on the park, and the quick-jump buttons are now Baroque Garden, Songshan Hub, Creative Street, Sweetgum Avenue and Xinren Village Farm.
 2. **An extra "Attending an event or visiting" option**: added to the question about your connection to the park, for people at the workshop or visiting the park (recorded on the form as "Other" with that text).

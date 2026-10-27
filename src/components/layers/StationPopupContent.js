@@ -58,6 +58,10 @@ export default function StationPopupContent({ station, routeColor }) {
       {station.body && (
         <p className="popup-body">{station.body}</p>
       )}
+      {/* 出處（例如松菸站點的文字與照片由松山文創園區提供，對方要求標註） */}
+      {station.credit && (
+        <p className="text-xs text-slate-400 -mt-2 mb-3">{t('layers.station.credit', { who: station.credit })}</p>
+      )}
       {station.imgs && station.imgs.length > 0 && (
         <div className="popup-images">
           {station.imgs.map((img, i) => (
