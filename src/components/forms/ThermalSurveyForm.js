@@ -279,8 +279,9 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           <FlyTo target={flyTarget} />
           {/* 與主地圖一致：國土測繪中心灰階底圖＋水文色調 filter */}
           <TileLayer
-            {...basemapProps(locale)}
-            className={`map-tiles-tinted${locale === 'en' ? ' basemap-en' : ''}`}
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
+            className="map-tiles-tinted"
           />
           <ClickCapture onPick={handlePick} />
           {coord && <Marker position={[coord.lat, coord.lng]} icon={makePinIcon(color)} />}
