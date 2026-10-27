@@ -190,9 +190,6 @@ export default function MapView({
   const sky = useSky();
   // 遮蔭路線規劃（起終點、情境、偏好與結果）
   const planner = useRoutePlanner(sky);
-  // 遮蔭路線規劃目前不開放（2026-10-28 協作者表示不需要）：按鈕、表單與地圖上的規劃結果都不顯示，
-  // 程式碼保留。要再開放時，在專案設定 features 加 routePlanner: true 即可。
-  const showPlanner = project.features?.routePlanner === true;
   // 整個左側面板收到地圖左邊緣（只留把手），讓地圖完整露出
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   // 問卷地點圖層（後台專用）：各類型可個別開關
@@ -465,7 +462,7 @@ export default function MapView({
         )}
 
         <UserLocationLayer position={userPos} accuracy={accuracy} />
-        {showPlanner && <RoutePlanLayer planner={planner} />}
+        <RoutePlanLayer planner={planner} />
 
         {/* Free Marker Form */}
         {newMarkerPos && (
@@ -1067,7 +1064,7 @@ export default function MapView({
       </div>
 
       {/* Global overlay cursor hint for add mode */}
-      {(isAddMarkerMode || isComfortRateMode || (showPlanner && planner.pick)) && (
+      {(isAddMarkerMode || isComfortRateMode || planner.pick) && (
         <div className="absolute inset-0 z-[999] pointer-events-none cursor-crosshair"></div>
       )}
 
@@ -1081,7 +1078,7 @@ export default function MapView({
           w-[calc(100%-84px)] md:w-[390px]
           max-h-[calc(100%-24px)] flex
           transition-transform duration-300 ease-in-out
-          ${showPlanner && planner.open ? 'bottom-3' : ''}
+          ${planner.open ? 'bottom-3' : ''}
           ${leftCollapsed ? '-translate-x-[calc(100%+12px)]' : 'translate-x-0'}
         `}
       >
@@ -1108,7 +1105,6 @@ export default function MapView({
               <span aria-hidden>{locating ? '⏳' : '📍'}</span>
               {t('map.control.locateMe')}
             </button>
-            {showPlanner && (
             <button
               type="button"
               onClick={() => planner.setOpen(!planner.open)}
@@ -1120,7 +1116,6 @@ export default function MapView({
               🧭 {t('route.open')}
               <span aria-hidden className="text-[10px]">{planner.open ? '▴' : '▾'}</span>
             </button>
-            )}
           </div>
 
           {locateError && (
@@ -1150,7 +1145,7 @@ export default function MapView({
           </div>
         </div>
 
-        {showPlanner && planner.open && (
+        {planner.open && (
           <div className="border-t border-sky-100 p-3">
             <RoutePlannerPanel
               planner={planner}
