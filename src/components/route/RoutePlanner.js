@@ -47,8 +47,8 @@ const fmtTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getM
 
 /** 規劃狀態（放在 MapView，讓面板與地圖圖層共用） */
 export function useRoutePlanner(sky) {
-  // 桌機（寬 768 以上）預設展開左側規劃欄；手機預設收起，只留搜尋框。地圖元件只在瀏覽器端渲染，可直接讀視窗寬度
-  const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
+  // 規劃表單預設收起（桌機、手機都是），左欄只留搜尋框與按鈕；要用時按「🧭 遮蔭路線規劃」展開（2026-10-27 使用者要求）
+  const [open, setOpen] = useState(false);
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [pick, setPick] = useState(null); // 'start' | 'end' | null：正在地圖上點選
