@@ -27,13 +27,16 @@ export const songshan = {
   // 圖層面板路線旁的 ⓘ 說明框：信義的 route-0.. 說明不適用，加前綴讓它找不到資料（就不顯示）
   tooltipPrefix: 'songshan-',
   defaultLayers: BASE_DEFAULT_LAYERS,
-  // 熱舒適問卷：2026-10-24 從信水義河複製一份（/songshan/survey）。共用同一份 Google 表單，
-  // 回覆以地點答案前的【松菸】標註區分（見 src/lib/survey-tags.js）；題目文字見下方 copy 的 survey.*。
+  // 熱舒適問卷：2026-10-24 從信水義河複製一份（/songshan/survey）；題目文字見下方 copy 的 survey.*。
+  // 2026-10-28 起送到松菸專屬的 Google 表單（見 src/lib/survey-forms.js）；
+  // 在那之前的回覆存在信水義河的表單，以地點答案前的【松菸】標註區分（見 src/lib/survey-tags.js）。
   features: { survey: true },
   survey: {
     center: [25.0438, 121.5605],
     zoom: 17,
-    // 地標快跳：用路線站點（10/15 實地 GPX 座標）
+    // 地點題直接點選地標作答、不顯示搜尋欄：園區範圍小，搜尋反而多一道手續（2026-10-27 使用者回饋）
+    pickMode: 'choose',
+    // 地標選項：用路線站點（10/15 實地 GPX 座標）
     landmarks: [
       { id: 'ssBaroque', lat: 25.04366, lng: 121.56057 },
       { id: 'ssHub', lat: 25.04366, lng: 121.55919 },
@@ -41,8 +44,6 @@ export const songshan = {
       { id: 'ssSweetgum', lat: 25.04321, lng: 121.56141 },
       { id: 'ssFarm', lat: 25.04423, lng: 121.56232 },
     ],
-    // 搜尋時優先找園區一帶（minLon,maxLat,maxLon,minLat）
-    viewbox: '121.552,25.050,121.570,25.037',
     // 這裡沒有人居住或就學，依參加者與松菸的連結強弱設計選項：
     relations: [
       { value: '在園區工作', labelKey: 'survey.q1.songshan.work' },
@@ -130,8 +131,7 @@ export const songshan = {
       'survey.page.title': '城市裡的微氣候觀察',
       'survey.page.badge': '🌡️ 互動地圖工作坊',
       'survey.page.heading': '松山文創園區「體感溫度」地圖',
-      'survey.page.intro': '在松山文創園區，哪裡最熱？哪裡最涼？ 邀請您分享在園區裡的體感經驗， 地點題可以直接在地圖上點選位置作答。',
-      'survey.location.searchPlaceholder': '或搜尋地點，例如：巴洛克花園',
+      'survey.page.intro': '在松山文創園區，哪裡最熱？哪裡最涼？ 邀請您分享在園區裡的體感經驗。 地點題點選園區裡的地點就能作答，不在清單上的地方也可以直接在地圖上點出來。',
       'survey.q1.label': '您與松山文創園區的關係？ ',
       'survey.q1.songshan.work': '在園區工作',
       'survey.q1.songshan.frequent': '經常造訪（散步、運動、休閒）',
@@ -141,7 +141,8 @@ export const songshan = {
       'survey.q1.songshan.research': '研究場域／活動合作',
       'survey.q2.label': '在松山文創園區戶外活動時，整體的熱舒適感受是？ ',
       'survey.q3.label': '松山文創園區哪個地點或路段，讓您覺得最熱、最不舒適？',
-      'survey.q3.hint': '請在地圖點選位置，或直接輸入地點，例如「楓香大道」「文創大街靠農園那段」',
+      'survey.q3.hint': '可以在答案欄補充是哪一段，例如「文創大街靠農園那段」',
+      'survey.location.hintGeneric': '',
       'survey.q4.example': '例如：缺乏樹蔭或遮陽設施、水泥鋪面日曬吸熱、通風不良、冷氣室外機排熱…',
       'survey.q5.label': '松山文創園區哪個地點，讓您覺得最涼爽、最舒適？',
       'survey.q6.example': '例如：有大樹綠蔭遮蔽、草地旁涼爽、靠近生態池水體、古蹟建築迴廊通風…',
@@ -174,8 +175,7 @@ export const songshan = {
       'survey.page.title': 'Urban Microclimate Observation',
       'survey.page.badge': '🌡️ Interactive mapping workshop',
       'survey.page.heading': 'Mapping perceived temperature in Songshan Cultural and Creative Park',
-      'survey.page.intro': 'Where in Songshan Cultural and Creative Park is it hottest, and where is it coolest? Share how the park feels to you. For the location questions you can answer simply by tapping a spot on the map.',
-      'survey.location.searchPlaceholder': 'Or search a place, e.g. Baroque Garden',
+      'survey.page.intro': 'Where in Songshan Cultural and Creative Park is it hottest, and where is it coolest? Share how the park feels to you. For the location questions, pick a place in the park; if it is not listed, tap the spot on the map.',
       'survey.q1.label': 'What is your connection to Songshan Cultural and Creative Park? ',
       'survey.q1.songshan.work': 'Working in the park',
       'survey.q1.songshan.frequent': 'Frequent visitor (walking, leisure)',
@@ -185,7 +185,8 @@ export const songshan = {
       'survey.q1.songshan.research': 'Research or collaboration',
       'survey.q2.label': 'Overall, how thermally comfortable does the park feel outdoors? ',
       'survey.q3.label': 'Which place or stretch in the park feels hottest and least comfortable to you?',
-      'survey.q3.hint': 'Tap a spot on the map, or type a place — e.g. "Sweetgum Avenue", "the end of Creative Street near the farm"',
+      'survey.q3.hint': 'You can add which stretch in the answer box, e.g. "the end of Creative Street near the farm"',
+      'survey.location.hintGeneric': '',
       'survey.q4.example': 'For example: lack of tree shade or shelter, paved surfaces absorbing heat, poor air circulation, AC exhaust heat…',
       'survey.q5.label': 'Which place in the park feels coolest and most comfortable to you?',
       'survey.q6.example': 'For example: dense tree canopy shade, cool grassy spots, near the eco-pond, breezy heritage building corridors…',

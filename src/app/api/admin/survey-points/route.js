@@ -1,4 +1,5 @@
 import { surveyTagFor } from '@/lib/survey-tags';
+import { SURVEY_FORMS, hasOwnSurveyForm } from '@/lib/survey-forms';
 import { NextResponse } from 'next/server';
 import SunCalc from 'suncalc';
 import {
@@ -15,9 +16,25 @@ import {
   RADII
 } from '@/lib/survey-analysis';
 
-// 熱舒適經驗調查的回覆試算表（公開分享連結，以 CSV 形式匯出）
-const SHEET_ID =
-  process.env.SURVEY_SHEET_ID || '1z79y1UoKXO-RNJ5F0pTgOlRLISbXcg5pUOtwB616Bf8';
+// 熱舒適經驗調查的共用回覆試算表（公開分享連結，以 CSV 形式匯出）；有自己表單的專案另見 lib/survey-forms.js
+const SHEET_ID = process.env.SURVEY_SHEET_ID || SURVEY_FORMS.default.sheetId;
+
+class SheetError extends Error {}
+
+async function fetchSheetRows(sheetId) {
+  const csvRes = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`, {
+    cache: 'no-store',
+    redirect: 'follow'
+  });
+  if (!csvRes.ok) {
+    throw new SheetError(`無法讀取試算表（${csvRes.status}）。請確認分享設定仍為「知道連結的人可檢視」。`);
+  }
+  const csv = await csvRes.text();
+  if (!csv.includes('時間戳記') && !csv.includes(',')) {
+    throw new SheetError('試算表內容不是預期的 CSV 格式');
+  }
+  return parseCSV(csv);
+}
 
 // 分析預設時刻：夏季午後最熱的時段
 const DEFAULT_ANALYSIS_TIME = '2026-08-15T14:00:00+08:00';
@@ -63,24 +80,20 @@ export async function GET(request) {
     }
 
     // 1. 取回覆
-    const csvRes = await fetch(
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`,
-      { cache: 'no-store', redirect: 'follow' }
-    );
-    if (!csvRes.ok) {
-      return NextResponse.json(
-        { error: `無法讀取試算表（${csvRes.status}）。請確認分享設定仍為「知道連結的人可檢視」。` },
-        { status: 502 }
-      );
-    }
-    const csv = await csvRes.text();
-    if (!csv.includes('時間戳記') && !csv.includes(',')) {
-      return NextResponse.json({ error: '試算表內容不是預期的 CSV 格式' }, { status: 502 });
-    }
-
-    // ?project=songshan 只分析松菸的回覆；沒帶參數＝信水義河（沒有專案標註的回覆，含舊資料）
+    // ?project=songshan 只分析松菸的回覆；沒帶參數＝信水義河（沒有專案標註的回覆，含舊資料）。
+    // 專案有自己的表單時，讀它的回覆試算表，再加上改用專屬表單前、留在共用表單裡有標註的回覆。
     const projectParam = url.searchParams.get('project');
-    const points = extractPoints(parseCSV(csv), { tag: surveyTagFor(projectParam) });
+    let points;
+    try {
+      points = extractPoints(await fetchSheetRows(SHEET_ID), { tag: surveyTagFor(projectParam) });
+      if (hasOwnSurveyForm(projectParam)) {
+        const own = extractPoints(await fetchSheetRows(SURVEY_FORMS[projectParam].sheetId), { idPrefix: 'own' });
+        points = points.concat(own);
+      }
+    } catch (err) {
+      if (err instanceof SheetError) return NextResponse.json({ error: err.message }, { status: 502 });
+      throw err;
+    }
 
     // 2. 疊圖分析
     const { trees, greenIndex, zoneIndex } = await loadLayers(url.origin);
