@@ -75,7 +75,7 @@ const city = {
   // 左側搜尋面板
   'map.control.locateMe': { zh: '我的位置', en: 'My location' },
   'map.panel.collapse': { zh: '收起左側面板', en: 'Hide the left panel' },
-  'map.panel.expand': { zh: '展開左側面板（搜尋與遮蔭路線規劃）', en: 'Show the left panel (search and shade route)' },
+  'map.panel.expand': { zh: '展開左側面板（搜尋與定位）', en: 'Show the left panel (search and location)' },
 
   // 遮蔭路線規劃
   'route.open': { zh: '遮蔭路線規劃', en: 'Shade route' },

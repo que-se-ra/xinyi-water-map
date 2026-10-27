@@ -1,5 +1,8 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.30.1] - 2026-10-28 - 🧭 - UI - Shade Route Planner Hidden for Now
+1. **No shade route planner on the map**: the "🧭 Shade route" button and planning form are removed from the left panel, which now holds search, "My location" and the weather bar. The feature stays in the code and can be turned back on later.
+
 ## [v1.30.0] - 2026-10-27 - 🌡️ - UI - Songshan Comfort Survey: Pick Places Directly
 1. **Pick a place to answer**: in the Songshan survey's three location questions, the five park places (Baroque Garden, Songshan Hub Visitor Centre, Creative Street, Sweetgum Avenue, Xinren Village Farm) are now answer options. One tap selects the place, drops a pin on the map and fills in the "Your answer" box, where you can add which stretch you mean. Previously these buttons only moved the map and left the answer box empty, which made it easy to think the question was already answered.
 2. **Search box removed**: the park is small, so if a place is not listed you simply tap it on the map. A map pin alone now counts as an answer.
