@@ -1,22 +1,13 @@
 // 熱舒適問卷代交 API：伺服器端向 Google Form 提交並讀取真實結果。
 // 瀏覽器直接 POST formResponse 只能用 no-cors（opaque 回應），失敗時前端無從得知；
 // 由伺服器代交可解析回應 HTML，見到「已記錄回覆」確認頁才回報成功。
-const FORM_BASE =
-  'https://docs.google.com/forms/d/e/1FAIpQLSe8LxV5dtR5ZwsOOAY9dZfOFE_6E6tbKL_iAjAbO7I4BFcBDw';
-
-// 僅接受本表單已知的 entry 欄位，避免此 API 被當作開放代理
-const ALLOWED_KEYS = new Set([
-  'entry.132730628',
-  'entry.132730628.other_option_response',
-  'entry.1113127977',
-  'entry.1026299941',
-  'entry.2006157600',
-  'entry.1501603056',
-  'entry.1815209056',
-  'entry.606398302',
-]);
+// 表單依 ?project= 決定（見 lib/survey-forms.js）；表單網址只在伺服器端查表，不接受前端指定
+import { surveyFormFor, allowedEntryKeys } from '@/lib/survey-forms';
 
 export async function POST(request) {
+  const form = surveyFormFor(new URL(request.url).searchParams.get('project'));
+  // 僅接受該表單已知的 entry 欄位，避免此 API 被當作開放代理
+  const allowedKeys = allowedEntryKeys(form);
   let answers;
   try {
     answers = await request.json();
@@ -27,7 +18,7 @@ export async function POST(request) {
   const body = new URLSearchParams();
   let entryCount = 0;
   for (const [k, v] of Object.entries(answers || {})) {
-    if (ALLOWED_KEYS.has(k) && typeof v === 'string' && v.length <= 2000) {
+    if (allowedKeys.has(k) && typeof v === 'string' && v.length <= 2000) {
       body.set(k, v);
       entryCount++;
     }
@@ -39,7 +30,7 @@ export async function POST(request) {
   try {
     // 表單未開啟「收集電子郵件」時，裸 POST entry 欄位即可成功（2026-08-22 實測）。
     // 若日後表單重新開啟 email 收集，Google 會回 401，前端會引導改用原表單連結。
-    const postRes = await fetch(`${FORM_BASE}/formResponse`, {
+    const postRes = await fetch(`${form.base}/formResponse`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: body.toString(),

@@ -9,32 +9,21 @@ import { basemapProps } from '@/lib/basemap';
 import { useT, useLocale, useLocalePath } from '@/i18n/LocaleProvider';
 import { useProject } from '@/projects/ProjectProvider';
 import { surveyTagFor, withSurveyTag } from '@/lib/survey-tags';
+import { surveyFormFor, hasOwnSurveyForm } from '@/lib/survey-forms';
 
 // ── Google Form 對接設定 ──
-// 表單：信義區「體感溫度」地圖：熱舒適經驗調查
-// entry ID 由公開表單 FB_PUBLIC_LOAD_DATA_ 抽取（2026-08-21）。
-// 若表單增刪/重排題目，需重新核對 entry ID（並同步 /api/survey-submit 的白名單）。
+// 表單網址、entry ID、第一題選項依專案查 lib/survey-forms.js；
 // 提交經由自家 API 代交（/api/survey-submit），可讀取 Google 真實回應確認已記錄。
 const SUBMIT_API = '/api/survey-submit';
-const FORM_FALLBACK_URL = 'https://forms.gle/fxRK5CjhrTs3o1dY9';
 
-const ENTRY = {
-  relation: 'entry.132730628',
-  relationOther: 'entry.132730628.other_option_response',
-  comfort: 'entry.1113127977',
-  hotPlace: 'entry.1026299941',
-  hotWhy: 'entry.2006157600',
-  coolPlace: 'entry.1501603056',
-  coolWhy: 'entry.1815209056',
-  improvePlace: 'entry.606398302',
-};
-
-// 送出值：一律維持中文，需與 Google 表單選項一字不差，不可翻譯（顯示標籤見 relationLabels）
-const RELATION_VALUES = ['居住', '工作', '就學', '經常經過', '研究場域'];
+// 只在地圖上點了位置、沒寫文字時的地點答案（送進表單的資料，一律中文）
+const PINNED_ONLY_TEXT = '地圖標記位置';
 
 // ── 問卷地圖設定 ──────────────────────────────────────────
 // 預設是信水義河（信義區）；其他專案可在專案設定的 survey 欄位覆寫
-// （中心、縮放、地標快跳、搜尋範圍、加在答案前的專案標註）。見 projects/songshan/index.js。
+// （中心、縮放、地標、搜尋範圍、地點題作答方式 pickMode）。見 projects/songshan/index.js。
+//   pickMode 'navigate'（預設）：地標按鈕與搜尋只移動地圖，點地圖才算作答——適合範圍大的信義區
+//   pickMode 'choose'：地標就是選項，點了直接作答；不顯示搜尋欄——適合園區這種小範圍
 
 // 信義區中心
 const XINYI_CENTER = [25.033, 121.565];
@@ -53,7 +42,7 @@ const LANDMARKS = [
 // 信義區大致範圍（viewbox：minLon,maxLat,maxLon,minLat），供搜尋優先命中區內結果
 const XINYI_VIEWBOX = '121.539,25.050,121.601,25.015';
 
-const DEFAULT_SURVEY_MAP = { center: XINYI_CENTER, zoom: 15, landmarks: LANDMARKS, viewbox: XINYI_VIEWBOX };
+const DEFAULT_SURVEY_MAP = { center: XINYI_CENTER, zoom: 15, landmarks: LANDMARKS, viewbox: XINYI_VIEWBOX, pickMode: 'navigate' };
 
 /** 目前專案的問卷地圖設定（沒有設定的欄位沿用信義預設） */
 function useSurveyMap() {
@@ -129,10 +118,12 @@ async function reverseGeocode(lat, lng, lang = 'zh-TW') {
 /**
  * 一條「地點題」：小地圖點選 + 可編輯文字欄。
  * 提交值 = 文字 +（若有點選）座標尾註，例如「松高路（25.03981, 121.56712）」。
+ * 作答方式依專案的 pickMode：'navigate' 地標只移動地圖；'choose' 地標就是選項（見上方 DEFAULT_SURVEY_MAP 說明）。
  */
 function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordChange }) {
   const t = useT();
   const surveyMap = useSurveyMap();
+  const choose = surveyMap.pickMode === 'choose';
   const { locale } = useLocale();
   // Nominatim 的 accept-language：英文介面回英文地名，使用者才對得上自己看到的地圖
   const geoLang = locale === 'en' ? 'en' : 'zh-TW';
@@ -141,6 +132,18 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
   const [searchText, setSearchText] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchMiss, setSearchMiss] = useState(false);
+
+  const landmarkName = (lm) => t(`survey.landmark.${lm.id}`);
+  // 選項模式下，目前答案是哪個地標（圖釘在地標上、文字也還是地標名稱）
+  const chosen = choose
+    ? surveyMap.landmarks.find((lm) => coord && coord.lat === lm.lat && coord.lng === lm.lng && value === landmarkName(lm))
+    : null;
+
+  const chooseLandmark = (lm) => {
+    onChange(landmarkName(lm));
+    onCoordChange({ lat: lm.lat, lng: lm.lng });
+    setFlyTarget({ lat: lm.lat, lng: lm.lng, zoom: surveyMap.zoom });
+  };
 
   const handleSearch = useCallback(async () => {
     const q = searchText.trim();
@@ -162,23 +165,26 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
     }
   }, [searchText, searching, geoLang, surveyMap.viewbox]);
 
-  const handlePick = useCallback(
-    async (latlng) => {
-      const lat = +latlng.lat.toFixed(5);
-      const lng = +latlng.lng.toFixed(5);
-      onCoordChange({ lat, lng });
-      setGeocoding(true);
-      try {
-        const name = await reverseGeocode(lat, lng, geoLang);
-        if (name) onChange(name);
-      } catch (err) {
-        console.warn('反查地名失敗（座標仍已記錄）:', err);
-      } finally {
-        setGeocoding(false);
-      }
-    },
-    [onChange, onCoordChange]
-  );
+  const handlePick = async (latlng) => {
+    const lat = +latlng.lat.toFixed(5);
+    const lng = +latlng.lng.toFixed(5);
+    onCoordChange({ lat, lng });
+    if (choose) {
+      // 園區內反查只會得到外圍道路名，沒有幫助；改請填答者自己描述。
+      // 原本選的是地標的話清掉名稱，避免圖釘移走了答案還寫著那個地標。
+      if (surveyMap.landmarks.some((lm) => value === landmarkName(lm))) onChange('');
+      return;
+    }
+    setGeocoding(true);
+    try {
+      const name = await reverseGeocode(lat, lng, geoLang);
+      if (name) onChange(name);
+    } catch (err) {
+      console.warn('反查地名失敗（座標仍已記錄）:', err);
+    } finally {
+      setGeocoding(false);
+    }
+  };
 
   return (
     <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -187,50 +193,81 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
       </label>
       {hint && <p className="text-slate-400 text-xs mb-3 leading-relaxed">{hint}</p>}
 
-      {/* 步驟①：移動地圖（僅導航，非作答）。用框線和標題與作答區隔開，避免誤會按了地標就算答完 */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 mb-3">
-        <p className="text-xs font-semibold text-slate-500 mb-2">
-          {t('survey.location.step1')}<span className="text-slate-400 font-normal">{t('survey.location.step1Note')}</span>
-        </p>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-          {surveyMap.landmarks.map((lm) => (
+      {choose ? (
+        /* 選項模式：地標就是答案，點了圖釘和答案欄立刻出現 */
+        <div className="mb-3">
+          <p className="text-xs font-semibold text-slate-500 mb-2">{t('survey.location.chooseStep')}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" role="radiogroup" aria-label={label}>
+            {surveyMap.landmarks.map((lm) => {
+              const on = chosen?.id === lm.id;
+              return (
+                <button
+                  key={lm.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => chooseLandmark(lm)}
+                  className={`px-3 py-2.5 rounded-xl text-sm text-left border transition-all cursor-pointer active:scale-95 ${
+                    on ? 'text-white font-semibold shadow-md' : 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-sky-50 hover:border-sky-200'
+                  }`}
+                  style={on ? { background: color, borderColor: color } : undefined}
+                >
+                  {on ? '✓ ' : '📍 '}
+                  {landmarkName(lm)}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs font-semibold text-slate-500 mt-3">{t('survey.location.chooseOr')}</p>
+        </div>
+      ) : (
+        /* 步驟①：移動地圖（僅導航，非作答）。用框線和標題與作答區隔開，避免誤會按了地標就算答完 */
+        <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 mb-3">
+          <p className="text-xs font-semibold text-slate-500 mb-2">
+            {t('survey.location.step1')}<span className="text-slate-400 font-normal">{t('survey.location.step1Note')}</span>
+          </p>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+            {surveyMap.landmarks.map((lm) => (
+              <button
+                key={lm.id}
+                type="button"
+                onClick={() => setFlyTarget({ lat: lm.lat, lng: lm.lng, zoom: 16, nonce: Date.now() })}
+                className="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs text-slate-600 bg-white border border-sky-200 hover:bg-sky-100 active:scale-95 transition-all cursor-pointer"
+              >
+                🧭 {landmarkName(lm)}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => { setSearchText(e.target.value); setSearchMiss(false); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
+              placeholder={t('survey.location.searchPlaceholder')}
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-sky-200 bg-white text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 placeholder:text-slate-300"
+            />
             <button
-              key={lm.id}
               type="button"
-              onClick={() => setFlyTarget({ lat: lm.lat, lng: lm.lng, zoom: 16, nonce: Date.now() })}
-              className="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs text-slate-600 bg-white border border-sky-200 hover:bg-sky-100 active:scale-95 transition-all cursor-pointer"
+              onClick={handleSearch}
+              disabled={searching}
+              className="px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors cursor-pointer disabled:opacity-50 flex-shrink-0"
             >
-              🧭 {t(`survey.landmark.${lm.id}`)}
+              {searching ? t('survey.location.searching') : t('survey.location.searchBtn')}
             </button>
-          ))}
+          </div>
+          {searchMiss && (
+            <p className="text-xs text-rose-500 mt-2">{t('survey.location.searchMiss')}</p>
+          )}
         </div>
-        <div className="flex gap-2 mt-2">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => { setSearchText(e.target.value); setSearchMiss(false); }}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
-            placeholder={t('survey.location.searchPlaceholder')}
-            className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-sky-200 bg-white text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 placeholder:text-slate-300"
-          />
-          <button
-            type="button"
-            onClick={handleSearch}
-            disabled={searching}
-            className="px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors cursor-pointer disabled:opacity-50 flex-shrink-0"
-          >
-            {searching ? t('survey.location.searching') : t('survey.location.searchBtn')}
-          </button>
-        </div>
-        {searchMiss && (
-          <p className="text-xs text-rose-500 mt-2">{t('survey.location.searchMiss')}</p>
-        )}
-      </div>
+      )}
 
-      {/* 步驟②：真正作答 */}
-      <p className="text-xs font-semibold text-amber-700 mb-1.5">
-        {t('survey.location.step2Before')}<span className="underline decoration-amber-400 decoration-2 underline-offset-2">{t('survey.location.step2Highlight')}</span>{t('survey.location.step2After')}
-      </p>
+      {/* 步驟②：真正作答（選項模式下是「不在清單上就點地圖」） */}
+      {!choose && (
+        <p className="text-xs font-semibold text-amber-700 mb-1.5">
+          {t('survey.location.step2Before')}<span className="underline decoration-amber-400 decoration-2 underline-offset-2">{t('survey.location.step2Highlight')}</span>{t('survey.location.step2After')}
+        </p>
+      )}
       <div className="rounded-xl overflow-hidden border border-sky-100 relative" style={{ height: '230px' }}>
         <MapContainer
           center={surveyMap.center}
@@ -249,7 +286,7 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
           {coord && <Marker position={[coord.lat, coord.lng]} icon={makePinIcon(color)} />}
         </MapContainer>
         <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-white/85 backdrop-blur-sm text-[11px] text-slate-500 px-3 py-1.5 flex items-center justify-between pointer-events-none">
-          <span>{t('survey.location.mapHint')}</span>
+          <span>{choose ? t('survey.location.mapHintChoose') : t('survey.location.mapHint')}</span>
           {coord && (
             <span className="font-mono text-slate-400">
               {coord.lat}, {coord.lng}
@@ -258,18 +295,34 @@ function LocationQuestion({ label, hint, color, value, onChange, coord, onCoordC
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-2">
+      {/* 答案欄：選了地標或點了地圖，這裡就會出現答案，可以再修改或補充 */}
+      {choose && <p className="mt-3 text-xs font-semibold text-slate-500">{t('survey.location.answerLabel')}</p>}
+      <div className={`${choose ? 'mt-1.5' : 'mt-3'} flex items-center gap-2`}>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={geocoding ? t('survey.location.inputGeocoding') : t('survey.location.inputPlaceholder')}
-          className="flex-1 px-4 py-2.5 rounded-xl border border-sky-200 bg-sky-50/40 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 placeholder:text-slate-300"
+          aria-label={label}
+          placeholder={
+            geocoding
+              ? t('survey.location.inputGeocoding')
+              : choose
+                ? coord
+                  ? t('survey.location.describePlaceholder')
+                  : t('survey.location.choosePlaceholder')
+                : t('survey.location.inputPlaceholder')
+          }
+          className={`flex-1 px-4 py-2.5 rounded-xl border text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 placeholder:text-slate-300 ${
+            choose && (value || coord) ? 'border-slate-300 bg-white font-medium' : 'border-sky-200 bg-sky-50/40'
+          }`}
         />
         {coord && (
           <button
             type="button"
-            onClick={() => onCoordChange(null)}
+            onClick={() => {
+              onCoordChange(null);
+              if (chosen) onChange('');
+            }}
             className="px-3 py-2.5 rounded-xl text-xs text-slate-400 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer flex-shrink-0"
             title={t('survey.location.clearTitle')}
           >
@@ -287,8 +340,11 @@ export default function ThermalSurveyForm() {
   const t = useT();
   const lp = useLocalePath();
   const project = useProject();
-  // 非信義專案的回覆在地點答案前加上【標註】，後台才分得出是哪個專案（見 lib/survey-tags.js）
-  const surveyTag = surveyTagFor(project.id);
+  // 專案有自己的 Google 表單就送到那份；沒有的話共用信水義河的表單，
+  // 並在地點答案前加上【標註】，後台才分得出是哪個專案（見 lib/survey-forms.js、lib/survey-tags.js）
+  const form = surveyFormFor(project.id);
+  const ENTRY = form.entries;
+  const surveyTag = hasOwnSurveyForm(project.id) ? null : surveyTagFor(project.id);
   // 專案自訂的「與這裡的關係」選項；若專案有設定 relations 則完全取代預設選項，否則沿用預設＋extraRelations
   const customRelations = project.survey?.relations;
   const extraRelations = project.survey?.extraRelations || [];
@@ -307,19 +363,23 @@ export default function ThermalSurveyForm() {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState([]);
 
-  const withCoord = (text, coord) =>
-    withSurveyTag(coord ? `${text.trim()}（${coord.lat}, ${coord.lng}）` : text.trim(), surveyTag);
+  const withCoord = (text, coord) => {
+    const place = text.trim() || PINNED_ONLY_TEXT;
+    return withSurveyTag(coord ? `${place}（${coord.lat}, ${coord.lng}）` : place, surveyTag);
+  };
+  // 地點題：有文字或有地圖標記都算作答
+  const placeAnswered = (text, coord) => Boolean(text.trim() || coord);
 
   const validate = () => {
     const errs = [];
     if (!relation) errs.push(t('survey.error.relationRequired'));
     if (relation === '__other__' && !relationOther.trim()) errs.push(t('survey.error.otherRequired'));
     if (!comfort) errs.push(t('survey.error.comfortRequired'));
-    if (!hotPlace.trim()) errs.push(t('survey.error.hotPlaceRequired'));
+    if (!placeAnswered(hotPlace, hotCoord)) errs.push(t('survey.error.hotPlaceRequired'));
     if (!hotWhy.trim()) errs.push(t('survey.error.hotWhyRequired'));
-    if (!coolPlace.trim()) errs.push(t('survey.error.coolPlaceRequired'));
+    if (!placeAnswered(coolPlace, coolCoord)) errs.push(t('survey.error.coolPlaceRequired'));
     if (!coolWhy.trim()) errs.push(t('survey.error.coolWhyRequired'));
-    if (!improvePlace.trim()) errs.push(t('survey.error.improvePlaceRequired'));
+    if (!placeAnswered(improvePlace, improveCoord)) errs.push(t('survey.error.improvePlaceRequired'));
     return errs;
   };
 
@@ -339,24 +399,25 @@ export default function ThermalSurveyForm() {
       [ENTRY.coolWhy]: coolWhy.trim(),
       [ENTRY.improvePlace]: withCoord(improvePlace, improveCoord),
     };
+    const relationOtherKey = `${ENTRY.relation}.other_option_response`;
     if (relation === '__other__') {
       answers[ENTRY.relation] = '__other_option__';
-      answers[ENTRY.relationOther] = relationOther.trim();
+      answers[relationOtherKey] = relationOther.trim();
     } else if (relation.startsWith('extra:')) {
       // 專案額外選項：表單上沒有這個選項，以「其他」＋選項文字送出
       answers[ENTRY.relation] = '__other_option__';
-      answers[ENTRY.relationOther] = relation.slice('extra:'.length);
-    } else if (RELATION_VALUES.includes(relation)) {
+      answers[relationOtherKey] = relation.slice('extra:'.length);
+    } else if (form.relationValues.includes(relation)) {
       answers[ENTRY.relation] = relation;
     } else {
-      // 專案自訂選項（非 Google 表單原始 5 個選項時，以「其他」＋選項文字送出）
+      // 專案自訂選項不在 Google 表單的選項裡時，以「其他」＋選項文字送出
       answers[ENTRY.relation] = '__other_option__';
-      answers[ENTRY.relationOther] = relation;
+      answers[relationOtherKey] = relation;
     }
 
     setSubmitting(true);
     try {
-      const res = await fetch(SUBMIT_API, {
+      const res = await fetch(`${SUBMIT_API}?project=${encodeURIComponent(project.id)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(answers),
@@ -409,7 +470,7 @@ export default function ThermalSurveyForm() {
   const relationOptions = customRelations
     ? customRelations.map((r) => [r.value, t(r.labelKey) || r.label || r.value])
     : [
-        ...RELATION_VALUES.map((opt, i) => [opt, relationLabels[i]]),
+        ...surveyFormFor('default').relationValues.map((opt, i) => [opt, relationLabels[i]]),
         ...extraRelations.map((ex) => [`extra:${ex.value}`, t(ex.labelKey)]),
       ];
   const scaleLabels = { 1: t('survey.scale.hot'), 5: t('survey.scale.cool') };
@@ -584,7 +645,7 @@ export default function ThermalSurveyForm() {
         </button>
         <p className="text-[11px] text-slate-400 text-center leading-relaxed">
           {t('survey.footer.note')}
-          <a href={FORM_FALLBACK_URL} target="_blank" rel="noopener noreferrer" className="text-sky-500 hover:text-sky-400 underline">
+          <a href={form.fallbackUrl} target="_blank" rel="noopener noreferrer" className="text-sky-500 hover:text-sky-400 underline">
             {t('survey.footer.linkText')}
           </a>
           。

@@ -257,8 +257,9 @@ export const REASON_LABEL = Object.fromEntries(
 /**
  * tag：只取這個專案標註的回覆（例如 '松菸'）；null（預設）＝只取沒有標註的回覆，也就是信水義河。
  * 專案標註寫在地點答案的最前面（見 lib/survey-tags.js），三題地點任一題有標註就算那個專案。
+ * idPrefix：合併多份試算表時加在受訪者編號前，避免編號重複。
  */
-export function extractPoints(rows, { tag = null } = {}) {
+export function extractPoints(rows, { tag = null, idPrefix = '' } = {}) {
   const body = rows.slice(1).filter((r) => r.length >= 8 && (r[0] || '').trim());
   const points = [];
   body.forEach((r, ri) => {
@@ -272,8 +273,8 @@ export function extractPoints(rows, { tag = null } = {}) {
       const m = COORD_RE.exec(raw);
       const reasonText = q.kind === 'hot' ? (r[4] || '').trim() : q.kind === 'cool' ? (r[6] || '').trim() : '';
       points.push({
-        id: `${ri}-${q.kind}`,
-        respondent: ri,
+        id: `${idPrefix}${ri}-${q.kind}`,
+        respondent: `${idPrefix}${ri}`,
         kind: q.kind,
         label: q.label,
         raw,

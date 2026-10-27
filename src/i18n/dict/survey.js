@@ -50,6 +50,13 @@ const survey = {
   'survey.location.inputPlaceholder': { zh: '也可以直接輸入街名或地標', en: 'Or just type a street name or landmark' },
   'survey.location.clearTitle': { zh: '清除地圖標記', en: 'Clear the map pin' },
   'survey.location.clearBtn': { zh: '清除標記', en: 'Clear pin' },
+  // 選項模式（pickMode: 'choose'，園區這類小範圍）：地標就是答案
+  'survey.location.chooseStep': { zh: '① 點選一個地點', en: '① Pick a place' },
+  'survey.location.chooseOr': { zh: '不在上面？② 直接在地圖上點出位置', en: 'Not listed? ② Tap the spot on the map' },
+  'survey.location.mapHintChoose': { zh: '👆 點地圖標記位置', en: '👆 Tap the map to mark a spot' },
+  'survey.location.answerLabel': { zh: '您的答案（可以修改或補充說明）', en: 'Your answer (edit or add detail if you like)' },
+  'survey.location.choosePlaceholder': { zh: '點選上面的地點，或在地圖上點位置', en: 'Pick a place above, or tap the map' },
+  'survey.location.describePlaceholder': { zh: '簡單描述這個位置（可不填）', en: 'Briefly describe this spot (optional)' },
   'survey.location.hintGeneric': { zh: '請在地圖點選位置，或直接輸入街名、地標或附近位置', en: 'Tap a spot on the map, or type a street name, landmark or nearby place' },
 
   // ── Q1 關係（顯示標籤；送出值見 ThermalSurveyForm.js 的 RELATION_VALUES，不可譯）──
