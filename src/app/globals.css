@@ -184,6 +184,8 @@ body {
   color: #475569;
   margin: 0 0 18px;
   line-height: 1.85;
+  /* 站點說明可用空行分段（例如松山的新仁里農園） */
+  white-space: pre-line;
 }
 
 /* ── Popup images — large, prominent ───────────────────────── */
