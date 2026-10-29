@@ -1,5 +1,9 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.30.1] - 2026-10-30 - 🌾 - DATA - Xinren Village Farm Description and Photos
+1. **Stop B, Xinren Village Farm, now has a description**: tap the farm stop to read about Taipei's Garden City policy and the Songshan Food and Agriculture Education Garden, with two rice-planting photos. Text and photos are courtesy of the Department of Economic Development, Taipei City Government, as noted in the stop window and captions; wording tied to the day of the original event ("today", "so far", "will be") has been made timeless. The farm stop is updated on both routes, with an English translation.
+2. **Stop descriptions can have paragraphs**: longer descriptions can now be split into paragraphs with a blank line, so they are easier to read.
+
 ## [v1.30.0] - 2026-10-27 - 🌡️ - UI - Songshan Comfort Survey: Pick Places Directly
 1. **Pick a place to answer**: in the Songshan survey's three location questions, the five park places (Baroque Garden, Songshan Hub Visitor Centre, Creative Street, Sweetgum Avenue, Xinren Village Farm) are now answer options. One tap selects the place, drops a pin on the map and fills in the "Your answer" box, where you can add which stretch you mean. Previously these buttons only moved the map and left the answer box empty, which made it easy to think the question was already answered.
 2. **Search box removed**: the park is small, so if a place is not listed you simply tap it on the map. A map pin alone now counts as an answer.

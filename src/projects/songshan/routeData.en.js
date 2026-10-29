@@ -53,7 +53,14 @@ export const routesEn = {
       },
       "B": {
         "name": "Xinren Village Farm",
-        "badge": "Stop B"
+        "badge": "Stop B",
+        "hook": "Since 2015 the Taipei City Government has promoted its Garden City policy, bringing departments together to green the city. About 730 garden sites have been set up, nearly 200,000 square metres in all, or roughly 28 football pitches of growing space.",
+        "body": "Beyond the public demonstration gardens it started on public land, the city encourages residents to propose their own sites from the bottom up, with the city government helping communities build them by hand. It also promotes an agricultural supplies industry and urban farming, and runs all kinds of events and talks, hoping residents will get to know the Garden City better and more people will take part. The Songshan Food and Agriculture Education Garden (松菸食農教育園區) here is one of these resident-proposed sites, planned as the largest urban rice paddy in Taiwan devoted to food and agriculture education.\n\nThe garden is a complete, regular plot of 2,500 square metres right next to Songshan Cultural and Creative Park, within a 10-minute walk of MRT Sun Yat-sen Memorial Hall or Taipei City Hall Station. It is intended as a demonstration site for circular and sustainable farming where Taipei's primary and secondary schools can hold field trips and food-and-farming activities. Through hands-on experience in nature, children can watch rice grow and help bring in the harvest, and environmental education can nurture their respect and care for the land. At weekends parents can come and learn together with their children, so that food and agriculture education is no longer just something learned from books, giving urban farming a new face.",
+        "imgCaps": [
+          "Planting rice at the Songshan Food and Agriculture Education Garden | Photo courtesy of the Department of Economic Development, Taipei City Government",
+          "A rice-planting event at the Songshan Food and Agriculture Education Garden | Photo courtesy of the Department of Economic Development, Taipei City Government"
+        ],
+        "credit": "the Department of Economic Development, Taipei City Government"
       }
     }
   },
@@ -104,7 +111,14 @@ export const routesEn = {
       },
       "B": {
         "name": "Xinren Village Farm",
-        "badge": "Stop B"
+        "badge": "Stop B",
+        "hook": "Since 2015 the Taipei City Government has promoted its Garden City policy, bringing departments together to green the city. About 730 garden sites have been set up, nearly 200,000 square metres in all, or roughly 28 football pitches of growing space.",
+        "body": "Beyond the public demonstration gardens it started on public land, the city encourages residents to propose their own sites from the bottom up, with the city government helping communities build them by hand. It also promotes an agricultural supplies industry and urban farming, and runs all kinds of events and talks, hoping residents will get to know the Garden City better and more people will take part. The Songshan Food and Agriculture Education Garden (松菸食農教育園區) here is one of these resident-proposed sites, planned as the largest urban rice paddy in Taiwan devoted to food and agriculture education.\n\nThe garden is a complete, regular plot of 2,500 square metres right next to Songshan Cultural and Creative Park, within a 10-minute walk of MRT Sun Yat-sen Memorial Hall or Taipei City Hall Station. It is intended as a demonstration site for circular and sustainable farming where Taipei's primary and secondary schools can hold field trips and food-and-farming activities. Through hands-on experience in nature, children can watch rice grow and help bring in the harvest, and environmental education can nurture their respect and care for the land. At weekends parents can come and learn together with their children, so that food and agriculture education is no longer just something learned from books, giving urban farming a new face.",
+        "imgCaps": [
+          "Planting rice at the Songshan Food and Agriculture Education Garden | Photo courtesy of the Department of Economic Development, Taipei City Government",
+          "A rice-planting event at the Songshan Food and Agriculture Education Garden | Photo courtesy of the Department of Economic Development, Taipei City Government"
+        ],
+        "credit": "the Department of Economic Development, Taipei City Government"
       }
     }
   }
