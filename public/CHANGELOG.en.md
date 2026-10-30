@@ -1,5 +1,11 @@
 # 信水義河 Waters of Xinyi — Changelog
 
+## [v1.30.2] - 2026-10-30 - 🗺️ - FIX - Corrected Place Names Around Songshan Cultural and Creative Park
+1. **Names corrected as the park asked**: the basemap's old labels for the park, the Taiwan Design Museum and Xinren Village no longer appear. The park's name now sits at the centre of the park as Songshan Cultural and Creative Park (Songshan Tobacco Factory).
+2. **The two Eslite names**: the spot labelled as the Eslite performance hall now reads Eslite Spectrum Songyan, and the spot labelled as the Eslite store now reads Eslite Performance Hall.
+3. **English basemap too**: Taiwan Design Museum and Xinren Vil. are gone, and the park and Eslite names are corrected in the same way.
+4. **How it works**: these names are printed on the National Land Surveying and Mapping Center's map tiles, so the site hides them in the browser and draws the correct names itself, without storing or republishing any tiles. If the tiles are redrawn and the text moves, the old names may reappear and need recalibrating.
+
 ## [v1.30.1] - 2026-10-30 - 🌾 - DATA - Xinren Village Farm Description and Photos
 1. **Stop B, Xinren Village Farm, now has a description**: tap the farm stop to read about Taipei's Garden City policy and the Songshan Food and Agriculture Education Garden, with two rice-planting photos. Text and photos are courtesy of the Department of Economic Development, Taipei City Government, as noted in the stop window and captions; wording tied to the day of the original event ("today", "so far", "will be") has been made timeless. The farm stop is updated on both routes, with an English translation.
 2. **Stop descriptions can have paragraphs**: longer descriptions can now be split into paragraphs with a blank line, so they are easier to read.

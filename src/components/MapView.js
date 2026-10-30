@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import {
   MapContainer,
-  TileLayer,
   useMap,
   useMapEvents,
   Marker,
@@ -39,6 +38,7 @@ L.Icon.Default.mergeOptions({
 import SatelliteLayer, { SatelliteControl, SATELLITE_MAPS } from './layers/SatelliteLayer';
 import SurveyPointsLayer, { SURVEY_KIND_STYLE } from './layers/SurveyPointsLayer';
 import { basemapProps } from '@/lib/basemap';
+import BasemapTileLayer from '@/components/layers/BasemapTileLayer';
 import CityLayers from './layers/CityLayers';
 import CityLayersControl from './layers/CityLayersControl';
 import SkyBar from './layers/SkyBar';
@@ -412,8 +412,9 @@ export default function MapView({
         preferCanvas={true}
         ref={setMapInstance}
       >
-        <TileLayer
+        <BasemapTileLayer
           {...basemapProps(locale)}
+          locale={locale}
           className={`map-tiles-tinted${locale === 'en' ? ' basemap-en' : ''}`}
         />
         <FitBoundsOnLoad />
