@@ -379,6 +379,25 @@ body {
   color: rgba(2, 132, 199, 0.7) !important;
 }
 
+/* 網站自己畫的底圖地名（修正國土測繪中心圖磚上的錯字，見 lib/basemap-corrections.js）；樣式接近底圖文字 */
+.basemap-label-anchor {
+  pointer-events: none;
+}
+.basemap-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #475569;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
+}
+.basemap-label-strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
 /* 路線上的熱舒適評分單位編號（①②③…，松菸專案）。底色用各路線自己的深色，由元件以 inline style 帶入 */
 .leaflet-tooltip.rating-unit-label {
   background: transparent;
